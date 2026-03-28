@@ -86,7 +86,7 @@ export default function ProjectPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h1 className="font-display text-2xl font-extrabold grad-text leading-tight">
+                <h1 className="display text-2xl lime-text leading-tight">
                   {project.brand_name}
                 </h1>
                 <p className="text-white/50 text-sm mt-0.5">{project.product_name}</p>
@@ -115,11 +115,11 @@ export default function ProjectPage() {
                   {/* connector line */}
                   {!isLast && (
                     <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-colors duration-700
-                      ${st === "done" ? "bg-gradient-to-r from-brand-600 to-brand-600/30" : "bg-white/5"}`} />
+                      ${st === "done" ? "bg-gradient-to-r from-lime to-lime/20" : "bg-white/5"}`} />
                   )}
                   {/* circle */}
-                  <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mb-2 border transition-all duration-500
-                    ${st === "done"    ? "bg-brand-600 border-brand-500 shadow-glow-sm text-white" : ""}
+                  <div className={`relative z-10 w-10 h-10 rounded-sm flex items-center justify-center text-base font-bold mb-2 border transition-all duration-500
+                    ${st === "done"    ? "bg-lime border-lime text-ink" : ""}
                     ${st === "running" ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-300 animate-pulse" : ""}
                     ${st === "failed"  ? "bg-red-500/20 border-red-500/50 text-red-400" : ""}
                     ${st === "queued"  ? "bg-white/5 border-white/10 text-white/25" : ""}`}>
@@ -148,7 +148,7 @@ export default function ProjectPage() {
                 <button key={t.key} onClick={() => setActiveTab(t.key as any)}
                   className={`px-5 py-3.5 text-sm font-semibold transition-all border-b-2 -mb-px
                     ${activeTab === t.key
-                      ? "border-gold text-white"
+                      ? "border-lime text-white"
                       : "border-transparent text-white/35 hover:text-white/60"}`}>
                   {t.label}
                 </button>
@@ -180,8 +180,8 @@ export default function ProjectPage() {
                     </div>
                   )}
                   {status === "posted" && (
-                    <div className="mt-4 flex items-center gap-2 bg-brand-500/10 border border-brand-500/20 rounded-xl px-4 py-3 text-brand-400 text-sm font-semibold">
-                      <span className="w-2 h-2 rounded-full bg-brand-400" /> Posted to Instagram
+                    <div className="mt-4 flex items-center gap-2 bg-lime/10 border border-lime/20 rounded-sm px-4 py-3 text-lime text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-lime" /> Posted to Instagram
                     </div>
                   )}
                 </div>
@@ -194,8 +194,8 @@ export default function ProjectPage() {
                   <div className="rounded-2xl border border-white/7 overflow-hidden"
                     style={{ background: "var(--card)" }}>
                     <div className="px-5 pt-5 pb-3 flex items-center gap-3 border-b border-white/5">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                        style={{ background: "linear-gradient(135deg, #C9A84C, #9D7A2A)" }}>
+                      <div className="w-9 h-9 rounded-sm flex items-center justify-center shrink-0"
+                        style={{ background: "#C8FF00" }}>
                         <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
                         </svg>
@@ -210,7 +210,7 @@ export default function ProjectPage() {
                         controls
                         src={content.voice_url}
                         className="w-full"
-                        style={{ accentColor: "#C9A84C" }}
+                        style={{ accentColor: "#C8FF00" }}
                       />
                     </div>
                   </div>
@@ -221,9 +221,9 @@ export default function ProjectPage() {
                     download={`${content.project_id || "voiceover"}.mp3`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl border
-                      border-gold/30 text-gold text-sm font-semibold
-                      hover:bg-gold/8 transition-colors"
+                    className="flex items-center justify-center gap-2.5 w-full py-3 rounded-sm border
+                      border-lime/30 text-lime text-sm font-bold tracking-wider uppercase
+                      hover:bg-lime/8 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -255,7 +255,7 @@ export default function ProjectPage() {
                       <div className="space-y-2">
                         {content.hooks.map((h: string, i: number) => (
                           <div key={i} className="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
-                            <span className="grad-text font-bold text-sm shrink-0">#{i + 1}</span>
+                            <span className="lime-text font-bold text-sm shrink-0">#{i + 1}</span>
                             <p className="text-sm text-white/70">{h}</p>
                           </div>
                         ))}
@@ -274,7 +274,7 @@ export default function ProjectPage() {
                   {content.hashtags?.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {content.hashtags.map((h: string, i: number) => (
-                        <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-brand-700/20 border border-brand-500/20 text-brand-400 font-medium">{h}</span>
+                        <span key={i} className="text-xs px-2.5 py-1 rounded-sm bg-lime/10 border border-lime/20 text-lime font-medium">{h}</span>
                       ))}
                     </div>
                   )}
@@ -286,10 +286,10 @@ export default function ProjectPage() {
                 <div className="fade-in space-y-2">
                   {content.shot_list.map((s: any) => (
                     <div key={s.shot} className="flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
-                      <span className="w-7 h-7 rounded-lg bg-brand-700/30 border border-brand-500/20 flex items-center justify-center text-xs font-bold text-brand-400 shrink-0">{s.shot}</span>
+                      <span className="w-7 h-7 rounded-sm bg-lime/10 border border-lime/20 flex items-center justify-center text-xs font-bold text-lime shrink-0">{s.shot}</span>
                       <p className="text-sm text-white/70 flex-1">{s.description}</p>
                       <span className="text-xs text-white/25 shrink-0">{s.camera}</span>
-                      <span className="text-xs font-mono text-brand-400 shrink-0">{s.duration}</span>
+                      <span className="text-xs font-mono text-lime shrink-0">{s.duration}</span>
                     </div>
                   ))}
                 </div>
@@ -301,13 +301,13 @@ export default function ProjectPage() {
         {/* Generating state */}
         {!content && status === "generating" && (
           <div className="glass p-10 text-center fade-in">
-            <div className="w-16 h-16 rounded-full bg-grad-brand mx-auto mb-4 flex items-center justify-center shadow-glow animate-pulse">
+            <div className="w-16 h-16 rounded-sm bg-lime/20 border border-lime/30 mx-auto mb-4 flex items-center justify-center animate-pulse">
               <svg className="w-8 h-8 text-white animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                   d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h2 className="font-display text-xl font-bold mb-1">AI is working its magic</h2>
+            <h2 className="display text-2xl text-white mb-1">AI IS WORKING ITS MAGIC</h2>
             <p className="text-white/35 text-sm">Script → Voice → Video → Merge. This takes ~3 minutes.</p>
           </div>
         )}
@@ -318,10 +318,10 @@ export default function ProjectPage() {
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen z-10">
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5">
+    <div className="relative min-h-screen z-10 bg-ink">
+      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/6">
         <Logo />
-        <Link href="/" className="gold-btn px-5 py-2.5 text-sm inline-flex items-center gap-2">
+        <Link href="/" className="lime-btn px-5 py-2.5 text-sm inline-flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -335,16 +335,15 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2.5">
-      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: "linear-gradient(135deg, #C9A84C, #9D7A2A)", boxShadow: "0 4px 16px rgba(201,168,76,0.25)" }}>
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 flex items-center justify-center rounded-sm"
+        style={{ background: "#C8FF00" }}>
         <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 20 20">
           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
         </svg>
       </div>
-      <div>
-        <span className="font-semibold text-[15px] text-white tracking-tight leading-none block">Craft Studio</span>
-        <span className="text-[9px] text-white/25 tracking-[0.12em] uppercase leading-none">AI Content</span>
+      <div className="leading-none">
+        <span className="display text-[17px] text-white tracking-widest">CRAFT STUDIO</span>
       </div>
     </div>
   );
@@ -356,7 +355,7 @@ function StatusBadge({ status }: { status: string }) {
     generating: "bg-yellow-500/10 border-yellow-500/20 text-yellow-300",
     review:     "bg-blue-500/10 border-blue-500/20 text-blue-300",
     approved:   "bg-green-500/10 border-green-500/20 text-green-300",
-    posted:     "bg-brand-500/10 border-brand-500/20 text-brand-400",
+    posted:     "bg-lime/10 border-lime/20 text-lime",
     failed:     "bg-red-500/10 border-red-500/20 text-red-400",
   };
   return (
@@ -370,7 +369,7 @@ function StatusBadge({ status }: { status: string }) {
 function Chip({ icon, label }: { icon: string; label: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-xs bg-white/5 border border-white/8 rounded-full px-3 py-1 text-white/40">
-      <span className="text-brand-400">{icon}</span>
+      <span className="text-lime">{icon}</span>
       {label}
     </span>
   );
