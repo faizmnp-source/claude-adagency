@@ -24,5 +24,7 @@ def list_projects(supabase: Client = Depends(get_supabase)):
 @router.get("/projects/{project_id}")
 def get_project(project_id: str, supabase: Client = Depends(get_supabase)):
     project = supabase.table("projects").select("*").eq("id", project_id).single().execute()
-    content = supabase.table("content").select("*").eq("project_id", project_id).single().execute()
-    return {"project": project.data, "content": content.data}
+    # content may not exist yet (pipeline still running) — don't use .single()
+    content_res = supabase.table("content").select("*").eq("project_id", project_id).execute()
+    content = content_res.data[0] if content_res.data else None
+    return {"project": project.data, "content": content}
