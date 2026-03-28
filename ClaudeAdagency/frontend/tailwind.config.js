@@ -15,7 +15,11 @@ module.exports = {
           DEFAULT: '#C8FF00',
           dark:    '#9DC400',
         },
-        violet: '#7C3AED',
+        violet: {
+          DEFAULT: '#7C3AED',
+          400:     '#A78BFA',
+          300:     '#C4B5FD',
+        },
       },
       boxShadow: {
         'lime-sm': '0 0 20px rgba(200,255,0,0.15)',

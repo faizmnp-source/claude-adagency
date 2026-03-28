@@ -63,10 +63,14 @@ export default function Home() {
     <div className="relative min-h-screen flex flex-col bg-ink">
 
       {/* ── NAV ── */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/6">
+      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/6 bg-ink z-10">
         <CraftLogo />
         <div className="hidden md:flex items-center gap-8">
-          {["Features", "Pricing", "About"].map(l => (
+          <a href="mailto:info@thecraftstudios.in"
+            className="text-sm text-white/40 hover:text-violet transition-colors tracking-wide">
+            info@thecraftstudios.in
+          </a>
+          {["Features", "Pricing"].map(l => (
             <a key={l} href="#" className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">{l}</a>
           ))}
         </div>
@@ -78,25 +82,29 @@ export default function Home() {
       {/* ── HERO ── */}
       <main className="flex-1 grid lg:grid-cols-[1fr_460px] max-w-[1400px] mx-auto w-full">
 
-        {/* LEFT — Brand story */}
-        <div className="flex flex-col justify-between px-8 lg:px-16 py-14 border-r border-white/6">
+        {/* LEFT — Purple hero */}
+        <div className="relative flex flex-col justify-between px-8 lg:px-16 py-14 border-r border-white/6 overflow-hidden">
 
-          <div>
+          {/* Purple background gradient */}
+          <div className="absolute inset-0 bg-violet/20 pointer-events-none" />
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse 80% 60% at 20% 50%, rgba(124,58,237,0.35) 0%, transparent 70%)" }} />
+
+          <div className="relative z-10">
             {/* Badge */}
-            <div className="pill bg-lime/10 text-lime border border-lime/20 mb-10 w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-lime animate-pulse" />
-              AI Content Studio
+            <div className="pill bg-violet/20 text-violet-300 border border-violet/30 mb-10 w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-violet animate-pulse" style={{ background: "#A78BFA" }} />
+              AI Content Studio · thecraftstudios.in
             </div>
 
             {/* Giant headline */}
-            <h1 className="display text-[clamp(72px,9vw,130px)] text-white leading-none mb-6">
-              CRAFT<br />
-              YOUR<br />
-              <span className="lime-text">VIRAL</span><br />
-              REEL.
+            <h1 className="display text-[clamp(64px,8vw,120px)] text-white leading-none mb-6">
+              UNLOCK<br />
+              <span style={{ color: "#C8FF00" }}>YOUR</span><br />
+              STYLE.
             </h1>
 
-            <p className="text-white/40 text-base leading-relaxed max-w-md mb-10">
+            <p className="text-white/50 text-base leading-relaxed max-w-md mb-10">
               Upload your product image. We write the script, record the voice,
               render the video — and post it to Instagram automatically.
             </p>
@@ -104,12 +112,12 @@ export default function Home() {
             {/* Stats row */}
             <div className="flex items-center gap-10 mb-14">
               {[
-                { value: "~3 MIN",     label: "To generate" },
-                { value: "~$1",        label: "Per reel" },
-                { value: "AUTO-POST",  label: "To Instagram" },
+                { value: "~3 MIN",    label: "To generate" },
+                { value: "~$1",       label: "Per reel" },
+                { value: "AUTO-POST", label: "To Instagram" },
               ].map(s => (
                 <div key={s.label}>
-                  <p className="display text-2xl lime-text">{s.value}</p>
+                  <p className="display text-2xl" style={{ color: "#C8FF00" }}>{s.value}</p>
                   <p className="text-[10px] text-white/30 tracking-wider uppercase mt-0.5">{s.label}</p>
                 </div>
               ))}
@@ -117,21 +125,21 @@ export default function Home() {
           </div>
 
           {/* Pipeline steps */}
-          <div className="space-y-0 border border-white/6 rounded-sm overflow-hidden">
+          <div className="relative z-10 space-y-0 border border-white/10 rounded-sm overflow-hidden">
             {[
-              { n: "01", title: "Script",   desc: "Claude writes hooks, shots & caption" },
-              { n: "02", title: "Voice",    desc: "ElevenLabs records natural narration" },
-              { n: "03", title: "Video",    desc: "Runway turns your image into a reel" },
-              { n: "04", title: "Publish",  desc: "Auto-posts to Instagram on approval" },
+              { n: "01", title: "Script",  desc: "Claude writes hooks, shots & caption" },
+              { n: "02", title: "Voice",   desc: "ElevenLabs records natural narration" },
+              { n: "03", title: "Video",   desc: "Runway turns your image into a reel" },
+              { n: "04", title: "Publish", desc: "Auto-posts to Instagram on approval" },
             ].map((s, i) => (
               <div key={s.n}
-                className={`flex items-center gap-5 px-5 py-4 ${i < 3 ? "border-b border-white/5" : ""} group hover:bg-white/[0.02] transition-colors`}>
-                <span className="display text-lime text-xl w-8 shrink-0">{s.n}</span>
+                className={`flex items-center gap-5 px-5 py-4 ${i < 3 ? "border-b border-white/5" : ""} group hover:bg-violet/10 transition-colors`}>
+                <span className="display text-xl w-8 shrink-0" style={{ color: "#C8FF00" }}>{s.n}</span>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-white/80 uppercase tracking-wide">{s.title}</p>
                   <p className="text-xs text-white/30 mt-0.5">{s.desc}</p>
                 </div>
-                <svg className="w-4 h-4 text-white/10 group-hover:text-lime/40 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-white/10 group-hover:text-violet-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7"/>
                 </svg>
               </div>
@@ -144,7 +152,7 @@ export default function Home() {
 
           <div className="mb-6">
             <h2 className="display text-3xl text-white tracking-wide">NEW PROJECT</h2>
-            <div className="lime-line mt-2" />
+            <div className="mt-2" style={{ height: 2, width: 32, background: "#7C3AED", borderRadius: 1 }} />
           </div>
 
           <form onSubmit={submit} className="flex flex-col gap-5 flex-1">
@@ -161,14 +169,14 @@ export default function Home() {
                   flex items-center justify-center transition-all duration-200
                   ${preview ? "h-48" : "h-36"}
                   ${drag
-                    ? "border-lime/60 bg-lime/5"
-                    : "border-white/10 hover:border-lime/30 hover:bg-white/[0.015]"}`}
+                    ? "border-violet/60 bg-violet/5"
+                    : "border-white/10 hover:border-violet/40 hover:bg-white/[0.015]"}`}
               >
                 {preview ? (
                   <>
                     <img src={preview} alt="" className="w-full h-full object-contain" />
                     <div className="absolute inset-0 bg-ink/70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <span className="text-xs font-bold text-lime tracking-widest uppercase">Change</span>
+                      <span className="text-xs font-bold text-violet-300 tracking-widest uppercase">Change</span>
                     </div>
                   </>
                 ) : (
@@ -177,7 +185,7 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <span className="text-xs tracking-wider">DROP IMAGE OR <span className="text-lime">BROWSE</span></span>
+                    <span className="text-xs tracking-wider">DROP IMAGE OR <span style={{ color: "#C8FF00" }}>BROWSE</span></span>
                   </div>
                 )}
                 <input ref={fileRef} type="file" accept="image/*" className="hidden"
@@ -187,7 +195,7 @@ export default function Home() {
 
             {/* Brand + Product */}
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Brand"   name="brand_name"   value={form.brand_name}   onChange={onChange} placeholder="Craft Studio" />
+              <Field label="Brand"   name="brand_name"   value={form.brand_name}   onChange={onChange} placeholder="The Craft Studios" />
               <Field label="Product" name="product_name" value={form.product_name} onChange={onChange} placeholder="Glow Serum" />
             </div>
 
@@ -200,8 +208,9 @@ export default function Home() {
                     onClick={() => setForm(f => ({ ...f, tone: t.label }))}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-xs font-bold uppercase tracking-wider transition-all
                       ${form.tone === t.label
-                        ? "bg-lime text-ink border-lime"
-                        : "bg-transparent border-white/10 text-white/35 hover:border-lime/30 hover:text-white/60"}`}>
+                        ? "text-ink border-lime"
+                        : "bg-transparent border-white/10 text-white/35 hover:border-violet/40 hover:text-white/60"}`}
+                    style={form.tone === t.label ? { background: "#C8FF00" } : {}}>
                     <span className="text-[10px]">{t.sym}</span>{t.label}
                   </button>
                 ))}
@@ -235,6 +244,18 @@ export default function Home() {
           </form>
         </div>
       </main>
+
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-white/6 px-8 py-4 flex items-center justify-between">
+        <p className="text-xs text-white/20 tracking-wider">
+          © 2026 <span style={{ color: "#A78BFA" }}>THECRAFTSTUDIOS.</span> · thecraftstudios.in
+        </p>
+        <a href="mailto:info@thecraftstudios.in"
+          className="text-xs text-white/20 hover:text-violet-400 transition-colors tracking-wide">
+          info@thecraftstudios.in
+        </a>
+      </footer>
+
     </div>
   );
 }
@@ -242,14 +263,23 @@ export default function Home() {
 function CraftLogo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 flex items-center justify-center rounded-sm"
-        style={{ background: "#C8FF00" }}>
-        <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-        </svg>
+      {/* Logo mark — purple "i" gem */}
+      <div className="relative w-8 h-8 flex items-center justify-center rounded-sm bg-ink border border-violet/40">
+        <span className="display text-[20px] text-white leading-none">i</span>
+        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
+          style={{ background: "#A855F7", boxShadow: "0 0 8px rgba(168,85,247,0.8)" }} />
       </div>
       <div className="leading-none">
-        <span className="display text-[17px] text-white tracking-widest">CRAFT STUDIO</span>
+        {/* THECRAFTSTU + purple i + OS. */}
+        <span className="display text-[16px] text-white tracking-widest">
+          THECRAFTSTU
+          <span style={{ color: "#A855F7" }}>D</span>
+          <span style={{ color: "#A855F7", textShadow: "0 0 12px rgba(168,85,247,0.6)" }}>i</span>
+          OS.
+        </span>
+        <p className="text-[8px] text-white/25 tracking-[0.15em] uppercase mt-0.5">
+          Crafting Visual Growth
+        </p>
       </div>
     </div>
   );

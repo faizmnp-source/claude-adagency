@@ -161,14 +161,19 @@ export default function Dashboard() {
 function Logo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 flex items-center justify-center rounded-sm"
-        style={{ background: "#C8FF00" }}>
-        <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-        </svg>
+      <div className="relative w-8 h-8 flex items-center justify-center rounded-sm bg-ink border border-violet/40">
+        <span className="display text-[20px] text-white leading-none">i</span>
+        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
+          style={{ background: "#A855F7", boxShadow: "0 0 8px rgba(168,85,247,0.8)" }} />
       </div>
       <div className="leading-none">
-        <span className="display text-[17px] text-white tracking-widest">CRAFT STUDIO</span>
+        <span className="display text-[16px] text-white tracking-widest">
+          THECRAFTSTU
+          <span style={{ color: "#A855F7" }}>D</span>
+          <span style={{ color: "#A855F7" }}>i</span>
+          OS.
+        </span>
+        <p className="text-[8px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
       </div>
     </div>
   );
