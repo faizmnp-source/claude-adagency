@@ -1,9 +1,16 @@
 import os
 from dotenv import load_dotenv
 
-# Load .env from project root (works whether run from backend/ or project root)
-_env_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
-load_dotenv(dotenv_path=_env_path, override=False)
+# Try local .env first (dev), then parent dirs, then rely on Railway env vars
+for _candidate in [
+    os.path.join(os.path.dirname(__file__), "..", "..", ".env"),  # repo root (local dev)
+    os.path.join(os.path.dirname(__file__), "..", ".env"),        # backend/
+    ".env",                                                        # cwd
+]:
+    if os.path.exists(_candidate):
+        load_dotenv(dotenv_path=_candidate, override=False)
+        break
+# On Railway all vars come from environment — no .env file needed
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
