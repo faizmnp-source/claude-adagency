@@ -42,3 +42,4 @@ celerybeat.pid
 /tmp/
 *.mp4
 *.mp3
+!frontend/public/portfolio/*.mp4
