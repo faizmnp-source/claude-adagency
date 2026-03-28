@@ -2,6 +2,7 @@ import uuid
 from fastapi import APIRouter, UploadFile, File, Form, Depends
 from supabase import Client
 from api.deps import get_supabase
+from api.image_processor import process_product_image
 
 router = APIRouter()
 
@@ -17,11 +18,16 @@ async def upload_product(
     supabase: Client = Depends(get_supabase),
 ):
     project_id = str(uuid.uuid4())
-    ext = image.filename.rsplit(".", 1)[-1]
-    storage_path = f"products/{project_id}.{ext}"
 
-    contents = await image.read()
-    supabase.storage.from_("assets").upload(storage_path, contents, {"content-type": image.content_type or "image/jpeg"})
+    # ── Run image quality pipeline (upscale + bg removal + clean bg) ────────
+    raw_bytes = await image.read()
+    processed_bytes, content_type = process_product_image(raw_bytes)
+
+    # Always store as .jpg after processing
+    storage_path = f"products/{project_id}.jpg"
+    supabase.storage.from_("assets").upload(
+        storage_path, processed_bytes, {"content-type": content_type}
+    )
     image_url = supabase.storage.from_("assets").get_public_url(storage_path)
 
     supabase.table("projects").insert({
