@@ -5,168 +5,316 @@ import axios from "axios";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-const JOB_ICONS: Record<string, string> = {
-  script: "📝", voice: "🎙️", video: "🎬", merge: "🎞️", post: "📲",
+const PIPELINE: { key: string; label: string; icon: string }[] = [
+  { key: "script", label: "AI Script",   icon: "✦" },
+  { key: "voice",  label: "Voice",        icon: "♪" },
+  { key: "video",  label: "Video",        icon: "▶" },
+  { key: "merge",  label: "Final Edit",   icon: "◈" },
+  { key: "post",   label: "Instagram",    icon: "◉" },
+];
+
+const JOB_STATUS: Record<string, { color: string; bg: string; label: string }> = {
+  queued:  { color: "text-white/30", bg: "bg-white/5",           label: "Queued" },
+  running: { color: "text-yellow-300", bg: "bg-yellow-500/10",   label: "Running" },
+  done:    { color: "text-green-300",  bg: "bg-green-500/10",    label: "Done" },
+  failed:  { color: "text-red-400",    bg: "bg-red-500/10",      label: "Failed" },
 };
 
 export default function ProjectPage() {
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const [data, setData] = useState<any>(null);
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [data, setData]       = useState<any>(null);
+  const [jobs, setJobs]       = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState("");
+  const [activeTab, setActiveTab] = useState<"preview"|"script"|"caption"|"shots">("preview");
 
   useEffect(() => {
     if (!id) return;
     async function load() {
-      const [proj, jobsRes] = await Promise.all([
-        axios.get(`${API}/api/projects/${id}`),
-        axios.get(`${API}/api/jobs/${id}`),
-      ]);
-      setData(proj.data);
-      setJobs(jobsRes.data.jobs || []);
+      try {
+        const [proj, jobsRes] = await Promise.all([
+          axios.get(`${API}/api/projects/${id}`),
+          axios.get(`${API}/api/jobs/${id}`),
+        ]);
+        setData(proj.data);
+        setJobs(jobsRes.data.jobs || []);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
-    const interval = setInterval(load, 5000);
-    return () => clearInterval(interval);
+    const iv = setInterval(load, 5000);
+    return () => clearInterval(iv);
   }, [id]);
 
-  async function handleAction(action: "approve" | "reject") {
+  async function act(action: "approve" | "reject") {
     setActionLoading(action);
     await axios.post(`${API}/api/webhooks/approve/${id}?action=${action}`);
     setActionLoading("");
   }
 
-  if (!data) return <div className="min-h-screen flex items-center justify-center text-gray-400">Loading…</div>;
+  if (loading) return <PageShell><div className="space-y-4">{[1,2,3].map(i => <div key={i} className="shimmer h-24 rounded-2xl" />)}</div></PageShell>;
+  if (!data)   return <PageShell><p className="text-white/30 text-center py-20">Project not found.</p></PageShell>;
 
   const { project, content } = data;
   const status = project?.status;
+  const jobMap = Object.fromEntries(jobs.map((j: any) => [j.type, j]));
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-3xl mx-auto">
-        <Link href="/dashboard" className="text-brand-500 text-sm hover:underline">← Back to dashboard</Link>
+    <PageShell>
+      <div className="max-w-4xl mx-auto space-y-5 fade-in">
 
-        <div className="mt-6 bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-xl font-bold">{project.brand_name} — {project.product_name}</h1>
-              <p className="text-sm text-gray-400 mt-1">Tone: {project.tone} · Audience: {project.target_audience}</p>
-            </div>
-            <StatusBadge status={status} />
-          </div>
+        {/* Back */}
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-white/35 hover:text-white transition-colors">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Dashboard
+        </Link>
 
+        {/* Hero card */}
+        <div className="glass p-6 flex gap-5 items-start">
           {project.image_url && (
-            <img src={project.image_url} alt="product" className="mt-4 h-48 rounded-xl object-contain bg-gray-800 w-full" />
+            <img src={project.image_url} alt="" className="w-20 h-20 rounded-xl object-cover shrink-0 shadow-glow-sm" />
           )}
-        </div>
-
-        {/* Job progress */}
-        <div className="mt-6 bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <h2 className="font-semibold mb-4">Pipeline</h2>
-          <div className="space-y-2">
-            {jobs.length === 0 && <p className="text-sm text-gray-500">Jobs will appear here once generation starts.</p>}
-            {jobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between text-sm">
-                <span>{JOB_ICONS[job.type] || "⚙️"} {job.type}</span>
-                <JobBadge status={job.status} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h1 className="font-display text-2xl font-extrabold grad-text leading-tight">
+                  {project.brand_name}
+                </h1>
+                <p className="text-white/50 text-sm mt-0.5">{project.product_name}</p>
               </div>
-            ))}
+              <StatusBadge status={status} />
+            </div>
+            <div className="flex flex-wrap gap-3 mt-3">
+              <Chip icon="◆" label={project.tone} />
+              <Chip icon="◎" label={project.target_audience} />
+              <Chip icon="→" label={project.cta} />
+            </div>
           </div>
         </div>
 
-        {/* Content preview */}
-        {content && (
-          <div className="mt-6 space-y-4">
-            {content.final_url && (
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-                <h2 className="font-semibold mb-3">Final Reel Preview</h2>
-                <video src={content.final_url} controls className="w-full rounded-xl max-h-96 bg-black" />
-                {status === "review" && (
-                  <div className="flex gap-3 mt-4">
-                    <button
-                      onClick={() => handleAction("approve")}
-                      disabled={!!actionLoading}
-                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-semibold py-2 rounded-lg transition"
-                    >
-                      {actionLoading === "approve" ? "Approving…" : "Approve & Post"}
-                    </button>
-                    <button
-                      onClick={() => handleAction("reject")}
-                      disabled={!!actionLoading}
-                      className="flex-1 bg-red-800 hover:bg-red-700 disabled:opacity-50 text-white font-semibold py-2 rounded-lg transition"
-                    >
-                      {actionLoading === "reject" ? "Rejecting…" : "Reject"}
-                    </button>
+        {/* Pipeline */}
+        <div className="glass p-6">
+          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-5">Pipeline</h2>
+          <div className="flex items-start gap-0">
+            {PIPELINE.map((step, i) => {
+              const job = jobMap[step.key];
+              const st = job?.status || "queued";
+              const meta = JOB_STATUS[st];
+              const isLast = i === PIPELINE.length - 1;
+              return (
+                <div key={step.key} className="flex-1 flex flex-col items-center text-center relative">
+                  {/* connector line */}
+                  {!isLast && (
+                    <div className={`absolute top-5 left-1/2 w-full h-0.5 transition-colors duration-700
+                      ${st === "done" ? "bg-gradient-to-r from-brand-600 to-brand-600/30" : "bg-white/5"}`} />
+                  )}
+                  {/* circle */}
+                  <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mb-2 border transition-all duration-500
+                    ${st === "done"    ? "bg-brand-600 border-brand-500 shadow-glow-sm text-white" : ""}
+                    ${st === "running" ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-300 animate-pulse" : ""}
+                    ${st === "failed"  ? "bg-red-500/20 border-red-500/50 text-red-400" : ""}
+                    ${st === "queued"  ? "bg-white/5 border-white/10 text-white/25" : ""}`}>
+                    {st === "done" ? "✓" : step.icon}
                   </div>
-                )}
-              </div>
-            )}
+                  <p className="text-xs font-semibold text-white/60">{step.label}</p>
+                  <p className={`text-xs mt-0.5 ${meta.color}`}>{meta.label}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-            {content.script && (
-              <Section title="Script">
-                <p className="text-sm text-gray-300 whitespace-pre-wrap">{content.script}</p>
-              </Section>
-            )}
+        {/* Content tabs */}
+        {content && (
+          <div className="glass overflow-hidden">
+            {/* Tab bar */}
+            <div className="flex border-b border-white/5">
+              {[
+                { key: "preview", label: "Preview", show: !!content.final_url },
+                { key: "script",  label: "Script",  show: !!content.script },
+                { key: "caption", label: "Caption", show: !!content.caption },
+                { key: "shots",   label: "Shots",   show: !!content.shot_list?.length },
+              ].filter(t => t.show).map(t => (
+                <button key={t.key} onClick={() => setActiveTab(t.key as any)}
+                  className={`px-5 py-3.5 text-sm font-semibold transition-all border-b-2 -mb-px
+                    ${activeTab === t.key
+                      ? "border-brand-500 text-white"
+                      : "border-transparent text-white/35 hover:text-white/60"}`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-            {content.hooks?.length > 0 && (
-              <Section title="Hooks">
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
-                  {content.hooks.map((h: string, i: number) => <li key={i}>{h}</li>)}
-                </ul>
-              </Section>
-            )}
+            <div className="p-6">
+              {/* Video preview */}
+              {activeTab === "preview" && content.final_url && (
+                <div className="fade-in">
+                  <video src={content.final_url} controls
+                    className="w-full max-h-[500px] rounded-xl bg-black object-contain shadow-glow" />
+                  {status === "review" && (
+                    <div className="flex gap-3 mt-5">
+                      <button onClick={() => act("approve")} disabled={!!actionLoading}
+                        className="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all
+                          bg-green-500/15 border border-green-500/30 text-green-300
+                          hover:bg-green-500/25 hover:border-green-500/50 disabled:opacity-40">
+                        {actionLoading === "approve"
+                          ? <span className="flex items-center justify-center gap-2"><Spinner />Approving…</span>
+                          : "✓ Approve & Post to Instagram"}
+                      </button>
+                      <button onClick={() => act("reject")} disabled={!!actionLoading}
+                        className="px-6 py-3.5 rounded-xl font-semibold text-sm transition-all
+                          bg-red-500/10 border border-red-500/20 text-red-400
+                          hover:bg-red-500/20 disabled:opacity-40">
+                        {actionLoading === "reject" ? <Spinner /> : "✕ Reject"}
+                      </button>
+                    </div>
+                  )}
+                  {status === "posted" && (
+                    <div className="mt-4 flex items-center gap-2 bg-brand-500/10 border border-brand-500/20 rounded-xl px-4 py-3 text-brand-400 text-sm font-semibold">
+                      <span className="w-2 h-2 rounded-full bg-brand-400" /> Posted to Instagram
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {content.caption && (
-              <Section title="Caption">
-                <p className="text-sm text-gray-300 whitespace-pre-wrap">{content.caption}</p>
-                {content.hashtags?.length > 0 && (
-                  <p className="text-sm text-brand-500 mt-2">{content.hashtags.join(" ")}</p>
-                )}
-              </Section>
-            )}
+              {/* Script */}
+              {activeTab === "script" && content.script && (
+                <div className="fade-in space-y-5">
+                  <div className="bg-white/[0.03] rounded-xl p-5 border border-white/5">
+                    <p className="text-sm leading-relaxed text-white/80 whitespace-pre-wrap">{content.script}</p>
+                  </div>
+                  {content.hooks?.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-white/35 uppercase tracking-wider mb-3">Hook Variants</h3>
+                      <div className="space-y-2">
+                        {content.hooks.map((h: string, i: number) => (
+                          <div key={i} className="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
+                            <span className="grad-text font-bold text-sm shrink-0">#{i + 1}</span>
+                            <p className="text-sm text-white/70">{h}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {content.shot_list?.length > 0 && (
-              <Section title="Shot List">
-                <div className="space-y-2">
+              {/* Caption */}
+              {activeTab === "caption" && content.caption && (
+                <div className="fade-in space-y-4">
+                  <div className="bg-white/[0.03] rounded-xl p-5 border border-white/5">
+                    <p className="text-sm leading-relaxed text-white/80 whitespace-pre-wrap">{content.caption}</p>
+                  </div>
+                  {content.hashtags?.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {content.hashtags.map((h: string, i: number) => (
+                        <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-brand-700/20 border border-brand-500/20 text-brand-400 font-medium">{h}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Shot list */}
+              {activeTab === "shots" && content.shot_list?.length > 0 && (
+                <div className="fade-in space-y-2">
                   {content.shot_list.map((s: any) => (
-                    <div key={s.shot} className="text-sm flex gap-3">
-                      <span className="text-gray-500 w-6 shrink-0">#{s.shot}</span>
-                      <span className="text-gray-300">{s.description}</span>
-                      <span className="text-gray-500 shrink-0 ml-auto">{s.duration}</span>
+                    <div key={s.shot} className="flex items-center gap-4 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-3">
+                      <span className="w-7 h-7 rounded-lg bg-brand-700/30 border border-brand-500/20 flex items-center justify-center text-xs font-bold text-brand-400 shrink-0">{s.shot}</span>
+                      <p className="text-sm text-white/70 flex-1">{s.description}</p>
+                      <span className="text-xs text-white/25 shrink-0">{s.camera}</span>
+                      <span className="text-xs font-mono text-brand-400 shrink-0">{s.duration}</span>
                     </div>
                   ))}
                 </div>
-              </Section>
-            )}
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Generating state */}
+        {!content && status === "generating" && (
+          <div className="glass p-10 text-center fade-in">
+            <div className="w-16 h-16 rounded-full bg-grad-brand mx-auto mb-4 flex items-center justify-center shadow-glow animate-pulse">
+              <svg className="w-8 h-8 text-white animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h2 className="font-display text-xl font-bold mb-1">AI is working its magic</h2>
+            <p className="text-white/35 text-sm">Script → Voice → Video → Merge. This takes ~3 minutes.</p>
           </div>
         )}
       </div>
-    </main>
+    </PageShell>
+  );
+}
+
+function PageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative min-h-screen z-10">
+      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5">
+        <Logo />
+        <Link href="/" className="grad-btn px-5 py-2.5 text-sm inline-flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          New Reel
+        </Link>
+      </nav>
+      <main className="px-6 py-8">{children}</main>
+    </div>
+  );
+}
+
+function Logo() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-xl bg-grad-brand flex items-center justify-center shadow-glow-sm">
+        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <span className="font-display font-bold text-lg">ReelAI</span>
+    </div>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    pending: "bg-gray-700 text-gray-300", generating: "bg-yellow-700 text-yellow-200",
-    review: "bg-blue-700 text-blue-200", approved: "bg-green-700 text-green-200",
-    posted: "bg-purple-700 text-purple-200", failed: "bg-red-700 text-red-200",
+    pending:    "bg-white/5 border-white/10 text-white/40",
+    generating: "bg-yellow-500/10 border-yellow-500/20 text-yellow-300",
+    review:     "bg-blue-500/10 border-blue-500/20 text-blue-300",
+    approved:   "bg-green-500/10 border-green-500/20 text-green-300",
+    posted:     "bg-brand-500/10 border-brand-500/20 text-brand-400",
+    failed:     "bg-red-500/10 border-red-500/20 text-red-400",
   };
-  return <span className={`text-xs font-semibold px-2 py-1 rounded-full ${map[status] || "bg-gray-700"}`}>{status}</span>;
-}
-
-function JobBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    queued: "text-gray-400", running: "text-yellow-400", done: "text-green-400", failed: "text-red-400",
-  };
-  return <span className={`font-medium ${map[status] || "text-gray-400"}`}>{status}</span>;
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-      <h2 className="font-semibold mb-3">{title}</h2>
-      {children}
-    </div>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold shrink-0 ${map[status] || map.pending}`}>
+      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+      {status?.charAt(0).toUpperCase() + status?.slice(1)}
+    </span>
+  );
+}
+
+function Chip({ icon, label }: { icon: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs bg-white/5 border border-white/8 rounded-full px-3 py-1 text-white/40">
+      <span className="text-brand-400">{icon}</span>
+      {label}
+    </span>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="w-4 h-4 animate-spin inline" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
   );
 }

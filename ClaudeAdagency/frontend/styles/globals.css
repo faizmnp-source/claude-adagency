@@ -1,7 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --grad-1: #7c3aed;
+  --grad-2: #db2777;
+  --grad-3: #f97316;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  @apply bg-gray-950 text-gray-100;
+  font-family: 'Inter', sans-serif;
+  background: #020008;
+  color: #f1f0ff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Ambient background orbs ── */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+  top: -150px; left: -150px;
+  animation: orb1 14s ease-in-out infinite alternate;
+}
+body::after {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(219,39,119,0.14) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+  animation: orb2 18s ease-in-out infinite alternate;
+}
+
+@keyframes orb1 {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(80px, 60px) scale(1.2); }
+}
+@keyframes orb2 {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(-60px,-80px) scale(1.15); }
+}
+
+/* ── Glassmorphism card ── */
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+}
+
+.glass-hover {
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+.glass-hover:hover {
+  border-color: rgba(124,58,237,0.5);
+  box-shadow: 0 0 40px rgba(124,58,237,0.12);
+  transform: translateY(-2px);
+}
+
+/* ── Gradient text ── */
+.grad-text {
+  background: linear-gradient(135deg, #a78bfa, #ec4899, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Gradient border button ── */
+.grad-btn {
+  position: relative;
+  background: linear-gradient(135deg, #7c3aed, #db2777, #f97316);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 4px 32px rgba(124,58,237,0.35);
+}
+.grad-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 40px rgba(124,58,237,0.5);
+}
+.grad-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Input ── */
+.fancy-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #f1f0ff;
+  padding: 12px 16px;
+  width: 100%;
+  font-size: 14px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  outline: none;
+}
+.fancy-input::placeholder { color: rgba(255,255,255,0.25); }
+.fancy-input:focus {
+  border-color: rgba(124,58,237,0.7);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+}
+
+/* ── Pulse dot ── */
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #a78bfa;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ── Shimmer skeleton ── */
+.shimmer {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.03) 0%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.03) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: 10px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Fade-in ── */
+.fade-in {
+  animation: fadeIn 0.5s ease both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Progress pipeline ── */
+.pipeline-line {
+  position: absolute;
+  left: 15px; top: 28px; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #7c3aed44, transparent);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(124,58,237,0.4);
+  border-radius: 3px;
 }
