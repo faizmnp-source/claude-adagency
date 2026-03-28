@@ -1,3 +1,10 @@
+import os
+from dotenv import load_dotenv
+
+# Load .env from project root (works whether run from backend/ or project root)
+_env_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
+load_dotenv(dotenv_path=_env_path, override=False)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import upload, generate, jobs, webhooks
@@ -21,3 +28,5 @@ app.include_router(webhooks.router, prefix="/api", tags=["webhooks"])
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+

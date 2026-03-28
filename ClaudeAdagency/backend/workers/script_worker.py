@@ -37,21 +37,21 @@ Rules:
 """
 
 
-@app.task(bind=True, max_retries=3, default_retry_delay=30)
-def generate_script(self, project_id: str):
+def _run(project_id: str):
+    """Core logic — callable directly without Celery."""
     supabase = get_supabase()
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
+    project = supabase.table("projects").select("*").eq("id", project_id).single().execute().data
+
+    supabase.table("jobs").insert({
+        "project_id": project_id,
+        "type": "script",
+        "status": "running",
+        "provider": "claude",
+    }).execute()
+
     try:
-        project = supabase.table("projects").select("*").eq("id", project_id).single().execute().data
-
-        supabase.table("jobs").insert({
-            "project_id": project_id,
-            "type": "script",
-            "status": "running",
-            "provider": "claude",
-        }).execute()
-
         response = client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=2000,
@@ -71,12 +71,25 @@ def generate_script(self, project_id: str):
 
         supabase.table("jobs").update({"status": "done"}).eq("project_id", project_id).eq("type", "script").execute()
 
-        # Kick off voice + video in parallel
-        from workers.voice_worker import generate_voice
-        from workers.video_worker import generate_video
-        generate_voice.delay(project_id)
-        generate_video.delay(project_id)
+        # Kick off voice + video — try Celery, fall back to threads
+        from workers.voice_worker import generate_voice, _run as _voice_run
+        from workers.video_worker import generate_video, _run as _video_run
+        import threading
+        try:
+            generate_voice.delay(project_id)
+            generate_video.delay(project_id)
+        except Exception:
+            threading.Thread(target=_voice_run, args=(project_id,), daemon=True).start()
+            threading.Thread(target=_video_run, args=(project_id,), daemon=True).start()
 
     except Exception as exc:
         supabase.table("jobs").update({"status": "failed", "error": str(exc)}).eq("project_id", project_id).eq("type", "script").execute()
+        raise
+
+
+@app.task(bind=True, max_retries=3, default_retry_delay=30)
+def generate_script(self, project_id: str):
+    try:
+        _run(project_id)
+    except Exception as exc:
         raise self.retry(exc=exc)

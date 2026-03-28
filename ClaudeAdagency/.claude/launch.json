@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Next.js Frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "FastAPI Backend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd backend && .venv\\Scripts\\python -m uvicorn api.main:app --reload --port 8000 --env-file ../.env"],
+      "port": 8000
+    },
+    {
+      "name": "Celery Worker (default queue)",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd backend && .venv\\Scripts\\celery -A workers.celery_app.app worker --loglevel=info -Q default --concurrency=4"],
+      "port": null
+    },
+    {
+      "name": "Celery Worker (video queue)",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd backend && .venv\\Scripts\\celery -A workers.celery_app.app worker --loglevel=info -Q video --concurrency=2"],
+      "port": null
+    },
+    {
+      "name": "Flower (queue monitor)",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd backend && .venv\\Scripts\\celery -A workers.celery_app.app flower --port=5555"],
+      "port": 5555
+    }
+  ]
+}

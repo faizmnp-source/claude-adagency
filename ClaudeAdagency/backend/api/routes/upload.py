@@ -21,7 +21,7 @@ async def upload_product(
     storage_path = f"products/{project_id}.{ext}"
 
     contents = await image.read()
-    supabase.storage.from_("assets").upload(storage_path, contents)
+    supabase.storage.from_("assets").upload(storage_path, contents, {"content-type": image.content_type or "image/jpeg"})
     image_url = supabase.storage.from_("assets").get_public_url(storage_path)
 
     supabase.table("projects").insert({

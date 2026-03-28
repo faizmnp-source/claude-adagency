@@ -259,7 +259,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
     <div className="relative min-h-screen z-10">
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5">
         <Logo />
-        <Link href="/" className="grad-btn px-5 py-2.5 text-sm inline-flex items-center gap-2">
+        <Link href="/" className="gold-btn px-5 py-2.5 text-sm inline-flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -273,13 +273,17 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
 function Logo() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="w-8 h-8 rounded-xl bg-grad-brand flex items-center justify-center shadow-glow-sm">
-        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+    <div className="flex items-center gap-2.5">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: "linear-gradient(135deg, #C9A84C, #9D7A2A)", boxShadow: "0 4px 16px rgba(201,168,76,0.25)" }}>
+        <svg className="w-4 h-4 text-ink" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
         </svg>
       </div>
-      <span className="font-display font-bold text-lg">ReelAI</span>
+      <div>
+        <span className="font-semibold text-[15px] text-white tracking-tight leading-none block">Craft Studio</span>
+        <span className="text-[9px] text-white/25 tracking-[0.12em] uppercase leading-none">AI Content</span>
+      </div>
     </div>
   );
 }
