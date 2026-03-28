@@ -167,7 +167,7 @@ function Logo() {
       </div>
       <div className="leading-none">
         <span className="display text-[15px] text-white tracking-widest">
-          HECRAFT STU<span style={{ color: "#A855F7", textShadow: "0 0 10px rgba(168,85,247,0.7)" }}>i</span>OS.
+          HECRAFT STU<span style={{ color: "#A855F7", textShadow: "0 0 10px rgba(168,85,247,0.7)" }}>Di</span>OS.
         </span>
         <p className="text-[7px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
       </div>

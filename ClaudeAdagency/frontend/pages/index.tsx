@@ -14,12 +14,35 @@ const TONES = [
   { label: "Minimal",   sym: "—" },
 ];
 
-const GALLERY_IMAGES = [
-  { src: "/portfolio/work1.jpg", label: "Brand Visual" },
-  { src: "/portfolio/work2.jpg", label: "Creative Shot" },
-  { src: "/portfolio/work3.jpg", label: "Product Story" },
-  { src: "/portfolio/work4.jpg", label: "Campaign Art" },
-  { src: "/portfolio/work5.jpg", label: "Visual Identity" },
+const SERVICES = [
+  {
+    icon: "▶",
+    title: "Instagram Reels",
+    desc: "AI-generated product reels — script, voice, video and auto-post in minutes.",
+    tag: "Most Popular",
+    color: "#C8FF00",
+  },
+  {
+    icon: "◈",
+    title: "Website Design",
+    desc: "Modern, fast, mobile-first websites for brands, startups and creators.",
+    tag: "New",
+    color: "#A855F7",
+  },
+  {
+    icon: "◆",
+    title: "Product Design",
+    desc: "Brand identity, logo systems, packaging and visual language from scratch.",
+    tag: "",
+    color: "#A855F7",
+  },
+  {
+    icon: "✦",
+    title: "Social Media Content",
+    desc: "Monthly content calendars, carousels, stories and static posts — done for you.",
+    tag: "",
+    color: "#C8FF00",
+  },
 ];
 
 const PLANS = [
@@ -88,8 +111,8 @@ export default function Home() {
   const [loading, setLoading]   = useState(false);
   const [step,    setStep]      = useState(0);
   const [error,   setError]     = useState("");
-  const [image,   setImage]     = useState<File | null>(null);
-  const [preview, setPreview]   = useState("");
+  const [images,  setImages]    = useState<File[]>([]);
+  const [previews,setPreviews]  = useState<string[]>([]);
   const [drag,    setDrag]      = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const [form, setForm] = useState({
@@ -97,32 +120,41 @@ export default function Home() {
     target_audience: "", cta: "",
   });
 
-  // 5-second cinematic intro
   useEffect(() => {
     const t = setTimeout(() => setIntroDone(true), 5000);
     return () => clearTimeout(t);
   }, []);
 
-  function handleFile(file: File) { setImage(file); setPreview(URL.createObjectURL(file)); }
+  function handleFiles(files: FileList | File[]) {
+    const arr = Array.from(files).filter(f => f.type.startsWith("image/"));
+    if (!arr.length) return;
+    setImages(arr);
+    setPreviews(arr.map(f => URL.createObjectURL(f)));
+  }
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault(); setDrag(false);
-    const f = e.dataTransfer.files?.[0];
-    if (f?.type.startsWith("image/")) handleFile(f);
+    handleFiles(e.dataTransfer.files);
   }
 
-  function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  function removeImage(i: number) {
+    setImages(prev => prev.filter((_, idx) => idx !== i));
+    setPreviews(prev => prev.filter((_, idx) => idx !== i));
+  }
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!image) return setError("Please add a product image.");
+    if (!images.length) return setError("Please add at least one product image.");
     setLoading(true); setError("");
     try {
       setStep(1);
       const fd = new FormData();
-      fd.append("image", image);
+      fd.append("image", images[0]); // primary image
+      images.slice(1).forEach((img, i) => fd.append(`image_extra_${i}`, img));
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       const { data: up } = await axios.post(`${API}/api/upload`, fd);
       setStep(2);
@@ -139,35 +171,22 @@ export default function Home() {
       {/* ── CINEMATIC INTRO ── */}
       <div className={`fixed inset-0 z-50 bg-ink flex flex-col items-center justify-center transition-opacity duration-1000 ${introDone ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
         <div className="absolute inset-0 overflow-hidden">
-          <video
-            src="/portfolio/reel1.mp4"
-            autoPlay muted playsInline loop
-            className="w-full h-full object-cover opacity-50"
-          />
-          <div className="absolute inset-0" style={{
-            background: "linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.2) 50%, rgba(8,8,8,0.85) 100%)"
-          }} />
+          <video src="/portfolio/reel1.mp4" autoPlay muted playsInline loop
+            className="w-full h-full object-cover opacity-50" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.55) 0%, rgba(8,8,8,0.2) 50%, rgba(8,8,8,0.85) 100%)" }} />
         </div>
         <div className="relative z-10 text-center px-6">
           <p className="text-white/30 tracking-[0.4em] text-xs uppercase mb-6">Welcome to</p>
           <div className="display text-[clamp(40px,9vw,110px)] text-white leading-none tracking-widest"
             style={{ textShadow: "0 0 80px rgba(168,85,247,0.5)" }}>
-            <span style={{
-              display: "inline-block",
-              borderBottom: "3px solid #A855F7",
-              paddingBottom: "4px"
-            }}>T</span>HECRAFT STU
-            <span style={{ color: "#A855F7", textShadow: "0 0 24px rgba(168,85,247,1)" }}>i</span>OS.
+            <span style={{ display: "inline-block", borderBottom: "3px solid #A855F7", paddingBottom: "4px" }}>T</span>
+            HECRAFT STU<span style={{ color: "#A855F7", textShadow: "0 0 24px rgba(168,85,247,1)" }}>Di</span>OS.
           </div>
           <p className="text-white/35 tracking-[0.22em] text-sm uppercase mt-5">
             CRAFTING VISUAL GROWTH · FROM REELS TO SITES
           </p>
-          {/* Loading line */}
           <div className="mt-10 w-40 h-px bg-white/10 mx-auto overflow-hidden">
-            <div className="h-full" style={{
-              background: "#A855F7",
-              animation: "introBar 5s linear forwards"
-            }} />
+            <div className="h-full" style={{ background: "#A855F7", animation: "introBar 5s linear forwards" }} />
           </div>
         </div>
         <style>{`@keyframes introBar { from { width: 0% } to { width: 100% } }`}</style>
@@ -181,12 +200,10 @@ export default function Home() {
           style={{ backdropFilter: "blur(12px)" }}>
           <CraftLogo />
           <div className="hidden md:flex items-center gap-8">
-            <a href="#work"    className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Work</a>
-            <a href="#pricing" className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Pricing</a>
-            <a href="mailto:info@thecraftstudios.in"
-              className="text-sm text-white/40 hover:text-violet-400 transition-colors tracking-wide">
-              info@thecraftstudios.in
-            </a>
+            <a href="#services" className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Services</a>
+            <a href="#work"     className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Work</a>
+            <a href="#pricing"  className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Pricing</a>
+            <span className="text-sm text-white/30 tracking-wide select-all">info@thecraftstudios.in</span>
           </div>
           <Link href="/dashboard" className="ghost-btn px-4 py-2 text-sm tracking-wide">
             My Projects →
@@ -194,30 +211,26 @@ export default function Home() {
         </nav>
 
         {/* ── HERO ── */}
-        <section className="flex-1 grid lg:grid-cols-[1fr_460px] max-w-[1400px] mx-auto w-full">
+        <section className="flex-1 grid lg:grid-cols-[1fr_480px] max-w-[1400px] mx-auto w-full">
 
           {/* LEFT */}
           <div className="relative flex flex-col justify-between px-8 lg:px-16 py-14 border-r border-white/6 overflow-hidden">
             <div className="absolute inset-0 pointer-events-none"
               style={{ background: "radial-gradient(ellipse 80% 60% at 15% 50%, rgba(124,58,237,0.25) 0%, transparent 70%)" }} />
-
             <div className="relative z-10">
               <div className="pill bg-violet/20 text-violet-300 border border-violet/30 mb-10 w-fit">
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#A78BFA" }} />
                 AI Content Studio · thecraftstudios.in
               </div>
-
               <h1 className="display text-[clamp(64px,8vw,118px)] text-white leading-none mb-6">
                 UNLOCK<br />
                 <span style={{ color: "#C8FF00" }}>YOUR</span><br />
                 STYLE.
               </h1>
-
               <p className="text-white/50 text-base leading-relaxed max-w-md mb-10">
-                Upload your product image. We write the script, record the voice,
+                Upload your product images. We write the script, record the voice,
                 render the video — and post it to Instagram automatically.
               </p>
-
               <div className="flex items-center gap-10 mb-14">
                 {[
                   { value: "~3 MIN",    label: "To generate" },
@@ -232,11 +245,12 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Pipeline steps */}
             <div className="relative z-10 border border-white/10 rounded-sm overflow-hidden">
               {[
                 { n: "01", title: "Script",  desc: "Claude writes hooks, shots & caption" },
                 { n: "02", title: "Voice",   desc: "ElevenLabs records natural narration" },
-                { n: "03", title: "Video",   desc: "Runway turns your image into a reel" },
+                { n: "03", title: "Video",   desc: "Kling/Runway turns images into a reel" },
                 { n: "04", title: "Publish", desc: "Auto-posts to Instagram on approval" },
               ].map((s, i) => (
                 <div key={s.n}
@@ -262,38 +276,63 @@ export default function Home() {
             </div>
 
             <form onSubmit={submit} className="flex flex-col gap-5 flex-1">
+
+              {/* ── Multi-image upload ── */}
               <div>
-                <Label>Product Image</Label>
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  onDragOver={e => { e.preventDefault(); setDrag(true); }}
-                  onDragLeave={() => setDrag(false)}
-                  onDrop={onDrop}
-                  className={`mt-1.5 cursor-pointer rounded-sm border-2 border-dashed overflow-hidden
-                    flex items-center justify-center transition-all duration-200
-                    ${preview ? "h-48" : "h-36"}
-                    ${drag ? "border-violet/60 bg-violet/5" : "border-white/10 hover:border-violet/40 hover:bg-white/[0.015]"}`}
-                >
-                  {preview ? (
-                    <>
-                      <img src={preview} alt="" className="w-full h-full object-contain" />
-                      <div className="absolute inset-0 bg-ink/70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                        <span className="text-xs font-bold tracking-widest uppercase" style={{ color: "#A855F7" }}>Change Image</span>
+                <Label>Product Images <span className="text-white/20 normal-case font-normal">(select multiple)</span></Label>
+
+                {/* Drop zone — hidden when images selected */}
+                {!previews.length && (
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    onDragOver={e => { e.preventDefault(); setDrag(true); }}
+                    onDragLeave={() => setDrag(false)}
+                    onDrop={onDrop}
+                    className={`mt-1.5 cursor-pointer rounded-sm border-2 border-dashed h-36
+                      flex flex-col items-center justify-center gap-2 transition-all duration-200
+                      ${drag ? "border-violet/60 bg-violet/5" : "border-white/10 hover:border-violet/40 hover:bg-white/[0.015]"}`}>
+                    <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span className="text-xs text-white/25 tracking-wider">DROP IMAGES OR <span style={{ color: "#C8FF00" }}>BROWSE</span></span>
+                    <span className="text-[10px] text-white/15">Auto-enhanced · background removed · upscaled</span>
+                  </div>
+                )}
+
+                {/* Preview grid */}
+                {previews.length > 0 && (
+                  <div className="mt-1.5 space-y-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      {previews.map((src, i) => (
+                        <div key={i} className="relative rounded-sm overflow-hidden aspect-square group"
+                          style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                          {i === 0 && (
+                            <div className="absolute top-1 left-1 text-[8px] font-bold px-1.5 py-0.5 rounded-sm"
+                              style={{ background: "#C8FF00", color: "#080808" }}>PRIMARY</div>
+                          )}
+                          <button type="button" onClick={() => removeImage(i)}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500/80 text-white text-xs
+                              flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      {/* Add more button */}
+                      <div onClick={() => fileRef.current?.click()}
+                        className="aspect-square rounded-sm border-2 border-dashed border-white/10 hover:border-violet/40
+                          flex flex-col items-center justify-center cursor-pointer transition-colors gap-1">
+                        <span className="text-white/20 text-lg">+</span>
+                        <span className="text-[9px] text-white/20 uppercase tracking-wider">Add more</span>
                       </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-white/20">
-                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                      <span className="text-xs tracking-wider">DROP IMAGE OR <span style={{ color: "#C8FF00" }}>BROWSE</span></span>
-                      <span className="text-[10px] text-white/15">Auto-enhanced · background removed · upscaled</span>
                     </div>
-                  )}
-                  <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                    onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
-                </div>
+                    <p className="text-[10px] text-white/20">{previews.length} image{previews.length > 1 ? "s" : ""} selected · first is primary</p>
+                  </div>
+                )}
+
+                <input ref={fileRef} type="file" accept="image/*" multiple className="hidden"
+                  onChange={e => e.target.files && handleFiles(e.target.files)} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -345,7 +384,45 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── OUR WORK ── */}
+        {/* ── SERVICES ── */}
+        <section id="services" className="border-t border-white/6 py-20 px-8 max-w-[1400px] mx-auto w-full">
+          <div className="mb-12">
+            <div className="pill bg-lime/10 text-lime border border-lime/20 mb-5 w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-lime" />
+              What We Do
+            </div>
+            <h2 className="display text-[clamp(36px,5vw,80px)] text-white leading-none">
+              OUR <span style={{ color: "#A855F7" }}>SERVICES.</span>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {SERVICES.map((s) => (
+              <div key={s.title}
+                className="relative p-6 rounded-sm transition-all duration-300 hover:-translate-y-1 group"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                {s.tag && (
+                  <span className="absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-sm tracking-widest uppercase"
+                    style={{ background: s.color === "#C8FF00" ? "rgba(200,255,0,0.12)" : "rgba(168,85,247,0.15)",
+                             color: s.color, border: `1px solid ${s.color}30` }}>
+                    {s.tag}
+                  </span>
+                )}
+                <div className="display text-3xl mb-4" style={{ color: s.color }}>{s.icon}</div>
+                <h3 className="display text-xl text-white tracking-wide mb-2">{s.title}</h3>
+                <p className="text-sm text-white/40 leading-relaxed">{s.desc}</p>
+                <div className="mt-5 pt-4 border-t border-white/5">
+                  <a href="mailto:info@thecraftstudios.in?subject=Enquiry about"
+                    className="text-xs tracking-wider uppercase font-bold transition-colors"
+                    style={{ color: s.color }}>
+                    Enquire →
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── OUR WORK — video only ── */}
         <section id="work" className="border-t border-white/6 py-20 px-8 max-w-[1400px] mx-auto w-full">
           <div className="flex items-end justify-between mb-12">
             <div>
@@ -354,24 +431,21 @@ export default function Home() {
                 Our Work
               </div>
               <h2 className="display text-[clamp(36px,5vw,80px)] text-white leading-none">
-                REELS WE<br />
-                <span style={{ color: "#A855F7" }}>CRAFTED.</span>
+                REELS WE<br /><span style={{ color: "#A855F7" }}>CRAFTED.</span>
               </h2>
             </div>
             <p className="text-white/20 text-sm max-w-[220px] text-right hidden md:block leading-relaxed">
-              Every piece generated from a single product image. No studio. No filming.
+              Generated from a single product image. No studio. No filming.
             </p>
           </div>
 
-          {/* Featured video — full width */}
-          <div className="relative rounded-sm overflow-hidden mb-4 group"
+          {/* Single featured video */}
+          <div className="relative rounded-sm overflow-hidden group"
             style={{ border: "1px solid rgba(168,85,247,0.2)" }}>
-            <video
-              src="/portfolio/reel1.mp4"
-              autoPlay muted playsInline loop
-              className="w-full max-h-[520px] object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
-            />
+            <video src="/portfolio/reel1.mp4" autoPlay muted playsInline loop
+              className="w-full max-h-[560px] object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+            <div className="absolute top-0 left-0 w-20 h-1" style={{ background: "#A855F7" }} />
             <div className="absolute bottom-5 left-6 flex items-center gap-3">
               <span className="w-7 h-7 rounded-full flex items-center justify-center"
                 style={{ background: "rgba(168,85,247,0.4)", border: "1px solid rgba(168,85,247,0.6)" }}>
@@ -379,28 +453,16 @@ export default function Home() {
                   <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                 </svg>
               </span>
-              <span className="text-xs text-white/50 tracking-widest uppercase">Featured Reel</span>
+              <span className="text-xs text-white/50 tracking-widest uppercase">Featured Reel · AI Generated</span>
             </div>
-            {/* Purple corner accent */}
-            <div className="absolute top-0 left-0 w-16 h-1" style={{ background: "#A855F7" }} />
           </div>
 
-          {/* Image grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {GALLERY_IMAGES.map((item, i) => (
-              <div key={i} className="relative rounded-sm overflow-hidden group aspect-square"
-                style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
-                <img
-                  src={item.src}
-                  alt={item.label}
-                  className="w-full h-full object-cover opacity-75 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-2 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-[10px] text-white/60 tracking-widest uppercase">{item.label}</span>
-                </div>
-              </div>
-            ))}
+          <div className="mt-8 text-center">
+            <p className="text-white/25 text-sm mb-4">Want content like this for your brand?</p>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="lime-btn px-8 py-3 text-sm inline-block">
+              CREATE YOUR REEL →
+            </button>
           </div>
         </section>
 
@@ -428,32 +490,25 @@ export default function Home() {
                   border: plan.highlight ? "1px solid rgba(168,85,247,0.4)" : "1px solid rgba(255,255,255,0.08)",
                   boxShadow: plan.highlight ? "0 0 40px rgba(168,85,247,0.12)" : "none",
                 }}>
-
-                {plan.highlight && (
-                  <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: "#A855F7" }} />
-                )}
+                {plan.highlight && <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: "#A855F7" }} />}
                 {plan.highlight && (
                   <div className="absolute top-3 right-4">
                     <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm"
                       style={{ background: "#A855F7", color: "#fff" }}>POPULAR</span>
                   </div>
                 )}
-
                 <div className="p-7 flex-1">
                   <p className="display text-xl text-white/50 tracking-widest mb-4">{plan.name}</p>
-
                   <div className="flex items-end gap-2 mb-1">
-                    <span className="display text-[52px] text-white leading-none">{plan.price}</span>
+                    <span className="display text-[48px] text-white leading-none">{plan.price}</span>
                     <span className="text-white/30 text-sm mb-2">{plan.period}</span>
                   </div>
                   <p className="text-white/20 text-xs mb-6">{plan.usd} USD equivalent</p>
-
                   <div className="flex items-center gap-2 mb-8 px-3 py-2 rounded-sm"
                     style={{ background: "rgba(200,255,0,0.06)", border: "1px solid rgba(200,255,0,0.1)" }}>
                     <span className="display text-2xl" style={{ color: "#C8FF00" }}>{plan.reels}</span>
                     <span className="text-xs text-white/40 uppercase tracking-wider">Reels per month</span>
                   </div>
-
                   <ul className="space-y-3">
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-center gap-2.5 text-sm text-white/60">
@@ -466,13 +521,10 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
-
                 <div className="px-7 pb-7">
                   <a href="mailto:info@thecraftstudios.in?subject=Plan enquiry"
                     className={`block w-full py-3.5 text-center text-sm font-bold uppercase tracking-wider rounded-sm transition-all ${
-                      plan.highlight
-                        ? "text-white hover:opacity-90"
-                        : "border border-white/15 text-white/60 hover:border-white/30 hover:text-white"
+                      plan.highlight ? "text-white hover:opacity-90" : "border border-white/15 text-white/60 hover:border-white/30 hover:text-white"
                     }`}
                     style={plan.highlight ? { background: "#A855F7" } : {}}>
                     {plan.cta}
@@ -481,7 +533,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-
           <p className="text-center text-white/15 text-xs mt-8 tracking-wider">
             ₹2,000 one-time onboarding fee · All prices + GST · Custom enterprise plans available
           </p>
@@ -491,43 +542,34 @@ export default function Home() {
         <footer className="border-t border-white/6 px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-6">
             <CraftLogo />
-            <span className="text-white/10 hidden md:block">|</span>
-            <p className="text-xs text-white/20 tracking-wider hidden md:block">
-              thecraftstudios.in
-            </p>
+            <p className="text-xs text-white/20 tracking-wider hidden md:block">thecraftstudios.in</p>
           </div>
           <div className="flex items-center gap-6">
-            <a href="#pricing" className="text-xs text-white/20 hover:text-white transition-colors tracking-wide">Pricing</a>
-            <a href="#work" className="text-xs text-white/20 hover:text-white transition-colors tracking-wide">Work</a>
-            <a href="mailto:info@thecraftstudios.in"
-              className="text-xs text-white/20 hover:text-violet-400 transition-colors tracking-wide">
-              info@thecraftstudios.in
-            </a>
+            <a href="#services" className="text-xs text-white/20 hover:text-white transition-colors tracking-wide">Services</a>
+            <a href="#pricing"  className="text-xs text-white/20 hover:text-white transition-colors tracking-wide">Pricing</a>
+            <a href="#work"     className="text-xs text-white/20 hover:text-white transition-colors tracking-wide">Work</a>
+            <span className="text-xs text-white/20 tracking-wide select-all">info@thecraftstudios.in</span>
           </div>
           <p className="text-xs text-white/15">© 2026 <span style={{ color: "#A78BFA" }}>THECRAFTSTUDIOS.</span></p>
         </footer>
-
       </div>
     </>
   );
 }
 
+// ── Logo — T in purple box + Di purple ───────────────────────────────────────
 function CraftLogo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="relative flex items-center justify-center w-9 h-9"
-        style={{
-          border: "2px solid #A855F7",
-          borderRadius: 3,
-          boxShadow: "0 0 14px rgba(168,85,247,0.35)",
-          background: "rgba(168,85,247,0.1)"
-        }}>
+      <div className="relative flex items-center justify-center w-9 h-9 shrink-0"
+        style={{ border: "2px solid #A855F7", borderRadius: 3,
+                 boxShadow: "0 0 14px rgba(168,85,247,0.35)",
+                 background: "rgba(168,85,247,0.1)" }}>
         <span className="display text-[18px] text-white leading-none">T</span>
       </div>
       <div className="leading-none">
         <span className="display text-[15px] text-white tracking-widest">
-          HECRAFT STU
-          <span style={{ color: "#A855F7", textShadow: "0 0 12px rgba(168,85,247,0.8)" }}>i</span>OS.
+          HECRAFT STU<span style={{ color: "#A855F7", textShadow: "0 0 12px rgba(168,85,247,0.8)" }}>Di</span>OS.
         </span>
         <p className="text-[7px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
       </div>
