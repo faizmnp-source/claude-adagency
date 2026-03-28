@@ -161,19 +161,15 @@ export default function Dashboard() {
 function Logo() {
   return (
     <div className="flex items-center gap-3">
-      <div className="relative w-8 h-8 flex items-center justify-center rounded-sm bg-ink border border-violet/40">
-        <span className="display text-[20px] text-white leading-none">i</span>
-        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
-          style={{ background: "#A855F7", boxShadow: "0 0 8px rgba(168,85,247,0.8)" }} />
+      <div className="relative flex items-center justify-center w-9 h-9"
+        style={{ border: "2px solid #A855F7", borderRadius: 3, boxShadow: "0 0 12px rgba(168,85,247,0.3)", background: "rgba(168,85,247,0.08)" }}>
+        <span className="display text-[18px] text-white leading-none">T</span>
       </div>
       <div className="leading-none">
-        <span className="display text-[16px] text-white tracking-widest">
-          THECRAFTSTU
-          <span style={{ color: "#A855F7" }}>D</span>
-          <span style={{ color: "#A855F7" }}>i</span>
-          OS.
+        <span className="display text-[15px] text-white tracking-widest">
+          HECRAFT STU<span style={{ color: "#A855F7", textShadow: "0 0 10px rgba(168,85,247,0.7)" }}>i</span>OS.
         </span>
-        <p className="text-[8px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
+        <p className="text-[7px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
       </div>
     </div>
   );

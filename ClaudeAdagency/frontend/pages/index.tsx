@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
@@ -14,6 +14,18 @@ const TONES = [
   { label: "Minimal",   sym: "—" },
 ];
 
+// Portfolio reel previews (no client names)
+const GALLERY = [
+  { type: "video", src: "/portfolio/reel1.mp4",  label: "Product Reel" },
+  { type: "video", src: "/portfolio/reel2.mp4",  label: "Luxury Ad" },
+  { type: "video", src: "/portfolio/reel3.mp4",  label: "Close-Up Spot" },
+  { type: "image", src: "/portfolio/work1.jpg",  label: "Brand Visual" },
+  { type: "image", src: "/portfolio/work2.jpg",  label: "Creative Shot" },
+  { type: "image", src: "/portfolio/work3.jpg",  label: "Product Story" },
+  { type: "image", src: "/portfolio/work4.jpg",  label: "Campaign Art" },
+  { type: "image", src: "/portfolio/work5.jpg",  label: "Visual Identity" },
+];
+
 export default function Home() {
   const router  = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -23,10 +35,27 @@ export default function Home() {
   const [image,   setImage]   = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const [drag,    setDrag]    = useState(false);
+  const [introDone, setIntroDone] = useState(false);
+  const [introSlide, setIntroSlide] = useState(0);
   const [form, setForm] = useState({
     brand_name: "", product_name: "", tone: "Energetic",
     target_audience: "", cta: "",
   });
+
+  // Intro: cycle through gallery items for 5s then reveal main page
+  useEffect(() => {
+    const total = GALLERY.length;
+    let idx = 0;
+    const cycle = setInterval(() => {
+      idx = (idx + 1) % total;
+      setIntroSlide(idx);
+    }, 700);
+    const done = setTimeout(() => {
+      clearInterval(cycle);
+      setIntroDone(true);
+    }, 5000);
+    return () => { clearInterval(cycle); clearTimeout(done); };
+  }, []);
 
   function handleFile(file: File) { setImage(file); setPreview(URL.createObjectURL(file)); }
 
@@ -59,227 +88,340 @@ export default function Home() {
     }
   }
 
+  const current = GALLERY[introSlide];
+
   return (
-    <div className="relative min-h-screen flex flex-col bg-ink">
-
-      {/* ── NAV ── */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-white/6 bg-ink z-10">
-        <CraftLogo />
-        <div className="hidden md:flex items-center gap-8">
-          <a href="mailto:info@thecraftstudios.in"
-            className="text-sm text-white/40 hover:text-violet transition-colors tracking-wide">
-            info@thecraftstudios.in
-          </a>
-          {["Features", "Pricing"].map(l => (
-            <a key={l} href="#" className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">{l}</a>
-          ))}
+    <>
+      {/* ── CINEMATIC INTRO ── */}
+      <div className={`fixed inset-0 z-50 bg-ink flex flex-col items-center justify-center transition-all duration-700 ${introDone ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+        {/* Background media */}
+        <div className="absolute inset-0 overflow-hidden">
+          {current.type === "video" ? (
+            <video
+              key={current.src}
+              src={current.src}
+              autoPlay muted playsInline loop
+              className="w-full h-full object-cover opacity-40"
+            />
+          ) : (
+            <img
+              key={current.src}
+              src={current.src}
+              alt=""
+              className="w-full h-full object-cover opacity-40 transition-opacity duration-500"
+            />
+          )}
+          {/* Overlay */}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.6) 0%, rgba(8,8,8,0.3) 50%, rgba(8,8,8,0.8) 100%)" }} />
         </div>
-        <Link href="/dashboard" className="ghost-btn px-4 py-2 text-sm tracking-wide">
-          My Projects →
-        </Link>
-      </nav>
 
-      {/* ── HERO ── */}
-      <main className="flex-1 grid lg:grid-cols-[1fr_460px] max-w-[1400px] mx-auto w-full">
+        {/* Centered logo */}
+        <div className="relative z-10 text-center">
+          <div className="display text-[clamp(48px,10vw,120px)] text-white leading-none tracking-widest mb-4"
+            style={{ textShadow: "0 0 60px rgba(168,85,247,0.4)" }}>
+            THE
+            <span style={{
+              display: "inline-block",
+              borderBottom: "3px solid #A855F7",
+              paddingBottom: "2px",
+              marginRight: "2px"
+            }}>CRAFT</span>STU
+            <span style={{ color: "#A855F7", textShadow: "0 0 20px rgba(168,85,247,0.8)" }}>Di</span>OS.
+          </div>
+          <p className="text-white/40 tracking-[0.25em] text-sm uppercase">
+            CRAFTING VISUAL GROWTH · FROM REELS TO SITES
+          </p>
+          {/* Progress bar */}
+          <div className="mt-8 w-48 h-0.5 bg-white/10 mx-auto rounded-full overflow-hidden">
+            <div className="h-full bg-violet-400 rounded-full"
+              style={{ width: `${((introSlide + 1) / GALLERY.length) * 100}%`, transition: "width 0.6s ease" }} />
+          </div>
+        </div>
 
-        {/* LEFT — Purple hero */}
-        <div className="relative flex flex-col justify-between px-8 lg:px-16 py-14 border-r border-white/6 overflow-hidden">
+        {/* Slide label */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10">
+          <span className="text-white/20 text-xs tracking-widest uppercase">{current.label}</span>
+        </div>
+      </div>
 
-          {/* Purple background gradient */}
-          <div className="absolute inset-0 bg-violet/20 pointer-events-none" />
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "radial-gradient(ellipse 80% 60% at 20% 50%, rgba(124,58,237,0.35) 0%, transparent 70%)" }} />
+      {/* ── MAIN PAGE ── */}
+      <div className={`relative min-h-screen flex flex-col bg-ink transition-opacity duration-700 ${introDone ? "opacity-100" : "opacity-0"}`}>
 
-          <div className="relative z-10">
-            {/* Badge */}
-            <div className="pill bg-violet/20 text-violet-300 border border-violet/30 mb-10 w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet animate-pulse" style={{ background: "#A78BFA" }} />
-              AI Content Studio · thecraftstudios.in
+        {/* ── NAV ── */}
+        <nav className="flex items-center justify-between px-8 py-5 border-b border-white/6 bg-ink z-10">
+          <CraftLogo />
+          <div className="hidden md:flex items-center gap-8">
+            <a href="mailto:info@thecraftstudios.in"
+              className="text-sm text-white/40 hover:text-violet-400 transition-colors tracking-wide">
+              info@thecraftstudios.in
+            </a>
+            <a href="#gallery" className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Work</a>
+            <a href="#" className="text-sm text-white/40 hover:text-white transition-colors tracking-wide">Pricing</a>
+          </div>
+          <Link href="/dashboard" className="ghost-btn px-4 py-2 text-sm tracking-wide">
+            My Projects →
+          </Link>
+        </nav>
+
+        {/* ── HERO ── */}
+        <main className="flex-1 grid lg:grid-cols-[1fr_460px] max-w-[1400px] mx-auto w-full">
+
+          {/* LEFT — Purple hero */}
+          <div className="relative flex flex-col justify-between px-8 lg:px-16 py-14 border-r border-white/6 overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse 80% 60% at 15% 50%, rgba(124,58,237,0.28) 0%, transparent 70%)" }} />
+
+            <div className="relative z-10">
+              <div className="pill bg-violet/20 text-violet-300 border border-violet/30 mb-10 w-fit">
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#A78BFA" }} />
+                AI Content Studio · thecraftstudios.in
+              </div>
+
+              <h1 className="display text-[clamp(64px,8vw,120px)] text-white leading-none mb-6">
+                UNLOCK<br />
+                <span style={{ color: "#C8FF00" }}>YOUR</span><br />
+                STYLE.
+              </h1>
+
+              <p className="text-white/50 text-base leading-relaxed max-w-md mb-10">
+                Upload your product image. We write the script, record the voice,
+                render the video — and post it to Instagram automatically.
+              </p>
+
+              <div className="flex items-center gap-10 mb-14">
+                {[
+                  { value: "~3 MIN",    label: "To generate" },
+                  { value: "~$1",       label: "Per reel" },
+                  { value: "AUTO-POST", label: "To Instagram" },
+                ].map(s => (
+                  <div key={s.label}>
+                    <p className="display text-2xl" style={{ color: "#C8FF00" }}>{s.value}</p>
+                    <p className="text-[10px] text-white/30 tracking-wider uppercase mt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Giant headline */}
-            <h1 className="display text-[clamp(64px,8vw,120px)] text-white leading-none mb-6">
-              UNLOCK<br />
-              <span style={{ color: "#C8FF00" }}>YOUR</span><br />
-              STYLE.
-            </h1>
-
-            <p className="text-white/50 text-base leading-relaxed max-w-md mb-10">
-              Upload your product image. We write the script, record the voice,
-              render the video — and post it to Instagram automatically.
-            </p>
-
-            {/* Stats row */}
-            <div className="flex items-center gap-10 mb-14">
+            <div className="relative z-10 space-y-0 border border-white/10 rounded-sm overflow-hidden">
               {[
-                { value: "~3 MIN",    label: "To generate" },
-                { value: "~$1",       label: "Per reel" },
-                { value: "AUTO-POST", label: "To Instagram" },
-              ].map(s => (
-                <div key={s.label}>
-                  <p className="display text-2xl" style={{ color: "#C8FF00" }}>{s.value}</p>
-                  <p className="text-[10px] text-white/30 tracking-wider uppercase mt-0.5">{s.label}</p>
+                { n: "01", title: "Script",  desc: "Claude writes hooks, shots & caption" },
+                { n: "02", title: "Voice",   desc: "ElevenLabs records natural narration" },
+                { n: "03", title: "Video",   desc: "Runway turns your image into a reel" },
+                { n: "04", title: "Publish", desc: "Auto-posts to Instagram on approval" },
+              ].map((s, i) => (
+                <div key={s.n}
+                  className={`flex items-center gap-5 px-5 py-4 ${i < 3 ? "border-b border-white/5" : ""} group hover:bg-violet/10 transition-colors`}>
+                  <span className="display text-xl w-8 shrink-0" style={{ color: "#C8FF00" }}>{s.n}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-white/80 uppercase tracking-wide">{s.title}</p>
+                    <p className="text-xs text-white/30 mt-0.5">{s.desc}</p>
+                  </div>
+                  <svg className="w-4 h-4 text-white/10 group-hover:text-violet-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7"/>
+                  </svg>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Pipeline steps */}
-          <div className="relative z-10 space-y-0 border border-white/10 rounded-sm overflow-hidden">
-            {[
-              { n: "01", title: "Script",  desc: "Claude writes hooks, shots & caption" },
-              { n: "02", title: "Voice",   desc: "ElevenLabs records natural narration" },
-              { n: "03", title: "Video",   desc: "Runway turns your image into a reel" },
-              { n: "04", title: "Publish", desc: "Auto-posts to Instagram on approval" },
-            ].map((s, i) => (
-              <div key={s.n}
-                className={`flex items-center gap-5 px-5 py-4 ${i < 3 ? "border-b border-white/5" : ""} group hover:bg-violet/10 transition-colors`}>
-                <span className="display text-xl w-8 shrink-0" style={{ color: "#C8FF00" }}>{s.n}</span>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-white/80 uppercase tracking-wide">{s.title}</p>
-                  <p className="text-xs text-white/30 mt-0.5">{s.desc}</p>
+          {/* RIGHT — Form */}
+          <div className="flex flex-col px-8 py-14 bg-surface/50">
+            <div className="mb-6">
+              <h2 className="display text-3xl text-white tracking-wide">NEW PROJECT</h2>
+              <div className="mt-2" style={{ height: 2, width: 32, background: "#A855F7", borderRadius: 1 }} />
+            </div>
+
+            <form onSubmit={submit} className="flex flex-col gap-5 flex-1">
+              <div>
+                <Label>Product Image</Label>
+                <div
+                  onClick={() => fileRef.current?.click()}
+                  onDragOver={e => { e.preventDefault(); setDrag(true); }}
+                  onDragLeave={() => setDrag(false)}
+                  onDrop={onDrop}
+                  className={`mt-1.5 cursor-pointer rounded-sm border-2 border-dashed overflow-hidden
+                    flex items-center justify-center transition-all duration-200
+                    ${preview ? "h-48" : "h-36"}
+                    ${drag ? "border-violet/60 bg-violet/5" : "border-white/10 hover:border-violet/40 hover:bg-white/[0.015]"}`}
+                >
+                  {preview ? (
+                    <>
+                      <img src={preview} alt="" className="w-full h-full object-contain" />
+                      <div className="absolute inset-0 bg-ink/70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <span className="text-xs font-bold text-violet-300 tracking-widest uppercase">Change</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-white/20">
+                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                      <span className="text-xs tracking-wider">DROP IMAGE OR <span style={{ color: "#C8FF00" }}>BROWSE</span></span>
+                    </div>
+                  )}
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                    onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
                 </div>
-                <svg className="w-4 h-4 text-white/10 group-hover:text-violet-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7"/>
-                </svg>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Brand"   name="brand_name"   value={form.brand_name}   onChange={onChange} placeholder="The Craft Studios" />
+                <Field label="Product" name="product_name" value={form.product_name} onChange={onChange} placeholder="Glow Serum" />
+              </div>
+
+              <div>
+                <Label>Tone</Label>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {TONES.map(t => (
+                    <button type="button" key={t.label}
+                      onClick={() => setForm(f => ({ ...f, tone: t.label }))}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-xs font-bold uppercase tracking-wider transition-all
+                        ${form.tone === t.label
+                          ? "text-ink border-lime"
+                          : "bg-transparent border-white/10 text-white/35 hover:border-violet/40 hover:text-white/60"}`}
+                      style={form.tone === t.label ? { background: "#C8FF00" } : {}}>
+                      <span className="text-[10px]">{t.sym}</span>{t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Field label="Target Audience" name="target_audience" value={form.target_audience} onChange={onChange} placeholder="Women 25–35, skincare" />
+              <Field label="Call to Action"  name="cta"             value={form.cta}             onChange={onChange} placeholder="Shop now at link in bio" />
+
+              {error && (
+                <div className="flex items-center gap-2 text-red-400 text-xs bg-red-500/8 border border-red-500/15 rounded-sm px-3 py-2.5">
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                  </svg>
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" disabled={loading} className="lime-btn py-4 text-sm mt-auto">
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    {step === 1 ? "UPLOADING..." : "STARTING PIPELINE..."}
+                  </span>
+                ) : "START CRAFTING →"}
+              </button>
+            </form>
+          </div>
+        </main>
+
+        {/* ── GALLERY SECTION ── */}
+        <section id="gallery" className="border-t border-white/6 py-16 px-8 max-w-[1400px] mx-auto w-full">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <div className="pill bg-violet/10 text-violet-300 border border-violet/20 mb-4 w-fit">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#A78BFA" }} />
+                Our Work
+              </div>
+              <h2 className="display text-[clamp(36px,5vw,72px)] text-white leading-none">
+                REELS WE<br /><span style={{ color: "#A855F7" }}>CRAFTED.</span>
+              </h2>
+            </div>
+            <p className="text-white/25 text-sm max-w-xs text-right hidden md:block">
+              Every reel is generated from a single product image — no filming required.
+            </p>
+          </div>
+
+          {/* Video row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {GALLERY.filter(g => g.type === "video").map((item, i) => (
+              <div key={i} className="relative rounded-sm overflow-hidden group"
+                style={{ background: "#0c0c0c", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <video
+                  src={item.src}
+                  autoPlay muted playsInline loop
+                  className="w-full h-56 object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-4">
+                  <span className="text-xs text-white/40 tracking-widest uppercase">{item.label}</span>
+                </div>
+                {/* Play indicator */}
+                <div className="absolute top-3 right-3">
+                  <span className="w-6 h-6 rounded-full flex items-center justify-center"
+                    style={{ background: "rgba(168,85,247,0.3)", border: "1px solid rgba(168,85,247,0.4)" }}>
+                    <svg className="w-3 h-3 text-violet-300 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                  </span>
+                </div>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* RIGHT — Form */}
-        <div className="flex flex-col px-8 py-14 bg-surface/50">
-
-          <div className="mb-6">
-            <h2 className="display text-3xl text-white tracking-wide">NEW PROJECT</h2>
-            <div className="mt-2" style={{ height: 2, width: 32, background: "#7C3AED", borderRadius: 1 }} />
+          {/* Image row */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {GALLERY.filter(g => g.type === "image").map((item, i) => (
+              <div key={i} className="relative rounded-sm overflow-hidden group aspect-square"
+                style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+                <img
+                  src={item.src}
+                  alt={item.label}
+                  className="w-full h-full object-cover opacity-75 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute bottom-2 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-xs text-white/60 tracking-widest uppercase">{item.label}</span>
+                </div>
+              </div>
+            ))}
           </div>
 
-          <form onSubmit={submit} className="flex flex-col gap-5 flex-1">
-
-            {/* Image upload */}
-            <div>
-              <Label>Product Image</Label>
-              <div
-                onClick={() => fileRef.current?.click()}
-                onDragOver={e => { e.preventDefault(); setDrag(true); }}
-                onDragLeave={() => setDrag(false)}
-                onDrop={onDrop}
-                className={`mt-1.5 cursor-pointer rounded-sm border-2 border-dashed overflow-hidden
-                  flex items-center justify-center transition-all duration-200
-                  ${preview ? "h-48" : "h-36"}
-                  ${drag
-                    ? "border-violet/60 bg-violet/5"
-                    : "border-white/10 hover:border-violet/40 hover:bg-white/[0.015]"}`}
-              >
-                {preview ? (
-                  <>
-                    <img src={preview} alt="" className="w-full h-full object-contain" />
-                    <div className="absolute inset-0 bg-ink/70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <span className="text-xs font-bold text-violet-300 tracking-widest uppercase">Change</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center gap-2 text-white/20">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span className="text-xs tracking-wider">DROP IMAGE OR <span style={{ color: "#C8FF00" }}>BROWSE</span></span>
-                  </div>
-                )}
-                <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                  onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
-              </div>
-            </div>
-
-            {/* Brand + Product */}
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Brand"   name="brand_name"   value={form.brand_name}   onChange={onChange} placeholder="The Craft Studios" />
-              <Field label="Product" name="product_name" value={form.product_name} onChange={onChange} placeholder="Glow Serum" />
-            </div>
-
-            {/* Tone */}
-            <div>
-              <Label>Tone</Label>
-              <div className="flex flex-wrap gap-1.5 mt-1.5">
-                {TONES.map(t => (
-                  <button type="button" key={t.label}
-                    onClick={() => setForm(f => ({ ...f, tone: t.label }))}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm border text-xs font-bold uppercase tracking-wider transition-all
-                      ${form.tone === t.label
-                        ? "text-ink border-lime"
-                        : "bg-transparent border-white/10 text-white/35 hover:border-violet/40 hover:text-white/60"}`}
-                    style={form.tone === t.label ? { background: "#C8FF00" } : {}}>
-                    <span className="text-[10px]">{t.sym}</span>{t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <Field label="Target Audience" name="target_audience" value={form.target_audience} onChange={onChange} placeholder="Women 25–35, skincare" />
-            <Field label="Call to Action"  name="cta"             value={form.cta}             onChange={onChange} placeholder="Shop now at link in bio" />
-
-            {error && (
-              <div className="flex items-center gap-2 text-red-400 text-xs bg-red-500/8 border border-red-500/15 rounded-sm px-3 py-2.5">
-                <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
-                </svg>
-                {error}
-              </div>
-            )}
-
-            <button type="submit" disabled={loading} className="lime-btn py-4 text-sm mt-auto">
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                  </svg>
-                  {step === 1 ? "UPLOADING..." : "STARTING PIPELINE..."}
-                </span>
-              ) : "START CRAFTING →"}
+          {/* CTA under gallery */}
+          <div className="mt-12 text-center">
+            <p className="text-white/30 text-sm mb-4">Ready to create content like this for your brand?</p>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="lime-btn px-8 py-3 text-sm inline-block">
+              CREATE YOUR REEL →
             </button>
+          </div>
+        </section>
 
-          </form>
-        </div>
-      </main>
+        {/* ── FOOTER ── */}
+        <footer className="border-t border-white/6 px-8 py-5 flex items-center justify-between">
+          <p className="text-xs text-white/20 tracking-wider">
+            © 2026 <span style={{ color: "#A78BFA" }}>THECRAFTSTUDIOS.</span> · thecraftstudios.in
+          </p>
+          <a href="mailto:info@thecraftstudios.in"
+            className="text-xs text-white/20 hover:text-violet-400 transition-colors tracking-wide">
+            info@thecraftstudios.in
+          </a>
+        </footer>
 
-      {/* ── FOOTER ── */}
-      <footer className="border-t border-white/6 px-8 py-4 flex items-center justify-between">
-        <p className="text-xs text-white/20 tracking-wider">
-          © 2026 <span style={{ color: "#A78BFA" }}>THECRAFTSTUDIOS.</span> · thecraftstudios.in
-        </p>
-        <a href="mailto:info@thecraftstudios.in"
-          className="text-xs text-white/20 hover:text-violet-400 transition-colors tracking-wide">
-          info@thecraftstudios.in
-        </a>
-      </footer>
-
-    </div>
+      </div>
+    </>
   );
 }
 
 function CraftLogo() {
   return (
     <div className="flex items-center gap-3">
-      {/* Logo mark — purple "i" gem */}
-      <div className="relative w-8 h-8 flex items-center justify-center rounded-sm bg-ink border border-violet/40">
-        <span className="display text-[20px] text-white leading-none">i</span>
-        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full"
-          style={{ background: "#A855F7", boxShadow: "0 0 8px rgba(168,85,247,0.8)" }} />
+      {/* Logo mark: purple-bordered T box with glowing i */}
+      <div className="relative flex items-center justify-center w-9 h-9"
+        style={{
+          border: "2px solid #A855F7",
+          borderRadius: 3,
+          boxShadow: "0 0 12px rgba(168,85,247,0.3)",
+          background: "rgba(168,85,247,0.08)"
+        }}>
+        <span className="display text-[18px] text-white leading-none">T</span>
       </div>
       <div className="leading-none">
-        {/* THECRAFTSTU + purple i + OS. */}
-        <span className="display text-[16px] text-white tracking-widest">
-          THECRAFTSTU
-          <span style={{ color: "#A855F7" }}>D</span>
-          <span style={{ color: "#A855F7", textShadow: "0 0 12px rgba(168,85,247,0.6)" }}>i</span>
+        <span className="display text-[15px] text-white tracking-widest">
+          HECRAFT STU
+          <span style={{ color: "#A855F7", textShadow: "0 0 10px rgba(168,85,247,0.7)" }}>i</span>
           OS.
         </span>
-        <p className="text-[8px] text-white/25 tracking-[0.15em] uppercase mt-0.5">
-          Crafting Visual Growth
-        </p>
+        <p className="text-[7px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
       </div>
     </div>
   );
