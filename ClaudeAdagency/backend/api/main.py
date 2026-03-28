@@ -14,6 +14,8 @@ app = FastAPI(title="Instagram AI Platform", version="1.0.0")
 ALLOWED_ORIGINS = [
     "https://thecraftstudios.in",
     "https://www.thecraftstudios.in",
+    "https://claude-adagency.vercel.app",   # Vercel preview URL
+    "https://claude-adagency-production.up.railway.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
