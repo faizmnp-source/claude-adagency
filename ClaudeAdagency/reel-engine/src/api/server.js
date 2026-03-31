@@ -1,72 +1,69 @@
 /**
  * TheCraftStudios Reel Engine — Express API Server
+ * PORT is bound immediately so Railway healthcheck passes.
+ * Heavy imports (BullMQ, Redis) are loaded lazily inside routes.
  */
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { config, validateConfig } from '../config/index.js';
-import { logger } from '../utils/logger.js';
-import reelsRouter from './routes/reels.js';
-import paymentsRouter from './routes/payments.js';
-import { handleWebhook as handleRazorpayWebhook } from '../services/payments/razorpay.js';
-import { redis } from '../queue/index.js';
-
-// Validate required env vars on startup
-validateConfig();
 
 const app = express();
+const PORT = parseInt(process.env.PORT || '4000');
+
+// ── Start listening IMMEDIATELY (Railway healthcheck needs this) ───────────
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Reel Engine API running on port ${PORT}`);
+});
 
 // ── Security & CORS ───────────────────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: [config.frontendUrl, 'http://localhost:3000'],
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3000'],
   credentials: true,
 }));
 
 // ── Rate limiting ─────────────────────────────────────────────────────────
-const limiter = rateLimit({
+app.use(rateLimit({
   windowMs: 60_000,
   max: 60,
-  message: { error: 'Too many requests, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
-});
+  message: { error: 'Too many requests' },
+}));
 
 const generationLimiter = rateLimit({
-  windowMs: 60 * 60_000,   // 1 hour
-  max: 10,                  // Max 10 generations per hour per IP
-  message: { error: 'Generation rate limit exceeded. Upgrade for higher limits.' },
+  windowMs: 60 * 60_000,
+  max: 10,
+  message: { error: 'Generation rate limit exceeded.' },
 });
 
-app.use(limiter);
-
 // ── Razorpay webhook (raw body BEFORE json middleware) ────────────────────
-app.post(
-  '/webhooks/razorpay',
-  express.raw({ type: 'application/json' }),
-  async (req, res) => {
-    try {
-      const sig = req.headers['x-razorpay-signature'];
-      const result = await handleRazorpayWebhook(req.body.toString(), sig);
-      res.json(result);
-    } catch (err) {
-      logger.error('Razorpay webhook error', { err: err.message });
-      res.status(400).json({ error: err.message });
-    }
+app.post('/webhooks/razorpay', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    const { handleWebhook } = await import('../services/payments/razorpay.js');
+    const sig = req.headers['x-razorpay-signature'];
+    const result = await handleWebhook(req.body.toString(), sig);
+    res.json(result);
+  } catch (err) {
+    console.error('Razorpay webhook error:', err.message);
+    res.status(400).json({ error: err.message });
   }
-);
+});
 
-// ── Body parsing ───────────────────────────────────────────────────────────
+// ── Body parsing ──────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ── Health check ───────────────────────────────────────────────────────────
-// Always returns 200 — Railway healthcheck only needs the HTTP server to respond
+// ── Health check (always 200) ─────────────────────────────────────────────
 app.get('/health', async (req, res) => {
   let redisStatus = 'unknown';
   try {
-    await Promise.race([redis.ping(), new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000))]);
+    const { redis } = await import('../queue/index.js');
+    await Promise.race([
+      redis.ping(),
+      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000)),
+    ]);
     redisStatus = 'connected';
   } catch {
     redisStatus = 'disconnected';
@@ -77,12 +74,28 @@ app.get('/health', async (req, res) => {
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     redis: redisStatus,
+    port: PORT,
   });
 });
 
-// ── Routes ─────────────────────────────────────────────────────────────────
-app.use('/api/reels', generationLimiter, reelsRouter);
-app.use('/api/payments', paymentsRouter);
+// ── Routes (lazy-loaded so startup errors don't block HTTP) ───────────────
+app.use('/api/reels', generationLimiter, async (req, res, next) => {
+  try {
+    const { default: reelsRouter } = await import('./routes/reels.js');
+    reelsRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.use('/api/payments', async (req, res, next) => {
+  try {
+    const { default: paymentsRouter } = await import('./routes/payments.js');
+    paymentsRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // ── SSE: Real-time job progress ────────────────────────────────────────────
 app.get('/api/reels/:id/progress', async (req, res) => {
@@ -92,23 +105,19 @@ app.get('/api/reels/:id/progress', async (req, res) => {
   res.flushHeaders();
 
   const { id: reelId } = req.params;
-  const { getJobProgress } = await import('../queue/index.js');
-
   const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
   send({ event: 'connected', reelId });
 
-  // Poll every 2s and push progress updates
   const interval = setInterval(async () => {
     try {
+      const { getJobProgress, redis } = await import('../queue/index.js');
       const progress = await getJobProgress(reelId);
       if (!progress) {
-        // Check stored result
         const stored = await redis.get(`reel:result:${reelId}`);
         if (stored) {
           send({ event: 'completed', ...JSON.parse(stored) });
           clearInterval(interval);
           res.end();
-          return;
         }
       } else {
         send({ event: 'progress', ...progress });
@@ -130,17 +139,9 @@ app.get('/api/reels/:id/progress', async (req, res) => {
 app.use((req, res) => res.status(404).json({ error: `Route ${req.path} not found` }));
 
 app.use((err, req, res, next) => {
-  logger.error('Unhandled error', { err: err.message, path: req.path });
+  console.error('Unhandled error:', err.message);
   res.status(err.status || 500).json({
-    error: config.nodeEnv === 'production' ? 'Internal server error' : err.message,
-  });
-});
-
-// ── Start ─────────────────────────────────────────────────────────────────
-app.listen(config.port, () => {
-  logger.info(`🚀 Reel Engine API running on port ${config.port}`, {
-    env: config.nodeEnv,
-    port: config.port,
+    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
   });
 });
 
