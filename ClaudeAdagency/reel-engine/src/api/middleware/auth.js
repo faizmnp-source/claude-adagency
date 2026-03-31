@@ -56,10 +56,16 @@ export function signToken(payload) {
 }
 
 /**
- * Dev-mode mock auth (auto-creates test user)
+ * Dev-mode mock auth — sets user and seeds 9999 credits so generation always works
  */
-export function devAuth(req, res, next) {
-  req.user = { id: 'dev-user-001', email: 'dev@thecraftstudios.in' };
+export async function devAuth(req, res, next) {
+  const userId = 'dev-user-001';
+  req.user = { id: userId, email: 'dev@thecraftstudios.in' };
+  try {
+    // Give dev user plenty of credits on every request (idempotent via Redis SET NX)
+    const { redis } = await import('../../queue/index.js');
+    await redis.set(`credits:${userId}`, 9999, 'NX'); // only sets if not already set
+  } catch { /* ignore redis errors */ }
   next();
 }
 
