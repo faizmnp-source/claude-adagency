@@ -63,5 +63,6 @@ export function devAuth(req, res, next) {
   next();
 }
 
-export const authMiddleware =
-  config.nodeEnv === 'development' ? devAuth : requireAuth;
+// Use devAuth until a proper login system is built
+// Switch to requireAuth once you add user accounts / login
+export const authMiddleware = devAuth;
