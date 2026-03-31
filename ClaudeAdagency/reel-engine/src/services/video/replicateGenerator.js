@@ -12,43 +12,44 @@ import { logger } from '../../utils/logger.js';
 
 const REPLICATE_API = 'https://api.replicate.com/v1';
 
-// Kling supports duration: 5 or 10 only. Minimax supports 6 or 10.
-const clampKling = (d) => d <= 5 ? 5 : 10;
+// Wan 2.1 supports duration: 5 only. Minimax supports 6 or 10.
+const clampWan = (_d) => 5; // Wan always generates 5s clips
 const clampMinimax = (d) => d <= 6 ? 6 : 10;
 
 const MODELS = {
-  // Kling 2.1 Standard — best for product photography, smooth motion, 720p
+  // Wan 2.1 720p — confirmed working on Replicate, 720p, good motion quality
+  // ~$0.45 per 5s clip. Best confirmed-working model.
   default: {
-    owner: 'klingai',
-    name: 'kling-v2.1-standard-image-to-video',
-    input: (imageUrl, prompt, duration) => ({
+    owner: 'wavespeedai',
+    name: 'wan-2.1-i2v-720p',
+    input: (imageUrl, prompt, _duration) => ({
       image: imageUrl,
-      prompt: prompt || 'product showcase, smooth cinematic camera motion, professional studio lighting, high quality commercial video',
-      duration: clampKling(duration || 5),
-      cfg_scale: 0.5,
-      aspect_ratio: '9:16',
+      prompt: prompt || 'product showcase, smooth cinematic camera motion, professional studio lighting, commercial quality video',
+      duration: 5,
+      guidance_scale: 7,
+      num_inference_steps: 40,  // More steps = better quality (default 30)
     }),
   },
-  // Minimax Hailuo 720p — good quality, flat pricing per clip
+  // Wan 2.1 480p — cheapest, confirmed working, lower quality
   budget: {
+    owner: 'wavespeedai',
+    name: 'wan-2.1-i2v-480p',
+    input: (imageUrl, prompt, _duration) => ({
+      image: imageUrl,
+      prompt: prompt || 'product showcase, smooth motion, professional',
+      duration: 5,
+      guidance_scale: 7,
+      num_inference_steps: 30,
+    }),
+  },
+  // Minimax Hailuo 720p — flat $0.28/6s, good quality if slug is correct
+  premium: {
     owner: 'minimax',
     name: 'hailuo-video-02-i2v',
     input: (imageUrl, prompt, duration) => ({
-      prompt: prompt || 'product showcase, smooth camera motion, professional lighting, commercial quality',
+      prompt: prompt || 'product showcase, smooth cinematic camera motion, professional lighting, ultra high quality commercial video',
       image_url: imageUrl,
       duration: clampMinimax(duration || 6),
-    }),
-  },
-  // Kling 2.1 Pro — highest quality, 1080p
-  premium: {
-    owner: 'klingai',
-    name: 'kling-v2.1-pro-image-to-video',
-    input: (imageUrl, prompt, duration) => ({
-      image: imageUrl,
-      prompt: prompt || 'product showcase, cinematic camera movement, premium commercial lighting, ultra high quality',
-      duration: clampKling(duration || 5),
-      cfg_scale: 0.5,
-      aspect_ratio: '9:16',
     }),
   },
 };

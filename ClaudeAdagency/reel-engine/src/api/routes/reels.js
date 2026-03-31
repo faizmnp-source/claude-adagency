@@ -354,12 +354,10 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     const reel = JSON.parse(stored);
     const totalDuration = reel.duration || 15; // stored reel duration in seconds
 
-    // Plan clips based on total duration — Kling supports only 5s or 10s
-    // 15s → [5, 5, 5]   30s → [10, 10, 10]   50s → [10, 10, 10, 10, 10]
-    const clipPlan = [];
-    let remaining = totalDuration;
-    while (remaining >= 10) { clipPlan.push(10); remaining -= 10; }
-    if (remaining > 0) clipPlan.push(5); // 5s for any remainder
+    // Plan clips — Wan 2.1 generates 5s clips only
+    // 15s → [5,5,5]   30s → [5,5,5,5,5,5]   50s → 10×5s
+    const clipCount = Math.ceil(totalDuration / 5);
+    const clipPlan = Array(clipCount).fill(5);
 
     logger.info('Clip plan', { reelId, totalDuration, clipPlan });
 
