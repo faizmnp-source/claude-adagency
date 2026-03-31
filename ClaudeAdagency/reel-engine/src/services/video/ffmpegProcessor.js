@@ -36,36 +36,76 @@ function runFFmpeg(command) {
  */
 export async function mergeSceneClips(sceneClips) {
   const outputPath = tmpFile('merged-raw.mp4');
-  const concatListPath = tmpFile('concat-list.txt');
 
-  // Write concat list file
-  const listContent = sceneClips
-    .map((c) => `file '${c.localPath}'\nduration ${c.duration}`)
-    .join('\n');
-  await fs.writeFile(concatListPath, listContent, 'utf8');
+  if (sceneClips.length === 1) {
+    // Single clip — just re-encode to standard format
+    await runFFmpeg(
+      ffmpeg()
+        .input(sceneClips[0].localPath)
+        .videoFilter([
+          `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease`,
+          `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
+        ])
+        .videoCodec('libx264')
+        .outputOptions(['-crf 23', '-preset fast', '-pix_fmt yuv420p', '-movflags +faststart'])
+        .noAudio()
+        .output(outputPath)
+    );
+    logger.info('Single clip encoded', { outputPath });
+    return outputPath;
+  }
+
+  // Multiple clips — use xfade crossfade for seamless transitions
+  // Build a complex filtergraph: scale each input, then xfade chain them together
+  const FADE_DURATION = 0.5; // 0.5s crossfade between clips
+  const cmd = ffmpeg();
+
+  // Add all inputs
+  for (const clip of sceneClips) cmd.input(clip.localPath);
+
+  // Build filtergraph
+  const filters = [];
+  const scaledLabels = [];
+
+  // Step 1: scale + pad each input to 9:16
+  for (let i = 0; i < sceneClips.length; i++) {
+    const label = `v${i}`;
+    filters.push(
+      `[${i}:v]scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease,` +
+      `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black,setsar=1[${label}]`
+    );
+    scaledLabels.push(label);
+  }
+
+  // Step 2: chain xfade filters — each transition starts at (clipDuration - fadeDuration)
+  let currentLabel = scaledLabels[0];
+  let offset = 0;
+
+  for (let i = 1; i < sceneClips.length; i++) {
+    offset += sceneClips[i - 1].duration - FADE_DURATION;
+    const outLabel = i === sceneClips.length - 1 ? 'vout' : `xf${i}`;
+    filters.push(
+      `[${currentLabel}][${scaledLabels[i]}]xfade=transition=fade:duration=${FADE_DURATION}:offset=${offset.toFixed(2)}[${outLabel}]`
+    );
+    currentLabel = outLabel;
+  }
 
   await runFFmpeg(
-    ffmpeg()
-      .input(concatListPath)
-      .inputOptions(['-f concat', '-safe 0'])
-      .videoFilter([
-        // Ensure 9:16, scale and pad
-        `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease`,
-        `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
-      ])
-      .videoCodec('libx264')
+    cmd
+      .complexFilter(filters)
       .outputOptions([
-        '-crf 23',           // Quality (lower = better, 18-28 good range)
+        '-map [vout]',
+        '-c:v libx264',
+        '-crf 23',
         '-preset fast',
-        '-pix_fmt yuv420p',  // Max compatibility
-        '-movflags +faststart', // Web-optimized
+        '-pix_fmt yuv420p',
+        '-movflags +faststart',
+        '-an', // no audio at this stage
       ])
-      .noAudio()
       .output(outputPath)
   );
 
-  await fs.unlink(concatListPath).catch(() => {});
-  logger.info('Clips merged', { outputPath });
+  logger.info('Clips merged with crossfade', { outputPath, clips: sceneClips.length });
   return outputPath;
 }
 
