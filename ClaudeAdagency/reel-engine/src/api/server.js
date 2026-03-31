@@ -19,7 +19,12 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 // ── Security & CORS ───────────────────────────────────────────────────────
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3000'],
+  origin: [
+    'https://thecraftstudios.in',
+    'https://www.thecraftstudios.in',
+    process.env.FRONTEND_URL,
+    'http://localhost:3000',
+  ].filter(Boolean),
   credentials: true,
 }));
 
