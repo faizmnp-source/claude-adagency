@@ -1,18 +1,20 @@
 /**
- * Payments API Routes
- * POST /api/payments/checkout     — Create Stripe checkout session
- * GET  /api/payments/packs        — List credit packs
- * POST /webhooks/stripe           — Stripe webhook (raw body)
+ * Payments API Routes (Razorpay)
+ * GET  /api/payments/packs           — List credit packs
+ * POST /api/payments/order           — Create Razorpay order
+ * POST /api/payments/verify          — Verify payment + credit user
+ * GET  /api/payments/balance         — User credit balance
+ * POST /webhooks/razorpay            — Razorpay webhook (raw body)
  */
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import {
-  createCheckoutSession,
-  handleStripeWebhook,
+  createOrder,
+  verifyAndCreditPayment,
+  handleWebhook,
   CREDIT_PACKS,
-} from '../../services/payments/stripe.js';
+} from '../../services/payments/razorpay.js';
 import { getUserCredits, getTransactionHistory } from '../../services/credits/creditService.js';
-import { config } from '../../config/index.js';
 import { logger } from '../../utils/logger.js';
 
 const router = Router();
@@ -24,36 +26,48 @@ router.get('/packs', (req, res) => {
     name: pack.name,
     description: pack.description,
     credits: pack.credits,
-    price: pack.price / 100,  // Convert paisa to rupees
-    currency: pack.currency.toUpperCase(),
+    price: pack.price / 100,        // paise → rupees
+    currency: pack.currency,
     pricePerSecond: Math.round((pack.price / 100) / (pack.credits / 2) * 100) / 100,
   }));
   res.json({ packs });
 });
 
-// ── POST /api/payments/checkout ───────────────────────────────────────────
-router.post('/checkout', authMiddleware, async (req, res) => {
+// ── POST /api/payments/order ──────────────────────────────────────────────
+// Creates a Razorpay order — frontend opens Razorpay checkout with this
+router.post('/order', authMiddleware, async (req, res) => {
   try {
     const { packId } = req.body;
     const userId = req.user.id;
-    const email = req.user.email;
 
     if (!packId || !CREDIT_PACKS[packId]) {
       return res.status(400).json({ error: 'Invalid pack ID', valid: Object.keys(CREDIT_PACKS) });
     }
 
-    const { sessionId, url } = await createCheckoutSession({
-      userId,
-      packId,
-      email,
-      successUrl: `${config.frontendUrl}/studio/credits?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${config.frontendUrl}/studio/credits?canceled=true`,
-    });
-
-    res.json({ sessionId, url });
+    const orderData = await createOrder({ userId, packId });
+    res.json(orderData);
   } catch (err) {
-    logger.error('Checkout session error', { err: err.message });
+    logger.error('Razorpay order error', { err: err.message });
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/payments/verify ─────────────────────────────────────────────
+// Called from frontend after user completes payment — verifies signature + credits user
+router.post('/verify', authMiddleware, async (req, res) => {
+  try {
+    const { orderId, paymentId, signature, packId } = req.body;
+    const userId = req.user.id;
+
+    if (!orderId || !paymentId || !signature || !packId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const result = await verifyAndCreditPayment({ orderId, paymentId, signature, userId, packId });
+    res.json(result);
+  } catch (err) {
+    logger.error('Payment verification failed', { err: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 
@@ -65,6 +79,19 @@ router.get('/balance', authMiddleware, async (req, res) => {
     res.json({ balance, history });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /webhooks/razorpay ───────────────────────────────────────────────
+// Raw body — registered in server.js BEFORE express.json()
+router.post('/razorpay', async (req, res) => {
+  try {
+    const signature = req.headers['x-razorpay-signature'];
+    await handleWebhook(req.body, signature);
+    res.json({ received: true });
+  } catch (err) {
+    logger.error('Razorpay webhook error', { err: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 

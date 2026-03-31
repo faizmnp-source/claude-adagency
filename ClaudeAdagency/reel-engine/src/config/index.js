@@ -47,14 +47,10 @@ export const config = {
     accessToken: process.env.META_ACCESS_TOKEN,
   },
 
-  stripe: {
-    secretKey: process.env.STRIPE_SECRET_KEY,
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
-    prices: {
-      credits100: process.env.STRIPE_PRICE_100_CREDITS,
-      credits500: process.env.STRIPE_PRICE_500_CREDITS,
-      credits1000: process.env.STRIPE_PRICE_1000_CREDITS,
-    },
+  razorpay: {
+    keyId: process.env.RAZORPAY_KEY_ID,
+    keySecret: process.env.RAZORPAY_KEY_SECRET,
+    webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET,
   },
 
   auth: {

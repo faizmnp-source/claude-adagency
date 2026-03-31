@@ -9,7 +9,7 @@ import { config, validateConfig } from '../config/index.js';
 import { logger } from '../utils/logger.js';
 import reelsRouter from './routes/reels.js';
 import paymentsRouter from './routes/payments.js';
-import { handleStripeWebhook } from '../services/payments/stripe.js';
+import { handleWebhook as handleRazorpayWebhook } from '../services/payments/razorpay.js';
 import { redis } from '../queue/index.js';
 
 // Validate required env vars on startup
@@ -41,17 +41,17 @@ const generationLimiter = rateLimit({
 
 app.use(limiter);
 
-// ── Stripe webhook (raw body BEFORE json middleware) ──────────────────────
+// ── Razorpay webhook (raw body BEFORE json middleware) ────────────────────
 app.post(
-  '/webhooks/stripe',
+  '/webhooks/razorpay',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     try {
-      const sig = req.headers['stripe-signature'];
-      const result = await handleStripeWebhook(req.body, sig);
+      const sig = req.headers['x-razorpay-signature'];
+      const result = await handleRazorpayWebhook(req.body.toString(), sig);
       res.json(result);
     } catch (err) {
-      logger.error('Stripe webhook error', { err: err.message });
+      logger.error('Razorpay webhook error', { err: err.message });
       res.status(400).json({ error: err.message });
     }
   }
