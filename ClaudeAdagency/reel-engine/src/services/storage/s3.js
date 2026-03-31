@@ -17,13 +17,20 @@ import { logger } from '../../utils/logger.js';
 import { downloadFile, tmpFile } from '../../utils/helpers.js';
 import mime from 'mime-types';
 
-const s3 = new S3Client({
+// Supports both AWS S3 and Cloudflare R2 (R2 is S3-compatible + free tier)
+// Set CF_ACCOUNT_ID env var to use R2, otherwise falls back to AWS S3
+const s3Config = {
   region: config.aws.region,
   credentials: {
     accessKeyId: config.aws.accessKeyId,
     secretAccessKey: config.aws.secretAccessKey,
   },
-});
+};
+if (process.env.CF_ACCOUNT_ID) {
+  s3Config.endpoint = `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+  s3Config.region = 'auto';
+}
+const s3 = new S3Client(s3Config);
 
 const BUCKET = config.aws.bucket;
 
@@ -49,8 +56,10 @@ export async function uploadToS3(localPath, s3Key, contentType = null) {
     })
   );
 
-  const url = `https://${BUCKET}.s3.${config.aws.region}.amazonaws.com/${s3Key}`;
-  logger.debug('S3 upload complete', { s3Key, url });
+  const url = process.env.CF_ACCOUNT_ID
+    ? `https://${process.env.CF_PUBLIC_DOMAIN || `pub-${process.env.CF_ACCOUNT_ID}.r2.dev`}/${s3Key}`
+    : `https://${BUCKET}.s3.${config.aws.region}.amazonaws.com/${s3Key}`;
+  logger.debug('Storage upload complete', { s3Key, url });
   return url;
 }
 
@@ -66,7 +75,9 @@ export async function uploadBufferToS3(buffer, s3Key, contentType) {
       ContentType: contentType,
     })
   );
-  return `https://${BUCKET}.s3.${config.aws.region}.amazonaws.com/${s3Key}`;
+  return process.env.CF_ACCOUNT_ID
+    ? `https://${process.env.CF_PUBLIC_DOMAIN || `pub-${process.env.CF_ACCOUNT_ID}.r2.dev`}/${s3Key}`
+    : `https://${BUCKET}.s3.${config.aws.region}.amazonaws.com/${s3Key}`;
 }
 
 /**
