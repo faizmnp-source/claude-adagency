@@ -209,6 +209,32 @@ export default function StudioPage() {
     setStep('settings');
   };
 
+  const [voiceoverUrl, setVoiceoverUrl] = useState<string | null>(null);
+  const [voiceoverLoading, setVoiceoverLoading] = useState(false);
+
+  const generateVoiceover = async () => {
+    if (!result?.reelId) return;
+    setVoiceoverLoading(true);
+    try {
+      const res = await fetch(`${REEL_ENGINE_URL}/api/audio/voiceover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        body: JSON.stringify({ reelId: result.reelId }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setVoiceoverUrl(url);
+    } catch (err: any) {
+      setError(err.message || 'Voiceover generation failed');
+    } finally {
+      setVoiceoverLoading(false);
+    }
+  };
+
   const postToInstagram = async () => {
     if (!result?.reelId) return;
     try {
@@ -562,6 +588,30 @@ export default function StudioPage() {
                       ⬇️ Download MP4
                     </a>
                   )}
+
+                  {/* ElevenLabs Voiceover */}
+                  {!voiceoverUrl ? (
+                    <button
+                      onClick={generateVoiceover}
+                      disabled={voiceoverLoading}
+                      className="blue-btn w-full justify-center px-6 py-3 font-bold disabled:opacity-50"
+                    >
+                      {voiceoverLoading ? '🎙️ Generating voiceover...' : '🎙️ Generate Voiceover'}
+                    </button>
+                  ) : (
+                    <div className="glass rounded-xl p-3 border border-[rgba(74,108,247,0.3)]">
+                      <p className="text-xs text-[#94A3B8] mb-2 font-semibold">🎙️ AI Voiceover Ready</p>
+                      <audio controls src={voiceoverUrl} className="w-full" style={{ height: '36px' }} />
+                      <a
+                        href={voiceoverUrl}
+                        download={`voiceover-${result.reelId}.mp3`}
+                        className="text-xs text-[#4A6CF7] hover:underline mt-1 block text-center"
+                      >
+                        ⬇️ Download MP3
+                      </a>
+                    </div>
+                  )}
+
                   <button onClick={postToInstagram} className="blue-btn w-full justify-center px-6 py-3 font-bold">
                     📸 Post to Instagram
                   </button>

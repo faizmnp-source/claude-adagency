@@ -84,6 +84,15 @@ app.use('/api/payments', async (req, res, next) => {
   }
 });
 
+app.use('/api/audio', async (req, res, next) => {
+  try {
+    const { default: audioRouter } = await import('./routes/audio.js');
+    audioRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── SSE: Real-time job progress ────────────────────────────────────────────
 app.get('/api/reels/:id/progress', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
