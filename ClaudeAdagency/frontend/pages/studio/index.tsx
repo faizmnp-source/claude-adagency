@@ -100,6 +100,15 @@ export default function StudioPage() {
     });
   };
 
+  // Convert File to base64 string
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   const startGeneration = async () => {
     if (images.length === 0) {
       setError('Please upload at least one product image');
@@ -112,31 +121,24 @@ export default function StudioPage() {
 
     setStep('generating');
     setError(null);
-    setProgress({ step: 'upload', percent: 2, message: 'Uploading images...' });
+    setProgress({ step: 'upload', percent: 5, message: 'Preparing images...' });
 
     try {
-      // Step 1: Upload images to S3 via presigned URLs
-      const imageUrls: string[] = [];
+      // Convert images to base64 (bypasses S3 requirement for testing)
+      const imageData: { base64: string; contentType: string; filename: string }[] = [];
       for (const img of images) {
-        const urlRes = await fetch(
-          `${REEL_ENGINE_URL}/api/reels/upload-url?filename=${encodeURIComponent(img.file.name)}&contentType=${img.file.type}`,
-          { headers: { Authorization: `Bearer dev-token` } }
-        );
-        if (!urlRes.ok) throw new Error('Failed to get upload URL');
-        const { uploadUrl, s3Key } = await urlRes.json();
-
-        await fetch(uploadUrl, { method: 'PUT', body: img.file, headers: { 'Content-Type': img.file.type } });
-        imageUrls.push(s3Key);
+        const base64 = await fileToBase64(img.file);
+        imageData.push({ base64, contentType: img.file.type, filename: img.file.name });
       }
 
-      setProgress({ step: 'ai_content', percent: 5, message: 'Queuing reel generation...' });
+      setProgress({ step: 'ai_content', percent: 10, message: 'Sending to AI...' });
 
-      // Step 2: Start generation
+      // Start generation — send images as base64
       const genRes = await fetch(`${REEL_ENGINE_URL}/api/reels/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
         body: JSON.stringify({
-          imageS3Keys: imageUrls,
+          images: imageData,
           productDescription,
           duration,
           voice,
@@ -146,41 +148,45 @@ export default function StudioPage() {
       });
 
       if (!genRes.ok) {
-        const err = await genRes.json();
+        const err = await genRes.json().catch(() => ({ error: `Server error ${genRes.status}` }));
         throw new Error(err.error || 'Generation failed');
       }
 
-      const { reelId, creditsUsed, creditsRemaining } = await genRes.json();
-      setCredits(creditsRemaining);
+      const { reelId, creditsRemaining } = await genRes.json();
+      if (creditsRemaining !== undefined) setCredits(creditsRemaining);
 
-      // Step 3: Subscribe to SSE progress
+      setProgress({ step: 'ai_content', percent: 15, message: 'AI generating your viral script...' });
+
+      // Subscribe to SSE progress
       const es = new EventSource(`${REEL_ENGINE_URL}/api/reels/${reelId}/progress`);
       eventSourceRef.current = es;
 
       es.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        if (data.event === 'progress' && data.progress) {
-          setProgress({
-            step: data.progress.step || '',
-            percent: data.progress.percent || 0,
-            message: data.progress.message || STEP_LABELS[data.progress.step] || 'Processing...',
-          });
-        }
-        if (data.event === 'completed') {
-          es.close();
-          setResult(data);
-          setStep('done');
-        }
+        try {
+          const data = JSON.parse(e.data);
+          if (data.event === 'progress' && data.progress) {
+            setProgress({
+              step: data.progress.step || '',
+              percent: data.progress.percent || 0,
+              message: data.progress.message || STEP_LABELS[data.progress.step] || 'Processing...',
+            });
+          }
+          if (data.event === 'completed') {
+            es.close();
+            setResult(data);
+            setStep('done');
+          }
+        } catch {}
       };
 
       es.onerror = () => {
         es.close();
-        // Fallback polling
         pollStatus(reelId);
       };
 
     } catch (err: any) {
-      setError(err.message || 'Generation failed');
+      // Stay on generating step — show error with retry button
+      setError(err.message || 'Generation failed. Check your API keys in Railway.');
       setStep('settings');
     }
   };

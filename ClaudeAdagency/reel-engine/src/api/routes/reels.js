@@ -68,8 +68,9 @@ router.get('/upload-url', authMiddleware, async (req, res) => {
 router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
   try {
     const {
-      imageS3Keys = [],    // Array of already-uploaded S3 keys
-      imageUrls = [],      // Or direct URLs
+      images = [],         // Array of { base64, contentType, filename } — direct upload (no S3 needed)
+      imageS3Keys = [],    // Already-uploaded S3 keys (optional)
+      imageUrls = [],      // Direct URLs (optional)
       productDescription,
       brandName,
       duration = 30,
@@ -82,7 +83,6 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
     const userId = req.user.id;
     const reelId = uuid();
 
-    // Validate duration
     if (![15, 30, 50].includes(parseInt(duration))) {
       return res.status(400).json({ error: 'Duration must be 15, 30, or 50 seconds' });
     }
@@ -97,10 +97,20 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       });
     }
 
-    // Convert S3 keys to public URLs for Claude image analysis
-    const resolvedImageUrls = imageUrls.length
-      ? imageUrls
-      : await Promise.all(imageS3Keys.map((k) => getPresignedUrl(k, 86400)));
+    // Build image URLs for Claude — prefer direct URLs, then S3 presigned, then base64 data URIs
+    let resolvedImageUrls = [];
+    if (imageUrls.length) {
+      resolvedImageUrls = imageUrls;
+    } else if (imageS3Keys.length) {
+      resolvedImageUrls = await Promise.all(imageS3Keys.map((k) => getPresignedUrl(k, 86400)));
+    } else if (images.length) {
+      // Base64 images — convert to data URIs so Claude vision can read them
+      resolvedImageUrls = images.map(img => `data:${img.contentType};base64,${img.base64}`);
+    }
+
+    if (!resolvedImageUrls.length) {
+      return res.status(400).json({ error: 'At least one image is required' });
+    }
 
     // Queue the job
     const job = await addReelJob(userId, reelId, {
