@@ -191,16 +191,18 @@ export async function addSubtitles(videoPath, scenes, reelId) {
  */
 export async function finalExport(videoPath, reelId, options = {}) {
   const outputPath = tmpFile(`${reelId}-final.mp4`);
-  const { watermarkText = 'thecraftstudios.in' } = options;
+  const { watermarkText = 'thecraftstudios.in', trimTo = null } = options;
+
+  const cmd = ffmpeg().input(videoPath);
+
+  // Trim to exact duration if specified (e.g. 15s, 30s, 50s)
+  if (trimTo) cmd.duration(trimTo);
 
   await runFFmpeg(
-    ffmpeg()
-      .input(videoPath)
+    cmd
       .videoFilter([
-        // Scale to exact 9:16
         `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease`,
         `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
-        // Watermark bottom-right
         `drawtext=text='${watermarkText}':fontsize=28:fontcolor=white@0.5:x=w-tw-20:y=h-th-20`,
       ])
       .videoCodec('libx264')

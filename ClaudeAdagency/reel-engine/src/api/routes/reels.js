@@ -148,6 +148,7 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       reelId,
       status: 'completed',
       content,
+      duration: parseInt(duration), // store chosen duration for clip planning
       creditsUsed: creditResult.required,
       creditsRemaining: creditResult.balance,
       hasImages: savedImagePaths.length > 0,
@@ -346,53 +347,51 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
 
     logger.info('Building image URLs for Replicate', { reelId, imageUrls });
 
-    // Load stored reel content (script generated in /generate step)
+    // Load stored reel content
     const stored = await redis.get(`reel:result:${reelId}`);
     if (!stored) return res.status(404).json({ error: 'Reel not found — call /generate first' });
 
     const reel = JSON.parse(stored);
+    const totalDuration = reel.duration || 15; // stored reel duration in seconds
+
+    // Plan clips based on total duration — Kling supports only 5s or 10s
+    // 15s → [5, 5, 5]   30s → [10, 10, 10]   50s → [10, 10, 10, 10, 10]
+    const clipPlan = [];
+    let remaining = totalDuration;
+    while (remaining >= 10) { clipPlan.push(10); remaining -= 10; }
+    if (remaining > 0) clipPlan.push(5); // 5s for any remainder
+
+    logger.info('Clip plan', { reelId, totalDuration, clipPlan });
+
+    const { generateSceneClip } = await import('../../services/video/replicateGenerator.js');
     const scenes = reel.content?.scenes || [];
 
-    if (!scenes.length) {
-      // No scenes — generate one clip per image
-      logger.info('No scenes in content, generating one clip per image', { reelId });
-      const { generateSceneClip } = await import('../../services/video/replicateGenerator.js');
+    // Generate clips sequentially to respect Replicate rate limits
+    const clips = [];
+    for (let i = 0; i < clipPlan.length; i++) {
+      // Cycle through images for variety
+      const imageUrl = imageUrls[i % imageUrls.length];
+      // Use matching scene prompt if available
+      const scene = scenes[i] || scenes[scenes.length - 1];
+      const prompt = scene?.replicatePrompt || scene?.description || reel.content?.script || 'product showcase, cinematic motion';
 
-      const reelDuration = reel.content?.scenes?.[0]?.duration || 5;
-      const clips = await Promise.all(
-        imageUrls.slice(0, 4).map((imageUrl, i) =>
-          generateSceneClip({
-            imageUrl,
-            prompt: reel.content?.script || 'product showcase, smooth camera motion',
-            durationSeconds: reelDuration,
-            sceneNumber: i,
-            reelId,
-            quality,
-          })
-        )
-      );
-
-      const updated = { ...reel, videoClips: clips, videoStatus: 'clips_ready' };
-      await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
-      return res.json({ reelId, videoClips: clips, message: `${clips.length} clips generated` });
+      logger.info(`Generating clip ${i + 1}/${clipPlan.length} (${clipPlan[i]}s)`, { reelId });
+      const clip = await generateSceneClip({
+        imageUrl,
+        prompt,
+        durationSeconds: clipPlan[i],
+        sceneNumber: i,
+        reelId,
+        quality,
+      });
+      clips.push(clip);
     }
 
-    // Generate one clip per scene
-    const { generateAllSceneClips } = await import('../../services/video/replicateGenerator.js');
-
-    const clips = await generateAllSceneClips({
-      scenes,
-      imageUrls,
-      reelId,
-      quality,
-      onProgress: (pct) => logger.info('Video generation progress', { reelId, pct }),
-    });
-
-    const updated = { ...reel, videoClips: clips, videoStatus: 'clips_ready' };
+    const updated = { ...reel, videoClips: clips, videoStatus: 'clips_ready', totalDuration };
     await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
 
-    logger.info('All video clips generated', { reelId, count: clips.length });
-    res.json({ reelId, videoClips: clips, message: `${clips.length} clips generated` });
+    logger.info('All video clips generated', { reelId, count: clips.length, totalDuration });
+    res.json({ reelId, videoClips: clips, totalDuration, message: `${clips.length} clips generated (${clipPlan.join('+')}s = ${totalDuration}s total)` });
   } catch (err) {
     logger.error('Video generation error', { err: err.message });
     res.status(500).json({ error: err.message });
@@ -422,6 +421,8 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
     const { downloadFile, tmpFile } = await import('../../utils/helpers.js');
     const { mergeSceneClips, finalExport } = await import('../../services/video/ffmpegProcessor.js');
 
+    const totalDuration = reel.totalDuration || reel.duration || null;
+
     // Download all clips to temp files
     const sceneClips = [];
     for (let i = 0; i < clips.length; i++) {
@@ -434,15 +435,14 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
     }
 
     // Stitch clips together
-    const mergedPath = tmpFile(`merged-${reelId}.mp4`);
-    tempFiles.push(mergedPath);
-    await mergeSceneClips(sceneClips.map((c, i) => ({ ...c, localPath: sceneClips[i].localPath })));
+    await mergeSceneClips(sceneClips);
+    tempFiles.push(tmpFile('merged-raw.mp4'));
 
-    // Final export with watermark + Instagram-ready encoding
+    // Final export — trim to exact reel duration + watermark + Instagram encoding
     const finalPath = await finalExport(
       tmpFile('merged-raw.mp4'),
       reelId,
-      { watermarkText: 'thecraftstudios.in' }
+      { watermarkText: 'thecraftstudios.in', trimTo: totalDuration }
     );
     tempFiles.push(finalPath);
 
