@@ -29,7 +29,7 @@ import {
 } from '../../services/storage/s3.js';
 import { redis } from '../../queue/index.js';
 import { logger } from '../../utils/logger.js';
-import { CREDIT_PACKS } from '../../services/payments/stripe.js';
+import { CREDIT_PACKS } from '../../services/payments/razorpay.js';
 
 const router = Router();
 
