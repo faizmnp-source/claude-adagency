@@ -1,46 +1,88 @@
 /**
  * Replicate API — AI video clip generation per scene
- * Uses Stable Video Diffusion with cross-scene consistency seeding
+ *
+ * Models used (cheapest → best quality):
+ *   budget:  wavespeedai/wan-2.1-i2v-480p  ~$0.09/sec  (480p, fast)
+ *   default: minimax/hailuo-video-02-i2v   ~$0.28/6s   (720p, great product motion)
+ *
+ * Set REPLICATE_VIDEO_QUALITY=budget in env for cheaper test runs.
  */
-import fetch from 'node-fetch';
 import { config } from '../../config/index.js';
 import { logger } from '../../utils/logger.js';
-import { uploadToS3, downloadToTemp } from '../storage/s3.js';
-import { tmpFile, sleep } from '../../utils/helpers.js';
-import fs from 'fs/promises';
 
 const REPLICATE_API = 'https://api.replicate.com/v1';
 
+const MODELS = {
+  // Flat $0.28 per 6-second 720p clip — best for product promos
+  default: {
+    owner: 'minimax',
+    name: 'hailuo-video-02-i2v',
+    input: (imageUrl, prompt) => ({
+      prompt: prompt || 'product showcase, smooth camera motion, professional lighting',
+      image_url: imageUrl,
+      duration: 6,
+    }),
+  },
+  // $0.09/sec 480p — cheapest option for testing
+  budget: {
+    owner: 'wavespeedai',
+    name: 'wan-2.1-i2v-480p',
+    input: (imageUrl, prompt) => ({
+      image: imageUrl,
+      prompt: prompt || 'product showcase, smooth motion, professional',
+      duration: 5,
+      guidance_scale: 7,
+      num_inference_steps: 30,
+    }),
+  },
+  // $0.35/5s 1080p — premium quality
+  premium: {
+    owner: 'klingai',
+    name: 'kling-v2.5-turbo-pro-i2v',
+    input: (imageUrl, prompt) => ({
+      image: imageUrl,
+      prompt: prompt || 'product showcase, cinematic motion, professional',
+      duration: 5,
+      cfg_scale: 0.5,
+    }),
+  },
+};
+
 /**
  * Run a Replicate prediction and poll until complete
- * @param {string} modelVersion - Full model version string
- * @param {Object} input - Model input
- * @param {number} timeoutMs - Max wait time
  */
-async function runPrediction(modelVersion, input, timeoutMs = 300_000) {
+async function runPrediction(model, input, timeoutMs = 300_000) {
   const headers = {
     Authorization: `Bearer ${config.replicate.apiToken}`,
     'Content-Type': 'application/json',
-    Prefer: 'wait', // Use synchronous wait if supported
+    Prefer: 'wait=60', // Wait up to 60s synchronously before falling back to polling
   };
 
-  const createRes = await fetch(`${REPLICATE_API}/predictions`, {
+  // New-style models use /models/{owner}/{name}/predictions
+  const url = `${REPLICATE_API}/models/${model.owner}/${model.name}/predictions`;
+
+  const createRes = await fetch(url, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ version: modelVersion, input }),
+    body: JSON.stringify({ input }),
   });
 
   if (!createRes.ok) {
     const err = await createRes.text();
-    throw new Error(`Replicate create failed: ${err}`);
+    throw new Error(`Replicate create failed (${createRes.status}): ${err}`);
   }
 
   let prediction = await createRes.json();
+  logger.info('Replicate prediction created', { id: prediction.id, status: prediction.status });
+
   const deadline = Date.now() + timeoutMs;
 
+  // Poll until done
   while (['starting', 'processing'].includes(prediction.status)) {
-    if (Date.now() > deadline) throw new Error('Replicate prediction timeout');
-    await sleep(3000);
+    if (Date.now() > deadline) throw new Error('Replicate prediction timeout after ' + timeoutMs / 1000 + 's');
+
+    await new Promise(r => setTimeout(r, 4000));
+
     const pollRes = await fetch(`${REPLICATE_API}/predictions/${prediction.id}`, { headers });
     prediction = await pollRes.json();
     logger.debug('Replicate poll', { id: prediction.id, status: prediction.status });
@@ -55,84 +97,74 @@ async function runPrediction(modelVersion, input, timeoutMs = 300_000) {
 
 /**
  * Generate a single video clip for a scene using image-to-video
+ *
  * @param {Object} params
- * @param {string} params.imageUrl - Source product image URL
- * @param {string} params.prompt - Scene description / Stable Diffusion prompt
- * @param {number} params.durationSeconds - Scene duration
- * @param {string} params.reelId - For S3 key naming
+ * @param {string} params.imageUrl  - Product image URL (must be publicly accessible)
+ * @param {string} params.prompt    - Scene description
  * @param {number} params.sceneNumber
- * @param {string|null} params.seedImageUrl - For consistency: use same seed across scenes
+ * @param {string} params.reelId
+ * @param {string} [params.quality] - 'budget' | 'default' | 'premium'
+ * @returns {{ sceneNumber, videoUrl, duration }}
  */
 export async function generateSceneClip({
   imageUrl,
   prompt,
-  durationSeconds,
-  reelId,
   sceneNumber,
-  seedImageUrl = null,
+  reelId,
+  quality,
 }) {
-  logger.info('Generating scene clip', { reelId, sceneNumber, durationSeconds });
+  const modelKey = quality || process.env.REPLICATE_VIDEO_QUALITY || 'default';
+  const model = MODELS[modelKey] || MODELS.default;
 
-  // Stable Video Diffusion input — image-to-video
-  const svdInput = {
-    input_image: imageUrl || seedImageUrl,
-    frames_per_second: 24,
-    // SVD generates ~4s clips; for longer scenes we generate multiple and concat
-    num_frames: Math.min(25, Math.ceil(durationSeconds * 24)),
-    sizing_strategy: 'crop_to_16_9', // Force 9:16 for reels
-    motion_bucket_id: 127, // 0=static, 255=max motion
-    cond_aug: 0.02,
-    decoding_chunk_size: 8,
-    // Negative: avoid blurry, watermark
-    negative_prompt: 'blurry, watermark, text, nsfw, deformed',
-    prompt: prompt || 'professional product showcase, cinematic lighting, high quality',
-  };
+  logger.info('Generating scene clip via Replicate', { reelId, sceneNumber, model: `${model.owner}/${model.name}` });
 
-  const prediction = await runPrediction(config.replicate.videoModel, svdInput, 240_000);
+  const input = model.input(imageUrl, prompt);
+  const prediction = await runPrediction(model, input);
 
-  const outputUrl = Array.isArray(prediction.output)
+  const videoUrl = Array.isArray(prediction.output)
     ? prediction.output[0]
     : prediction.output;
 
-  if (!outputUrl) throw new Error('Replicate returned no output URL');
+  if (!videoUrl) throw new Error('Replicate returned no output URL');
 
-  // Download clip to temp and re-upload to our S3
-  const tempPath = tmpFile(`scene-${sceneNumber}-${reelId}.mp4`);
-  await downloadToTemp(outputUrl, tempPath);
+  logger.info('Scene clip generated', { sceneNumber, videoUrl: videoUrl.substring(0, 60) + '...' });
 
-  const s3Key = `reels/${reelId}/scenes/scene-${sceneNumber}.mp4`;
-  const s3Url = await uploadToS3(tempPath, s3Key, 'video/mp4');
-
-  await fs.unlink(tempPath).catch(() => {});
-  logger.info('Scene clip uploaded to S3', { sceneNumber, s3Url });
-
-  return { sceneNumber, s3Url, s3Key, duration: durationSeconds };
+  return {
+    sceneNumber,
+    videoUrl,
+    duration: input.duration || 5,
+    model: `${model.owner}/${model.name}`,
+  };
 }
 
 /**
- * Generate all scene clips in parallel (with concurrency limit to avoid Replicate rate limits)
+ * Generate all scene clips in parallel (max 2 concurrent to stay within Replicate limits)
+ *
+ * @param {Object[]} scenes   - Array of { sceneNumber, description, replicatePrompt }
+ * @param {string[]} imageUrls - Product images (cycled across scenes)
+ * @param {string}   reelId
+ * @param {Function} [onProgress]
+ * @param {string}   [quality]
  */
-export async function generateAllSceneClips({ scenes, imageUrls, reelId, onProgress }) {
+export async function generateAllSceneClips({ scenes, imageUrls, reelId, onProgress, quality }) {
+  const CONCURRENCY = 2;
   const results = [];
-  const CONCURRENCY = 2; // Replicate allows ~2 concurrent predictions on hobby plan
-
-  // Use first product image as the seed for cross-scene consistency
-  const seedImageUrl = imageUrls?.[0] || null;
 
   for (let i = 0; i < scenes.length; i += CONCURRENCY) {
     const batch = scenes.slice(i, i + CONCURRENCY);
+
     const batchResults = await Promise.all(
       batch.map((scene) =>
         generateSceneClip({
-          imageUrl: imageUrls?.[scene.sceneNumber % imageUrls.length] || seedImageUrl,
+          imageUrl: imageUrls?.[scene.sceneNumber % Math.max(imageUrls.length, 1)] || imageUrls?.[0],
           prompt: scene.replicatePrompt || scene.description,
-          durationSeconds: scene.duration,
-          reelId,
           sceneNumber: scene.sceneNumber,
-          seedImageUrl,
+          reelId,
+          quality,
         })
       )
     );
+
     results.push(...batchResults);
     if (onProgress) onProgress(Math.round(((i + batch.length) / scenes.length) * 100));
   }

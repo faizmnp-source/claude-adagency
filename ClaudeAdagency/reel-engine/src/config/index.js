@@ -16,10 +16,8 @@ export const config = {
 
   replicate: {
     apiToken: process.env.REPLICATE_API_TOKEN,
-    // Stable Video Diffusion model — best for product reels
-    videoModel: 'stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438',
-    // Fallback: minimax/video-01 for scene-to-scene consistency
-    consistencyModel: 'minimax/video-01',
+    // Quality tier: 'budget' ($0.09/sec, 480p) | 'default' ($0.28/6s, 720p) | 'premium' ($0.35/5s, 1080p)
+    videoQuality: process.env.REPLICATE_VIDEO_QUALITY || 'default',
   },
 
   elevenlabs: {

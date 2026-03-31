@@ -286,6 +286,73 @@ router.post('/:id/post', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/reels/:id/generate-video ───────────────────────────────────
+// Runs Replicate image-to-video inline (no worker needed)
+// Call this after /generate gives you script+content
+router.post('/:id/generate-video', authMiddleware, async (req, res) => {
+  try {
+    if (!process.env.REPLICATE_API_TOKEN) {
+      return res.status(503).json({ error: 'REPLICATE_API_TOKEN not configured' });
+    }
+
+    const { id: reelId } = req.params;
+    const { imageUrls = [], quality } = req.body; // quality: 'budget' | 'default' | 'premium'
+
+    if (!imageUrls.length) {
+      return res.status(400).json({ error: 'imageUrls required' });
+    }
+
+    // Load stored reel content (script generated in /generate step)
+    const stored = await redis.get(`reel:result:${reelId}`);
+    if (!stored) return res.status(404).json({ error: 'Reel not found — call /generate first' });
+
+    const reel = JSON.parse(stored);
+    const scenes = reel.content?.scenes || [];
+
+    if (!scenes.length) {
+      // No scenes — generate one clip per image
+      logger.info('No scenes in content, generating one clip per image', { reelId });
+      const { generateSceneClip } = await import('../../services/video/replicateGenerator.js');
+
+      const clips = await Promise.all(
+        imageUrls.slice(0, 4).map((imageUrl, i) =>
+          generateSceneClip({
+            imageUrl,
+            prompt: reel.content?.script?.[0] || 'product showcase, smooth camera motion',
+            sceneNumber: i,
+            reelId,
+            quality,
+          })
+        )
+      );
+
+      const updated = { ...reel, videoClips: clips, videoStatus: 'clips_ready' };
+      await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
+      return res.json({ reelId, videoClips: clips, message: `${clips.length} clips generated` });
+    }
+
+    // Generate one clip per scene
+    const { generateAllSceneClips } = await import('../../services/video/replicateGenerator.js');
+
+    const clips = await generateAllSceneClips({
+      scenes,
+      imageUrls,
+      reelId,
+      quality,
+      onProgress: (pct) => logger.info('Video generation progress', { reelId, pct }),
+    });
+
+    const updated = { ...reel, videoClips: clips, videoStatus: 'clips_ready' };
+    await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
+
+    logger.info('All video clips generated', { reelId, count: clips.length });
+    res.json({ reelId, videoClips: clips, message: `${clips.length} clips generated` });
+  } catch (err) {
+    logger.error('Video generation error', { err: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/reels/credits ────────────────────────────────────────────────
 router.get('/me/credits', authMiddleware, async (req, res) => {
   try {
