@@ -213,6 +213,7 @@ export default function StudioPage() {
   const [voiceoverLoading, setVoiceoverLoading] = useState(false);
   const [videoClips, setVideoClips] = useState<any[]>([]);
   const [videoLoading, setVideoLoading] = useState(false);
+  const [stitchLoading, setStitchLoading] = useState(false);
 
   const generateVoiceover = async () => {
     if (!result?.reelId) return;
@@ -257,6 +258,34 @@ export default function StudioPage() {
       setError(err.message || 'Video generation failed');
     } finally {
       setVideoLoading(false);
+    }
+  };
+
+  const stitchVideo = async () => {
+    if (!result?.reelId) return;
+    setStitchLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/stitch`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer dev-token` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Stitch failed ${res.status}`);
+      }
+      // Trigger browser download
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reel-${result.reelId}.mp4`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError(err.message || 'Stitching failed');
+    } finally {
+      setStitchLoading(false);
     }
   };
 
@@ -623,13 +652,21 @@ export default function StudioPage() {
                   )}
 
                   {/* Generate Video Clips via Replicate */}
-                  {!videoClips.length && (
+                  {!videoClips.length ? (
                     <button
                       onClick={generateVideoClips}
                       disabled={videoLoading}
                       className="gold-btn w-full justify-center px-6 py-3 font-bold disabled:opacity-50"
                     >
                       {videoLoading ? '🎥 Generating clips... (1-3 min)' : '🎥 Generate Video Clips'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={stitchVideo}
+                      disabled={stitchLoading}
+                      className="gold-btn w-full justify-center px-6 py-3 font-bold disabled:opacity-50"
+                    >
+                      {stitchLoading ? '⚙️ Stitching final reel...' : '⚙️ Stitch & Download Final MP4'}
                     </button>
                   )}
 

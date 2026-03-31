@@ -397,6 +397,82 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/reels/:id/stitch ────────────────────────────────────────────
+// Downloads Replicate clips + stitches with FFmpeg into one final MP4
+// Streams the finished MP4 directly back to the browser for download
+router.post('/:id/stitch', authMiddleware, async (req, res) => {
+  const { id: reelId } = req.params;
+  const tempFiles = [];
+
+  try {
+    const stored = await redis.get(`reel:result:${reelId}`);
+    if (!stored) return res.status(404).json({ error: 'Reel not found' });
+
+    const reel = JSON.parse(stored);
+    const clips = reel.videoClips || [];
+
+    if (!clips.length) {
+      return res.status(400).json({ error: 'No video clips found. Run generate-video first.' });
+    }
+
+    logger.info('Stitching clips', { reelId, clipCount: clips.length });
+
+    const { downloadFile, tmpFile } = await import('../../utils/helpers.js');
+    const { mergeSceneClips, finalExport } = await import('../../services/video/ffmpegProcessor.js');
+
+    // Download all clips to temp files
+    const sceneClips = [];
+    for (let i = 0; i < clips.length; i++) {
+      const clip = clips[i];
+      const localPath = tmpFile(`clip-${reelId}-${i}.mp4`);
+      logger.info(`Downloading clip ${i + 1}/${clips.length}`, { url: clip.videoUrl });
+      await downloadFile(clip.videoUrl, localPath);
+      tempFiles.push(localPath);
+      sceneClips.push({ localPath, duration: clip.duration || 5 });
+    }
+
+    // Stitch clips together
+    const mergedPath = tmpFile(`merged-${reelId}.mp4`);
+    tempFiles.push(mergedPath);
+    await mergeSceneClips(sceneClips.map((c, i) => ({ ...c, localPath: sceneClips[i].localPath })));
+
+    // Final export with watermark + Instagram-ready encoding
+    const finalPath = await finalExport(
+      tmpFile('merged-raw.mp4'),
+      reelId,
+      { watermarkText: 'thecraftstudios.in' }
+    );
+    tempFiles.push(finalPath);
+
+    logger.info('Stitch complete, streaming MP4', { reelId, finalPath });
+
+    // Stream MP4 back to browser
+    const { stat } = await import('fs/promises').then(m => ({ stat: m.stat }));
+    const fileStat = await import('fs/promises').then(m => m.stat(finalPath));
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Length', fileStat.size);
+    res.setHeader('Content-Disposition', `attachment; filename="reel-${reelId}.mp4"`);
+
+    const { createReadStream } = await import('fs');
+    const stream = createReadStream(finalPath);
+    stream.pipe(res);
+    stream.on('end', async () => {
+      // Clean up temp files
+      for (const f of tempFiles) {
+        await import('fs/promises').then(m => m.unlink(f).catch(() => {}));
+      }
+    });
+
+  } catch (err) {
+    // Clean up on error
+    for (const f of tempFiles) {
+      await import('fs/promises').then(m => m.unlink(f).catch(() => {}));
+    }
+    logger.error('Stitch error', { err: err.message });
+    if (!res.headersSent) res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/reels/credits ────────────────────────────────────────────────
 router.get('/me/credits', authMiddleware, async (req, res) => {
   try {
