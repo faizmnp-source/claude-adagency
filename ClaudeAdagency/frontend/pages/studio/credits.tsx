@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Script from 'next/script';
 import { useState } from 'react';
 
 const CSLogo = ({ size = 36 }: { size?: number }) => (
@@ -41,9 +40,23 @@ export default function CreditsPage() {
   const [success, setSuccess] = useState(false);
   const REEL_ENGINE = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'http://localhost:4000';
 
+  // Dynamically load Razorpay script if not already loaded
+  const loadRazorpay = (): Promise<void> =>
+    new Promise((resolve, reject) => {
+      if (window.Razorpay) return resolve();
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load Razorpay'));
+      document.body.appendChild(script);
+    });
+
   const handlePurchase = async (packId: string) => {
     setLoading(packId);
     try {
+      // Ensure Razorpay SDK is loaded
+      await loadRazorpay();
+
       // Step 1: Create Razorpay order on backend
       const res = await fetch(`${REEL_ENGINE}/api/payments/order`, {
         method: 'POST',
@@ -89,9 +102,6 @@ export default function CreditsPage() {
 
   return (
     <>
-      {/* Load Razorpay SDK */}
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-
       <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
         <header className="sticky top-0 z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
