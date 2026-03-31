@@ -62,19 +62,22 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── Health check ───────────────────────────────────────────────────────────
+// Always returns 200 — Railway healthcheck only needs the HTTP server to respond
 app.get('/health', async (req, res) => {
+  let redisStatus = 'unknown';
   try {
-    await redis.ping();
-    res.json({
-      status: 'ok',
-      service: 'thecraftstudios-reel-engine',
-      version: '1.0.0',
-      timestamp: new Date().toISOString(),
-      redis: 'connected',
-    });
+    await Promise.race([redis.ping(), new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000))]);
+    redisStatus = 'connected';
   } catch {
-    res.status(503).json({ status: 'degraded', redis: 'disconnected' });
+    redisStatus = 'disconnected';
   }
+  res.json({
+    status: 'ok',
+    service: 'thecraftstudios-reel-engine',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    redis: redisStatus,
+  });
 });
 
 // ── Routes ─────────────────────────────────────────────────────────────────
