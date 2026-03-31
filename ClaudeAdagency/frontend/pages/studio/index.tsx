@@ -79,6 +79,16 @@ export default function StudioPage() {
 
   const creditCost = duration * 2;
 
+  // Fetch real credit balance on load
+  useEffect(() => {
+    fetch(`${REEL_ENGINE_URL}/api/reels/me/credits`, {
+      headers: { Authorization: `Bearer dev-token` },
+    })
+      .then(r => r.json())
+      .then(d => { if (d.balance !== undefined) setCredits(d.balance); })
+      .catch(() => {});
+  }, []);
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
@@ -152,37 +162,19 @@ export default function StudioPage() {
         throw new Error(err.error || 'Generation failed');
       }
 
-      const { reelId, creditsRemaining } = await genRes.json();
-      if (creditsRemaining !== undefined) setCredits(creditsRemaining);
+      const data = await genRes.json();
+      if (data.creditsRemaining !== undefined) setCredits(data.creditsRemaining);
 
+      // Content comes back inline — show result immediately
+      if (data.content) {
+        setResult({ reelId: data.reelId, content: data.content });
+        setStep('done');
+        return;
+      }
+
+      // Fallback: poll for result if content not inline
       setProgress({ step: 'ai_content', percent: 15, message: 'AI generating your viral script...' });
-
-      // Subscribe to SSE progress
-      const es = new EventSource(`${REEL_ENGINE_URL}/api/reels/${reelId}/progress`);
-      eventSourceRef.current = es;
-
-      es.onmessage = (e) => {
-        try {
-          const data = JSON.parse(e.data);
-          if (data.event === 'progress' && data.progress) {
-            setProgress({
-              step: data.progress.step || '',
-              percent: data.progress.percent || 0,
-              message: data.progress.message || STEP_LABELS[data.progress.step] || 'Processing...',
-            });
-          }
-          if (data.event === 'completed') {
-            es.close();
-            setResult(data);
-            setStep('done');
-          }
-        } catch {}
-      };
-
-      es.onerror = () => {
-        es.close();
-        pollStatus(reelId);
-      };
+      pollStatus(data.reelId);
 
     } catch (err: any) {
       // Stay on generating step — show error with retry button

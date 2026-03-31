@@ -112,8 +112,31 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       return res.status(400).json({ error: 'At least one image is required' });
     }
 
-    // Queue the job
-    const job = await addReelJob(userId, reelId, {
+    // ── Run AI content generation INLINE (no worker needed) ──────────────
+    const { generateReelContent } = await import('../../services/ai/contentGenerator.js');
+    const content = await generateReelContent({
+      imageUrls: resolvedImageUrls,
+      productDescription,
+      brandName,
+      duration: parseInt(duration),
+      tone,
+      targetAudience,
+    });
+
+    // Store result in Redis so status endpoint can return it
+    const result = {
+      reelId,
+      status: 'completed',
+      content,
+      creditsUsed: creditResult.required,
+      creditsRemaining: creditResult.balance,
+    };
+    await redis.set(`reel:result:${reelId}`, JSON.stringify(result), 'EX', 86400);
+
+    logger.info('Reel content generated inline', { reelId, userId, duration });
+
+    // Also queue video job in background (won't block response)
+    addReelJob(userId, reelId, {
       imageS3Keys,
       imageUrls: resolvedImageUrls,
       productDescription,
@@ -123,15 +146,13 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       music,
       tone,
       targetAudience,
-    });
+      content, // pass pre-generated content so worker skips Claude step
+    }).catch(() => {}); // fire and forget
 
-    logger.info('Reel job queued', { reelId, userId, duration, jobId: job.id });
-
-    res.status(202).json({
-      message: 'Reel generation started',
+    res.status(200).json({
+      message: 'Reel content generated',
       reelId,
-      jobId: job.id,
-      estimatedTime: `${duration * 2}–${duration * 4} seconds`,
+      content,
       creditsUsed: creditResult.required,
       creditsRemaining: creditResult.balance,
     });

@@ -1,47 +1,44 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 
-const CSLogo = ({ size = 36 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1" y="1" width="38" height="38" rx="8" stroke="#4A6CF7" strokeWidth="1.5" fill="rgba(74,108,247,0.08)" />
-    <text x="5" y="27" fontFamily="Bebas Neue, sans-serif" fontSize="22" fill="#4A6CF7" letterSpacing="1">CS</text>
-    <polygon points="30,20 37,14 37,26" fill="#F59E0B" />
+const CSLogo = ({ size = 40 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="blueG-d" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#5B8DEF"/><stop offset="60%" stopColor="#4A6CF7"/><stop offset="100%" stopColor="#7B5EA7"/>
+      </linearGradient>
+      <linearGradient id="goldG-d" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#FCD34D"/><stop offset="100%" stopColor="#D97706"/>
+      </linearGradient>
+      <linearGradient id="sG-d" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#5B8DEF"/><stop offset="50%" stopColor="#7B5EA7"/><stop offset="100%" stopColor="#F59E0B"/>
+      </linearGradient>
+    </defs>
+    <path d="M28 10 C14 10 6 18 6 30 C6 42 14 50 28 50" stroke="url(#blueG-d)" strokeWidth="4.5" fill="none" strokeLinecap="round"/>
+    <circle cx="28" cy="10" r="2.5" fill="#5B8DEF"/><circle cx="6" cy="30" r="2.5" fill="#5B8DEF"/><circle cx="28" cy="50" r="2.5" fill="#5B8DEF"/>
+    <path d="M38 14 C48 14 52 18 52 24 C52 30 44 30 38 30 C32 30 28 34 28 38 C28 44 32 46 42 46" stroke="url(#sG-d)" strokeWidth="4" fill="none" strokeLinecap="round"/>
+    <circle cx="38" cy="14" r="2" fill="#5B8DEF"/><circle cx="52" cy="24" r="2" fill="#7B5EA7"/>
+    <circle cx="28" cy="38" r="2" fill="#E59830"/><circle cx="42" cy="46" r="2.5" fill="#F59E0B"/>
+    <polygon points="53,22 62,30 53,38" fill="url(#goldG-d)"/>
   </svg>
 );
 
+const NAV_LINKS = [
+  { href: '/services/instagram-reels', label: 'Reels & Branding' },
+  { href: '/services/development', label: 'Web & App' },
+  { href: '/services/software', label: 'AI & Software' },
+];
+
 const DevelopmentPage = () => {
-  const [formData, setFormData] = useState({
-    projectType: '',
-    budget: '',
-    timeline: '',
-    description: '',
-    name: '',
-    email: '',
-    phone: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
-
   return (
     <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
 
-      {/* Header */}
       <header className="fixed top-0 w-full z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-3">
-              <CSLogo size={36} />
+              <CSLogo size={40} />
               <div className="hidden sm:block">
                 <span className="font-bold text-white">thecraft</span>
                 <span className="font-bold" style={{ color: '#F59E0B' }}>studios</span>
@@ -49,9 +46,9 @@ const DevelopmentPage = () => {
               </div>
             </Link>
             <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Home</Link>
-              <Link href="/services/instagram-reels" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Instagram Reels</Link>
-              <Link href="/services/branding" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Branding</Link>
+              {NAV_LINKS.map(({ href, label }) => (
+                <Link key={href} href={href} className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">{label}</Link>
+              ))}
               <Link href="/contact" className="gold-btn px-5 py-2 text-sm font-bold">Get Started</Link>
             </nav>
           </div>
@@ -63,214 +60,118 @@ const DevelopmentPage = () => {
         <div className="blue-orb w-[500px] h-[500px] -top-32 right-0 opacity-40"></div>
         <div className="gold-orb w-[300px] h-[300px] bottom-0 left-0 opacity-30"></div>
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="badge mb-6 mx-auto inline-flex">Web & App Development</div>
+          <div className="badge mb-6 mx-auto inline-flex">Web, Mobile & App Development</div>
           <h1 className="font-display text-6xl md:text-7xl lg:text-8xl text-white mb-6 uppercase leading-none">
-            Web & App Design<br />
-            <span className="gradient-text">That Converts</span>
+            Web & App<br /><span className="gradient-text">That Converts</span>
           </h1>
           <p className="text-[#94A3B8] text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
-            Custom web and mobile app solutions built to complement your content strategy
-            and turn visitors into paying customers.
+            Custom websites, Android & iOS apps — built to look great, load fast, and turn
+            visitors into paying customers.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/contact" className="gold-btn px-10 py-4 text-lg font-bold">Start Your Project →</Link>
+            <Link href="/services/software" className="ghost-btn px-10 py-4 text-lg font-semibold">
+              Need AI / SaaS? →
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Form Section */}
+      {/* Services Grid */}
       <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0D1628' }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="badge mb-4 mx-auto inline-flex">Project Intake</div>
-            <h2 className="font-display text-5xl text-white mb-4 uppercase">Tell Us About Your Project</h2>
-            <p className="text-[#94A3B8] text-lg">Fill out the form and we'll create a custom development plan for you.</p>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="badge mb-4 mx-auto inline-flex">What We Build</div>
+            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Our Development Services</h2>
           </div>
 
-          {!submitted ? (
-            <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 md:p-12 border border-[rgba(74,108,247,0.2)]">
-
-              {/* Project Type */}
-              <div className="mb-8">
-                <label className="block text-sm font-bold text-white mb-3 uppercase tracking-wider">Project Type</label>
-                <select
-                  name="projectType"
-                  value={formData.projectType}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl text-white outline-none transition-all"
-                  style={{
-                    background: 'rgba(13,22,40,0.9)',
-                    border: '1px solid rgba(74,108,247,0.3)',
-                    color: '#fff',
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#4A6CF7'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(74,108,247,0.3)'}
-                >
-                  <option value="" style={{ background: '#0D1628' }}>Select a project type</option>
-                  <option value="web-design" style={{ background: '#0D1628' }}>Web Design</option>
-                  <option value="mobile-app" style={{ background: '#0D1628' }}>Mobile App</option>
-                  <option value="ecommerce" style={{ background: '#0D1628' }}>E-commerce</option>
-                  <option value="custom" style={{ background: '#0D1628' }}>Custom Solution</option>
-                </select>
-              </div>
-
-              {/* Budget */}
-              <div className="mb-8">
-                <label className="block text-sm font-bold text-white mb-4 uppercase tracking-wider">Budget Range</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { value: 'under-5k', label: 'Under $5,000' },
-                    { value: '5k-15k', label: '$5,000 – $15,000' },
-                    { value: '15k-50k', label: '$15,000 – $50,000' },
-                    { value: 'over-50k', label: '$50,000+' },
-                  ].map(option => (
-                    <label key={option.value}
-                      className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer border transition-all ${
-                        formData.budget === option.value
-                          ? 'border-[#4A6CF7] bg-[rgba(74,108,247,0.1)]'
-                          : 'border-[rgba(74,108,247,0.2)] hover:border-[rgba(74,108,247,0.4)]'
-                      }`}>
-                      <input
-                        type="radio"
-                        name="budget"
-                        value={option.value}
-                        checked={formData.budget === option.value}
-                        onChange={handleInputChange}
-                        required
-                        className="w-4 h-4 accent-[#4A6CF7]"
-                      />
-                      <span className="text-[#94A3B8] text-sm">{option.label}</span>
-                    </label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: '🖥️', color: '#4A6CF7', title: 'Website Design & Development', items: ['Landing pages', 'Corporate websites', 'Portfolio sites', 'Custom CMS'], desc: 'Responsive, fast-loading websites that look stunning on every device and are built to convert.' },
+              { icon: '📱', color: '#F59E0B', title: 'Android & iOS App Development', items: ['Native Android apps', 'Native iOS apps', 'Cross-platform (React Native)', 'App Store submission'], desc: 'Mobile-first apps built for performance, designed for user delight and business growth.' },
+              { icon: '🛒', color: '#4A6CF7', title: 'E-commerce Solutions', items: ['Online stores', 'Payment integration', 'Inventory management', 'Order tracking'], desc: 'Complete e-commerce platforms with seamless checkout optimized for maximum conversions.' },
+            ].map((s, i) => (
+              <div key={i} className="glass glass-hover p-8 rounded-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: `radial-gradient(circle, ${s.color}15 0%, transparent 70%)` }}></div>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 relative" style={{ background: `${s.color}15`, border: `1px solid ${s.color}40` }}>{s.icon}</div>
+                <h3 className="text-xl font-bold text-white mb-3">{s.title}</h3>
+                <p className="text-[#94A3B8] text-sm mb-5 leading-relaxed">{s.desc}</p>
+                <ul className="space-y-2">
+                  {s.items.map((item, j) => (
+                    <li key={j} className="flex items-center gap-2 text-sm text-[#94A3B8]">
+                      <span className="font-bold" style={{ color: s.color }}>✓</span>{item}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
+            ))}
+          </div>
 
-              {/* Timeline */}
-              <div className="mb-8">
-                <label className="block text-sm font-bold text-white mb-3 uppercase tracking-wider">Timeline</label>
-                <select
-                  name="timeline"
-                  value={formData.timeline}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl outline-none transition-all"
-                  style={{ background: 'rgba(13,22,40,0.9)', border: '1px solid rgba(74,108,247,0.3)', color: '#fff' }}
-                >
-                  <option value="" style={{ background: '#0D1628' }}>Select timeline</option>
-                  <option value="1-month" style={{ background: '#0D1628' }}>1 Month</option>
-                  <option value="2-months" style={{ background: '#0D1628' }}>2 Months</option>
-                  <option value="3-months" style={{ background: '#0D1628' }}>3 Months</option>
-                  <option value="6-months" style={{ background: '#0D1628' }}>6 Months</option>
-                </select>
+          {/* Software/SaaS CTA card */}
+          <div className="mt-10 glass rounded-2xl p-8 border border-[rgba(245,158,11,0.3)] relative overflow-hidden">
+            <div className="gold-orb w-64 h-64 right-0 top-0 opacity-30"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div>
+                <div className="badge mb-4 inline-flex" style={{ color: '#F59E0B', borderColor: 'rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.1)' }}>🤖 Also Building</div>
+                <h3 className="font-display text-3xl text-white mb-3 uppercase">Need AI Automations or SaaS?</h3>
+                <p className="text-[#94A3B8] max-w-xl">We also build AI-powered SaaS products, finance automation tools, sales CRMs, and custom software. Click below to explore our dedicated software page.</p>
               </div>
-
-              {/* Description */}
-              <div className="mb-8">
-                <label className="block text-sm font-bold text-white mb-3 uppercase tracking-wider">Project Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  rows={5}
-                  placeholder="Tell us about your project goals, requirements, and vision..."
-                  className="w-full px-4 py-3 rounded-xl resize-none outline-none"
-                  style={{ background: 'rgba(13,22,40,0.9)', border: '1px solid rgba(74,108,247,0.3)', color: '#fff' }}
-                />
-              </div>
-
-              {/* Contact */}
-              <div className="border-t border-[rgba(74,108,247,0.2)] pt-8 mb-8">
-                <h3 className="text-lg font-bold text-white mb-6 uppercase tracking-wider">Contact Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2 uppercase tracking-wider">Full Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Your name"
-                      className="w-full px-4 py-3 rounded-xl outline-none"
-                      style={{ background: 'rgba(13,22,40,0.9)', border: '1px solid rgba(74,108,247,0.3)', color: '#fff' }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2 uppercase tracking-wider">Email Address</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="your@email.com"
-                      className="w-full px-4 py-3 rounded-xl outline-none"
-                      style={{ background: 'rgba(13,22,40,0.9)', border: '1px solid rgba(74,108,247,0.3)', color: '#fff' }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2 uppercase tracking-wider">Phone Number</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="+91 99999 99999"
-                    className="w-full px-4 py-3 rounded-xl outline-none"
-                    style={{ background: 'rgba(13,22,40,0.9)', border: '1px solid rgba(74,108,247,0.3)', color: '#fff' }}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="gold-btn w-full justify-center px-8 py-4 text-lg font-bold"
-              >
-                Submit Requirements →
-              </button>
-            </form>
-          ) : (
-            <div className="glass rounded-2xl p-12 text-center border border-[rgba(74,108,247,0.3)]">
-              <div className="w-20 h-20 rounded-2xl bg-[rgba(74,108,247,0.15)] border border-[rgba(74,108,247,0.4)] flex items-center justify-center text-4xl mx-auto mb-6">
-                ✓
-              </div>
-              <h3 className="font-display text-4xl text-white mb-3 uppercase">Requirements Received!</h3>
-              <p className="text-[#94A3B8] text-lg mb-8">
-                Our team will review your project details and contact you within 24 hours.
-              </p>
-              <Link href="/" className="gold-btn px-8 py-3 font-bold">
-                Back to Home
+              <Link href="/services/software" className="gold-btn px-8 py-4 font-bold whitespace-nowrap flex-shrink-0">
+                Explore AI & SaaS →
               </Link>
             </div>
-          )}
+          </div>
         </div>
       </section>
 
-      {/* What We Build */}
+      {/* Process */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 relative space-bg circuit-bg">
-        <div className="blue-orb w-[400px] h-[400px] right-0 bottom-0 opacity-20"></div>
+        <div className="blue-orb w-[400px] h-[400px] right-0 top-0 opacity-20"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Capabilities</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">What We Build</h2>
-            <p className="text-[#94A3B8] text-lg">Full-stack development solutions for modern brands</p>
+            <div className="badge mb-4 mx-auto inline-flex">How We Work</div>
+            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Development Process</h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+            <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-[rgba(74,108,247,0.4)] to-transparent"></div>
             {[
-              { icon: '🖥️', title: 'Responsive Web Design', description: 'Beautiful, fast websites that work on all devices and convert visitors.' },
-              { icon: '⚙️', title: 'Full-Stack Development', description: 'Custom backends, APIs, and databases built for scale.' },
-              { icon: '📱', title: 'Mobile App Development', description: 'Native and cross-platform mobile solutions for iOS and Android.' },
-              { icon: '🛒', title: 'E-commerce Solutions', description: 'Online stores optimized for conversions and seamless checkout.' },
-              { icon: '☁️', title: 'Cloud Integration', description: 'Scalable infrastructure and deployment on AWS, GCP, or Azure.' },
-              { icon: '⚡', title: 'Performance Optimization', description: 'Lightning-fast load times and smooth interactions for maximum retention.' },
-            ].map((service, i) => (
-              <div key={i} className="glass glass-hover p-8 rounded-2xl">
-                <div className="w-12 h-12 rounded-xl bg-[rgba(74,108,247,0.15)] border border-[rgba(74,108,247,0.3)] flex items-center justify-center text-2xl mb-5">
-                  {service.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
-                <p className="text-[#94A3B8] text-sm leading-relaxed">{service.description}</p>
+              { step: '01', icon: '📋', title: 'Discovery', desc: 'We understand your goals, users, and requirements in detail.' },
+              { step: '02', icon: '🎨', title: 'Design', desc: 'UI/UX wireframes and pixel-perfect designs for approval.' },
+              { step: '03', icon: '⚙️', title: 'Build', desc: 'Full development with regular progress updates.' },
+              { step: '04', icon: '🚀', title: 'Launch', desc: 'Testing, deployment, and post-launch support.' },
+            ].map((item, i) => (
+              <div key={i} className="text-center group">
+                <div className="w-20 h-20 rounded-2xl glass border border-[rgba(74,108,247,0.3)] flex items-center justify-center text-3xl mx-auto mb-5 relative z-10 group-hover:border-[#4A6CF7] transition-colors">{item.icon}</div>
+                <div className="text-[#F59E0B] font-bold text-sm tracking-widest mb-2">{item.step}</div>
+                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                <p className="text-[#94A3B8] text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0A1020' }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="badge mb-4 mx-auto inline-flex">Tech Stack</div>
+            <h2 className="font-display text-5xl text-white mb-4 uppercase">What We Use</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { category: 'Frontend', items: ['React / Next.js', 'React Native', 'TypeScript', 'Tailwind CSS'] },
+              { category: 'Backend', items: ['Node.js', 'Python/FastAPI', 'Django', 'REST & GraphQL'] },
+              { category: 'Mobile', items: ['React Native', 'Android (Kotlin)', 'iOS (Swift)', 'Flutter'] },
+              { category: 'Cloud & DB', items: ['AWS / GCP', 'PostgreSQL', 'MongoDB', 'Redis'] },
+            ].map((stack, i) => (
+              <div key={i} className="glass rounded-2xl p-6 border border-[rgba(74,108,247,0.2)]">
+                <h4 className="text-[#4A6CF7] font-bold text-sm uppercase tracking-wider mb-4">{stack.category}</h4>
+                <ul className="space-y-2">
+                  {stack.items.map((item, j) => (
+                    <li key={j} className="text-[#94A3B8] text-sm">{item}</li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -278,26 +179,22 @@ const DevelopmentPage = () => {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #050B18 0%, #0D1628 50%, #050B18 100%)' }}>
+      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050B18 0%, #0D1628 50%, #050B18 100%)' }}>
         <div className="blue-orb w-[400px] h-[400px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="font-display text-6xl md:text-7xl text-white mb-6 uppercase">
-            Need a Website<br /><span className="gradient-text">That Converts?</span>
-          </h2>
-          <p className="text-[#94A3B8] text-xl mb-10">
-            Check out our Instagram Reels service to complement your digital presence.
-          </p>
-          <Link href="/services/instagram-reels" className="gold-btn px-12 py-4 text-lg font-bold">
-            Explore Content Services →
-          </Link>
+          <h2 className="font-display text-6xl md:text-7xl text-white mb-6 uppercase">Ready to Build<br /><span className="gradient-text">Something Great?</span></h2>
+          <p className="text-[#94A3B8] text-xl mb-10">Tell us about your project and we'll get back to you within 24 hours.</p>
+          <Link href="/contact" className="gold-btn px-12 py-4 text-lg font-bold">Start Your Project →</Link>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-10 px-4 border-t border-[rgba(74,108,247,0.15)]" style={{ background: '#050B18' }}>
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[#94A3B8] text-sm">&copy; 2024 TheCraftStudios. All rights reserved.</p>
+          <div className="flex gap-6 text-sm">
+            <a href="mailto:info@thecraftstudios.in" className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors">info@thecraftstudios.in</a>
+            <a href="tel:+917760501116" className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors">+91 77605 01116</a>
+          </div>
         </div>
       </footer>
     </div>
