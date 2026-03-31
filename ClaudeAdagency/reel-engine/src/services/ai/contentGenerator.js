@@ -88,10 +88,22 @@ export async function generateReelContent({
 
   // Add product images for visual analysis
   for (const url of imageUrls.slice(0, 4)) {
-    userContent.push({
-      type: 'image',
-      source: { type: 'url', url },
-    });
+    if (url.startsWith('data:')) {
+      // Base64 data URI — Claude requires type: 'base64', not type: 'url'
+      const commaIdx = url.indexOf(',');
+      const meta = url.slice(5, commaIdx);               // e.g. "image/jpeg;base64"
+      const mediaType = meta.split(';')[0];              // e.g. "image/jpeg"
+      const data = url.slice(commaIdx + 1);              // raw base64 string
+      userContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: mediaType, data },
+      });
+    } else {
+      userContent.push({
+        type: 'image',
+        source: { type: 'url', url },
+      });
+    }
   }
 
   const sceneCount = Math.ceil(duration / (duration === 15 ? 3 : duration === 30 ? 5 : 7));
