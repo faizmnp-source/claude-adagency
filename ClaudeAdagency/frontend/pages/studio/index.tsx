@@ -47,7 +47,7 @@ interface ReelResult {
   };
 }
 
-const REEL_ENGINE_URL = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'http://localhost:4000';
+const REEL_ENGINE_URL = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 
 const STEP_LABELS: Record<string, string> = {
   ai_content: 'Generating viral script with AI...',

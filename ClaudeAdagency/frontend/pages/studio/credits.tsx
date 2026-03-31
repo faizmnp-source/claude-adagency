@@ -38,7 +38,7 @@ declare global {
 export default function CreditsPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const REEL_ENGINE = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'http://localhost:4000';
+  const REEL_ENGINE = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 
   // Dynamically load Razorpay script if not already loaded
   const loadRazorpay = (): Promise<void> =>
