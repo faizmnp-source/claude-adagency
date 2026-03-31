@@ -4,10 +4,14 @@ import { config } from '../config/index.js';
 import { logger } from '../utils/logger.js';
 
 // Shared Redis connection for BullMQ
+// BullMQ requires a separate connection with maxRetriesPerRequest: null
+// We use a dedicated bullmq connection for queues, and a separate one for direct commands
 export const redis = new IORedis(config.redis.url, {
-  maxRetriesPerRequest: null, // Required by BullMQ
+  maxRetriesPerRequest: null,  // Required by BullMQ — keeps queue workers alive
   enableReadyCheck: false,
   lazyConnect: true,
+  connectTimeout: 10000,
+  retryStrategy: (times) => Math.min(times * 500, 5000), // max 5s between retries
 });
 
 redis.on('connect', () => logger.info('Redis connected'));

@@ -55,27 +55,9 @@ app.post('/webhooks/razorpay', express.raw({ type: 'application/json' }), async 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// ── Health check (always 200) ─────────────────────────────────────────────
-app.get('/health', async (req, res) => {
-  let redisStatus = 'unknown';
-  try {
-    const { redis } = await import('../queue/index.js');
-    await Promise.race([
-      redis.ping(),
-      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 2000)),
-    ]);
-    redisStatus = 'connected';
-  } catch {
-    redisStatus = 'disconnected';
-  }
-  res.json({
-    status: 'ok',
-    service: 'thecraftstudios-reel-engine',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    redis: redisStatus,
-    port: PORT,
-  });
+// ── Health check — purely synchronous, no Redis, always instant 200 ────────
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'thecraftstudios-reel-engine', port: PORT, timestamp: new Date().toISOString() });
 });
 
 // ── Routes (lazy-loaded so startup errors don't block HTTP) ───────────────
