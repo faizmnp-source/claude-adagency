@@ -211,6 +211,8 @@ export default function StudioPage() {
 
   const [voiceoverUrl, setVoiceoverUrl] = useState<string | null>(null);
   const [voiceoverLoading, setVoiceoverLoading] = useState(false);
+  const [videoClips, setVideoClips] = useState<any[]>([]);
+  const [videoLoading, setVideoLoading] = useState(false);
 
   const generateVoiceover = async () => {
     if (!result?.reelId) return;
@@ -232,6 +234,29 @@ export default function StudioPage() {
       setError(err.message || 'Voiceover generation failed');
     } finally {
       setVoiceoverLoading(false);
+    }
+  };
+
+  const generateVideoClips = async () => {
+    if (!result?.reelId) return;
+    setVideoLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/generate-video`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        body: JSON.stringify({ quality: 'budget' }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${res.status}`);
+      }
+      const data = await res.json();
+      setVideoClips(data.videoClips || []);
+    } catch (err: any) {
+      setError(err.message || 'Video generation failed');
+    } finally {
+      setVideoLoading(false);
     }
   };
 
@@ -565,29 +590,47 @@ export default function StudioPage() {
                 </div>
                 <h2 className="font-display text-3xl text-white mb-4 uppercase">Your Viral Reel</h2>
 
-                {/* Video preview */}
-                <div className="aspect-[9/16] bg-[rgba(13,22,40,0.9)] rounded-xl overflow-hidden mb-5 border border-[rgba(74,108,247,0.2)] flex items-center justify-center">
-                  {result.downloadUrl ? (
-                    <video
-                      src={result.downloadUrl}
-                      controls
-                      playsInline
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <div className="text-center px-4">
-                      <div className="text-5xl mb-3">🎬</div>
-                      <p className="text-white font-semibold text-sm mb-1">Script Generated!</p>
-                      <p className="text-[#94A3B8] text-xs">Video clips require Replicate API.<br/>Your script &amp; voiceover are ready above.</p>
-                    </div>
-                  )}
-                </div>
+                {/* Video preview / clips */}
+                {videoClips.length > 0 ? (
+                  <div className="mb-5 space-y-3">
+                    <p className="text-xs font-bold text-[#4A6CF7] uppercase tracking-wider">🎬 Generated Clips</p>
+                    {videoClips.map((clip, i) => (
+                      <div key={i} className="rounded-xl overflow-hidden border border-[rgba(74,108,247,0.2)]">
+                        <video src={clip.videoUrl} controls playsInline className="w-full" />
+                        <p className="text-xs text-[#94A3B8] text-center py-1">Scene {clip.sceneNumber + 1} · {clip.duration}s</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="aspect-[9/16] bg-[rgba(13,22,40,0.9)] rounded-xl overflow-hidden mb-5 border border-[rgba(74,108,247,0.2)] flex items-center justify-center">
+                    {result.downloadUrl ? (
+                      <video src={result.downloadUrl} controls playsInline className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="text-center px-4">
+                        <div className="text-5xl mb-3">🎬</div>
+                        <p className="text-white font-semibold text-sm mb-1">Script Generated!</p>
+                        <p className="text-[#94A3B8] text-xs">Click below to generate video clips with AI.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   {result.downloadUrl && (
                     <a href={result.downloadUrl} download className="gold-btn w-full justify-center px-6 py-3 font-bold">
                       ⬇️ Download MP4
                     </a>
+                  )}
+
+                  {/* Generate Video Clips via Replicate */}
+                  {!videoClips.length && (
+                    <button
+                      onClick={generateVideoClips}
+                      disabled={videoLoading}
+                      className="gold-btn w-full justify-center px-6 py-3 font-bold disabled:opacity-50"
+                    >
+                      {videoLoading ? '🎥 Generating clips... (1-3 min)' : '🎥 Generate Video Clips'}
+                    </button>
                   )}
 
                   {/* ElevenLabs Voiceover */}

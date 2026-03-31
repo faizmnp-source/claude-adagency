@@ -10,6 +10,9 @@
 import { Router } from 'express';
 import { v4 as uuid } from 'uuid';
 import multer from 'multer';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 import { authMiddleware } from '../middleware/auth.js';
 import { requireCredits } from '../middleware/credits.js';
 import {
@@ -123,6 +126,23 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       targetAudience,
     });
 
+    // Save base64 images as temp files so Replicate can fetch them via public URL
+    const savedImagePaths = [];
+    for (let i = 0; i < resolvedImageUrls.length; i++) {
+      const url = resolvedImageUrls[i];
+      if (url.startsWith('data:')) {
+        const commaIdx = url.indexOf(',');
+        const meta = url.slice(5, commaIdx);
+        const ext = meta.split(';')[0].split('/')[1] || 'jpg';
+        const tempPath = `/tmp/reel-img-${reelId}-${i}.${ext}`;
+        await fs.writeFile(tempPath, Buffer.from(url.slice(commaIdx + 1), 'base64'));
+        savedImagePaths.push(tempPath);
+      }
+    }
+    if (savedImagePaths.length) {
+      await redis.set(`reel:images:${reelId}`, JSON.stringify(savedImagePaths), 'EX', 3600);
+    }
+
     // Store result in Redis so status endpoint can return it
     const result = {
       reelId,
@@ -130,6 +150,7 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       content,
       creditsUsed: creditResult.required,
       creditsRemaining: creditResult.balance,
+      hasImages: savedImagePaths.length > 0,
     };
     await redis.set(`reel:result:${reelId}`, JSON.stringify(result), 'EX', 86400);
 
@@ -286,6 +307,22 @@ router.post('/:id/post', authMiddleware, async (req, res) => {
   }
 });
 
+// ── GET /api/reels/:id/images/:index ─────────────────────────────────────
+// Serves temp product images so Replicate can fetch them via public URL
+router.get('/:id/images/:index', async (req, res) => {
+  try {
+    const { id: reelId, index } = req.params;
+    const stored = await redis.get(`reel:images:${reelId}`);
+    if (!stored) return res.status(404).json({ error: 'Images not found or expired' });
+    const paths = JSON.parse(stored);
+    const filePath = paths[parseInt(index)];
+    if (!filePath || !existsSync(filePath)) return res.status(404).json({ error: 'Image file not found' });
+    res.sendFile(path.resolve(filePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/reels/:id/generate-video ───────────────────────────────────
 // Runs Replicate image-to-video inline (no worker needed)
 // Call this after /generate gives you script+content
@@ -296,11 +333,18 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     }
 
     const { id: reelId } = req.params;
-    const { imageUrls = [], quality } = req.body; // quality: 'budget' | 'default' | 'premium'
+    const { quality } = req.body; // quality: 'budget' | 'default' | 'premium'
 
-    if (!imageUrls.length) {
-      return res.status(400).json({ error: 'imageUrls required' });
+    // Build public URLs for saved temp images so Replicate can fetch them
+    const savedPaths = await redis.get(`reel:images:${reelId}`);
+    if (!savedPaths) {
+      return res.status(400).json({ error: 'No images found for this reel. Images expire after 1 hour — regenerate the reel.' });
     }
+    const paths = JSON.parse(savedPaths);
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const imageUrls = paths.map((_, i) => `https://${host}/api/reels/${reelId}/images/${i}`);
+
+    logger.info('Building image URLs for Replicate', { reelId, imageUrls });
 
     // Load stored reel content (script generated in /generate step)
     const stored = await redis.get(`reel:result:${reelId}`);
