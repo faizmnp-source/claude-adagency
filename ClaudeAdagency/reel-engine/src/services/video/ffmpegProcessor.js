@@ -47,7 +47,7 @@ export async function mergeSceneClips(sceneClips) {
           `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
         ])
         .videoCodec('libx264')
-        .outputOptions(['-crf 23', '-preset fast', '-pix_fmt yuv420p', '-movflags +faststart'])
+        .outputOptions(['-crf 16', '-preset slow', '-pix_fmt yuv420p', '-movflags +faststart'])
         .noAudio()
         .output(outputPath)
     );
@@ -96,8 +96,8 @@ export async function mergeSceneClips(sceneClips) {
       .outputOptions([
         '-map [vout]',
         '-c:v libx264',
-        '-crf 23',
-        '-preset fast',
+        '-crf 16',
+        '-preset slow',
         '-pix_fmt yuv420p',
         '-movflags +faststart',
         '-an', // no audio at this stage
@@ -243,16 +243,19 @@ export async function finalExport(videoPath, reelId, options = {}) {
       .videoFilter([
         `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease`,
         `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
-        `drawtext=text='${watermarkText}':fontsize=28:fontcolor=white@0.5:x=w-tw-20:y=h-th-20`,
+        `drawtext=text='${watermarkText}':fontsize=24:fontcolor=white@0.4:x=w-tw-20:y=h-th-20`,
       ])
       .videoCodec('libx264')
       .audioCodec('aac')
       .outputOptions([
-        '-crf 21',
-        '-preset medium',
+        '-crf 16',           // Best quality (lower = better; 16 is near-lossless)
+        '-preset slow',      // Slower encode = better compression at same quality
+        '-profile:v high',   // H.264 High profile — max quality
+        '-level 4.2',        // Instagram compatible level
         '-pix_fmt yuv420p',
         '-movflags +faststart',
         '-max_muxing_queue_size 1024',
+        '-b:a 192k',         // High quality audio bitrate
       ])
       .output(outputPath)
   );
