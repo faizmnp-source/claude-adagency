@@ -575,9 +575,10 @@ export default function StudioPage() {
                       className="w-full h-full object-contain"
                     />
                   ) : (
-                    <div className="text-center">
+                    <div className="text-center px-4">
                       <div className="text-5xl mb-3">🎬</div>
-                      <p className="text-[#94A3B8] text-sm">Video ready on server</p>
+                      <p className="text-white font-semibold text-sm mb-1">Script Generated!</p>
+                      <p className="text-[#94A3B8] text-xs">Video clips require Replicate API.<br/>Your script &amp; voiceover are ready above.</p>
                     </div>
                   )}
                 </div>
