@@ -47,7 +47,7 @@ export async function mergeSceneClips(sceneClips) {
           `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
         ])
         .videoCodec('libx264')
-        .outputOptions(['-crf 16', '-preset slow', '-pix_fmt yuv420p', '-movflags +faststart'])
+        .outputOptions(['-crf 20', '-preset fast', '-pix_fmt yuv420p', '-movflags +faststart'])
         .noAudio()
         .output(outputPath)
     );
@@ -96,8 +96,8 @@ export async function mergeSceneClips(sceneClips) {
       .outputOptions([
         '-map [vout]',
         '-c:v libx264',
-        '-crf 16',
-        '-preset slow',
+        '-crf 20',
+        '-preset fast',
         '-pix_fmt yuv420p',
         '-movflags +faststart',
         '-an', // no audio at this stage
@@ -248,14 +248,12 @@ export async function finalExport(videoPath, reelId, options = {}) {
       .videoCodec('libx264')
       .audioCodec('aac')
       .outputOptions([
-        '-crf 16',           // Best quality (lower = better; 16 is near-lossless)
-        '-preset slow',      // Slower encode = better compression at same quality
-        '-profile:v high',   // H.264 High profile — max quality
-        '-level 4.2',        // Instagram compatible level
+        '-crf 20',           // High quality without killing CPU
+        '-preset fast',      // Fast encode — Railway CPU safe
         '-pix_fmt yuv420p',
         '-movflags +faststart',
         '-max_muxing_queue_size 1024',
-        '-b:a 192k',         // High quality audio bitrate
+        '-b:a 128k',
       ])
       .output(outputPath)
   );
