@@ -358,11 +358,13 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
       logger.info('No scenes in content, generating one clip per image', { reelId });
       const { generateSceneClip } = await import('../../services/video/replicateGenerator.js');
 
+      const reelDuration = reel.content?.scenes?.[0]?.duration || 5;
       const clips = await Promise.all(
         imageUrls.slice(0, 4).map((imageUrl, i) =>
           generateSceneClip({
             imageUrl,
-            prompt: reel.content?.script?.[0] || 'product showcase, smooth camera motion',
+            prompt: reel.content?.script || 'product showcase, smooth camera motion',
+            durationSeconds: reelDuration,
             sceneNumber: i,
             reelId,
             quality,

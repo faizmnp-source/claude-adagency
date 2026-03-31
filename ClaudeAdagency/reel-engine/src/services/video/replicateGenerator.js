@@ -12,38 +12,41 @@ import { logger } from '../../utils/logger.js';
 
 const REPLICATE_API = 'https://api.replicate.com/v1';
 
+// Kling supports duration: 5 or 10 only. Minimax supports 6 or 10.
+const clampKling = (d) => d <= 5 ? 5 : 10;
+const clampMinimax = (d) => d <= 6 ? 6 : 10;
+
 const MODELS = {
   // Kling 2.1 Standard — best for product photography, smooth motion, 720p
-  // ~$0.56 per 10s clip. Top-ranked for commercial product videos.
   default: {
     owner: 'klingai',
     name: 'kling-v2.1-standard-image-to-video',
-    input: (imageUrl, prompt) => ({
+    input: (imageUrl, prompt, duration) => ({
       image: imageUrl,
       prompt: prompt || 'product showcase, smooth cinematic camera motion, professional studio lighting, high quality commercial video',
-      duration: 10,
+      duration: clampKling(duration || 5),
       cfg_scale: 0.5,
       aspect_ratio: '9:16',
     }),
   },
-  // Minimax Hailuo 720p — good quality, flat $0.28/6s
+  // Minimax Hailuo 720p — good quality, flat pricing per clip
   budget: {
     owner: 'minimax',
     name: 'hailuo-video-02-i2v',
-    input: (imageUrl, prompt) => ({
+    input: (imageUrl, prompt, duration) => ({
       prompt: prompt || 'product showcase, smooth camera motion, professional lighting, commercial quality',
       image_url: imageUrl,
-      duration: 6,
+      duration: clampMinimax(duration || 6),
     }),
   },
-  // Kling 2.1 Pro — highest quality, 1080p, ~$1.60 per 10s
+  // Kling 2.1 Pro — highest quality, 1080p
   premium: {
     owner: 'klingai',
     name: 'kling-v2.1-pro-image-to-video',
-    input: (imageUrl, prompt) => ({
+    input: (imageUrl, prompt, duration) => ({
       image: imageUrl,
       prompt: prompt || 'product showcase, cinematic camera movement, premium commercial lighting, ultra high quality',
-      duration: 10,
+      duration: clampKling(duration || 5),
       cfg_scale: 0.5,
       aspect_ratio: '9:16',
     }),
@@ -111,6 +114,7 @@ async function runPrediction(model, input, timeoutMs = 300_000) {
 export async function generateSceneClip({
   imageUrl,
   prompt,
+  durationSeconds,
   sceneNumber,
   reelId,
   quality,
@@ -120,7 +124,7 @@ export async function generateSceneClip({
 
   logger.info('Generating scene clip via Replicate', { reelId, sceneNumber, model: `${model.owner}/${model.name}` });
 
-  const input = model.input(imageUrl, prompt);
+  const input = model.input(imageUrl, prompt, durationSeconds);
   const prediction = await runPrediction(model, input);
 
   const videoUrl = Array.isArray(prediction.output)
@@ -160,6 +164,7 @@ export async function generateAllSceneClips({ scenes, imageUrls, reelId, onProgr
         generateSceneClip({
           imageUrl: imageUrls?.[scene.sceneNumber % Math.max(imageUrls.length, 1)] || imageUrls?.[0],
           prompt: scene.replicatePrompt || scene.description,
+          durationSeconds: scene.duration,
           sceneNumber: scene.sceneNumber,
           reelId,
           quality,
