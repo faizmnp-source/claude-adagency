@@ -246,7 +246,7 @@ export default function StudioPage() {
       const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/generate-video`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
-        body: JSON.stringify({ quality: 'budget' }),
+        body: JSON.stringify({ quality: 'default' }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

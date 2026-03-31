@@ -13,37 +13,39 @@ import { logger } from '../../utils/logger.js';
 const REPLICATE_API = 'https://api.replicate.com/v1';
 
 const MODELS = {
-  // Flat $0.28 per 6-second 720p clip — best for product promos
+  // Kling 2.1 Standard — best for product photography, smooth motion, 720p
+  // ~$0.56 per 10s clip. Top-ranked for commercial product videos.
   default: {
+    owner: 'klingai',
+    name: 'kling-v2.1-standard-image-to-video',
+    input: (imageUrl, prompt) => ({
+      image: imageUrl,
+      prompt: prompt || 'product showcase, smooth cinematic camera motion, professional studio lighting, high quality commercial video',
+      duration: 10,
+      cfg_scale: 0.5,
+      aspect_ratio: '9:16',
+    }),
+  },
+  // Minimax Hailuo 720p — good quality, flat $0.28/6s
+  budget: {
     owner: 'minimax',
     name: 'hailuo-video-02-i2v',
     input: (imageUrl, prompt) => ({
-      prompt: prompt || 'product showcase, smooth camera motion, professional lighting',
+      prompt: prompt || 'product showcase, smooth camera motion, professional lighting, commercial quality',
       image_url: imageUrl,
       duration: 6,
     }),
   },
-  // $0.09/sec 480p — cheapest option for testing
-  budget: {
-    owner: 'wavespeedai',
-    name: 'wan-2.1-i2v-480p',
-    input: (imageUrl, prompt) => ({
-      image: imageUrl,
-      prompt: prompt || 'product showcase, smooth motion, professional',
-      duration: 5,
-      guidance_scale: 7,
-      num_inference_steps: 30,
-    }),
-  },
-  // $0.35/5s 1080p — premium quality
+  // Kling 2.1 Pro — highest quality, 1080p, ~$1.60 per 10s
   premium: {
     owner: 'klingai',
-    name: 'kling-v2.5-turbo-pro-i2v',
+    name: 'kling-v2.1-pro-image-to-video',
     input: (imageUrl, prompt) => ({
       image: imageUrl,
-      prompt: prompt || 'product showcase, cinematic motion, professional',
-      duration: 5,
+      prompt: prompt || 'product showcase, cinematic camera movement, premium commercial lighting, ultra high quality',
+      duration: 10,
       cfg_scale: 0.5,
+      aspect_ratio: '9:16',
     }),
   },
 };
