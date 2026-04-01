@@ -14,8 +14,11 @@ import { tmpFile } from '../../utils/helpers.js';
 if (config.ffmpeg.path) ffmpeg.setFfmpegPath(config.ffmpeg.path);
 if (config.ffmpeg.probePath) ffmpeg.setFfprobePath(config.ffmpeg.probePath);
 
-const REEL_WIDTH = 1080;
-const REEL_HEIGHT = 1920;
+// Output at 720p (720×1280) — matches Wan 2.1 source resolution.
+// Upscaling to 1080p doesn't add quality and kills Railway CPU.
+// Upgrade to Railway Pro ($20/mo) if 1080p output is needed.
+const REEL_WIDTH = 720;
+const REEL_HEIGHT = 1280;
 
 /**
  * Run an ffmpeg command as a promise
@@ -37,75 +40,27 @@ function runFFmpeg(command) {
 export async function mergeSceneClips(sceneClips) {
   const outputPath = tmpFile('merged-raw.mp4');
 
-  if (sceneClips.length === 1) {
-    // Single clip — just re-encode to standard format
-    await runFFmpeg(
-      ffmpeg()
-        .input(sceneClips[0].localPath)
-        .videoFilter([
-          `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease`,
-          `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
-        ])
-        .videoCodec('libx264')
-        .outputOptions(['-crf 20', '-preset fast', '-pix_fmt yuv420p', '-movflags +faststart'])
-        .noAudio()
-        .output(outputPath)
-    );
-    logger.info('Single clip encoded', { outputPath });
-    return outputPath;
-  }
-
-  // Multiple clips — use xfade crossfade for seamless transitions
-  // Build a complex filtergraph: scale each input, then xfade chain them together
-  const FADE_DURATION = 0.5; // 0.5s crossfade between clips
-  const cmd = ffmpeg();
-
-  // Add all inputs
-  for (const clip of sceneClips) cmd.input(clip.localPath);
-
-  // Build filtergraph
-  const filters = [];
-  const scaledLabels = [];
-
-  // Step 1: scale + pad each input to 9:16
-  for (let i = 0; i < sceneClips.length; i++) {
-    const label = `v${i}`;
-    filters.push(
-      `[${i}:v]scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease,` +
-      `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black,setsar=1[${label}]`
-    );
-    scaledLabels.push(label);
-  }
-
-  // Step 2: chain xfade filters — each transition starts at (clipDuration - fadeDuration)
-  let currentLabel = scaledLabels[0];
-  let offset = 0;
-
-  for (let i = 1; i < sceneClips.length; i++) {
-    offset += sceneClips[i - 1].duration - FADE_DURATION;
-    const outLabel = i === sceneClips.length - 1 ? 'vout' : `xf${i}`;
-    filters.push(
-      `[${currentLabel}][${scaledLabels[i]}]xfade=transition=fade:duration=${FADE_DURATION}:offset=${offset.toFixed(2)}[${outLabel}]`
-    );
-    currentLabel = outLabel;
-  }
+  // Use concat demuxer — streams clips sequentially, minimal RAM usage
+  // xfade was killed by Railway 512MB limit; concat is production-safe
+  const concatListPath = tmpFile('concat-list.txt');
+  const listContent = sceneClips.map((c) => `file '${c.localPath}'`).join('\n');
+  await fs.writeFile(concatListPath, listContent, 'utf8');
 
   await runFFmpeg(
-    cmd
-      .complexFilter(filters)
-      .outputOptions([
-        '-map [vout]',
-        '-c:v libx264',
-        '-crf 20',
-        '-preset fast',
-        '-pix_fmt yuv420p',
-        '-movflags +faststart',
-        '-an', // no audio at this stage
+    ffmpeg()
+      .input(concatListPath)
+      .inputOptions(['-f concat', '-safe 0'])
+      .videoFilter([
+        `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=decrease`,
+        `pad=${REEL_WIDTH}:${REEL_HEIGHT}:(ow-iw)/2:(oh-ih)/2:black`,
       ])
+      .videoCodec('libx264')
+      .outputOptions(['-crf 20', '-preset fast', '-pix_fmt yuv420p', '-movflags +faststart', '-an'])
       .output(outputPath)
   );
 
-  logger.info('Clips merged with crossfade', { outputPath, clips: sceneClips.length });
+  await fs.unlink(concatListPath).catch(() => {});
+  logger.info('Clips merged via concat', { outputPath, clips: sceneClips.length });
   return outputPath;
 }
 
@@ -248,12 +203,12 @@ export async function finalExport(videoPath, reelId, options = {}) {
       .videoCodec('libx264')
       .audioCodec('aac')
       .outputOptions([
-        '-crf 20',           // High quality without killing CPU
-        '-preset fast',      // Fast encode — Railway CPU safe
+        '-crf 18',           // Near-lossless quality
+        '-preset medium',    // Good quality/speed balance at 720p
         '-pix_fmt yuv420p',
         '-movflags +faststart',
         '-max_muxing_queue_size 1024',
-        '-b:a 128k',
+        '-b:a 192k',
       ])
       .output(outputPath)
   );
