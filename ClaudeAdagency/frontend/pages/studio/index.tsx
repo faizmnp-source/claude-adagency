@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 const CSLogo = ({ size = 40 }: { size?: number }) => (
@@ -61,8 +62,16 @@ const STEP_LABELS: Record<string, string> = {
   done: 'Reel ready!',
 };
 
+// Get auth token — works with both Google OAuth (real JWT) and dev mode
+function getAuthToken(): string {
+  if (typeof window === 'undefined') return 'dev-token';
+  return localStorage.getItem('cs_token') || 'dev-token';
+}
+
 export default function StudioPage() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>('upload');
+  const [user, setUser] = useState<{ name?: string; email?: string; picture?: string } | null>(null);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [duration, setDuration] = useState<Duration>(30);
   const [voice, setVoice] = useState(true);
@@ -79,14 +88,38 @@ export default function StudioPage() {
 
   const creditCost = duration * 2;
 
-  // Fetch real credit balance on load
+  // On load: grab token from URL (post-Google-redirect) or localStorage, then load user + credits
   useEffect(() => {
-    fetch(`${REEL_ENGINE_URL}/api/reels/me/credits`, {
-      headers: { Authorization: `Bearer dev-token` },
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken) {
+      localStorage.setItem('cs_token', urlToken);
+      // Clean token from URL without full reload
+      window.history.replaceState({}, '', '/studio');
+    }
+
+    const token = localStorage.getItem('cs_token') || 'dev-token';
+
+    // Load user profile
+    fetch(`${REEL_ENGINE_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
-      .then(d => { if (d.balance !== undefined) setCredits(d.balance); })
-      .catch(() => {});
+      .then(d => {
+        if (d.id) {
+          setUser({ name: d.name, email: d.email, picture: d.picture });
+          if (d.credits !== undefined) setCredits(d.credits);
+        }
+      })
+      .catch(() => {
+        // Fallback: just fetch credits
+        fetch(`${REEL_ENGINE_URL}/api/reels/me/credits`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then(r => r.json())
+          .then(d => { if (d.balance !== undefined) setCredits(d.balance); })
+          .catch(() => {});
+      });
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -146,7 +179,7 @@ export default function StudioPage() {
       // Start generation — send images as base64
       const genRes = await fetch(`${REEL_ENGINE_URL}/api/reels/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify({
           images: imageData,
           productDescription,
@@ -189,7 +222,7 @@ export default function StudioPage() {
       await new Promise(r => setTimeout(r, 3000));
       try {
         const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${reelId}/status`, {
-          headers: { Authorization: `Bearer dev-token` },
+          headers: { Authorization: `Bearer ${getAuthToken()}` },
         });
         const data = await res.json();
         if (data.progress) setProgress(data.progress);
@@ -221,7 +254,7 @@ export default function StudioPage() {
     try {
       const res = await fetch(`${REEL_ENGINE_URL}/api/audio/voiceover`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify({ reelId: result.reelId }),
       });
       if (!res.ok) {
@@ -245,7 +278,7 @@ export default function StudioPage() {
     try {
       const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/generate-video`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify({ quality: 'budget' }),
       });
       if (!res.ok) {
@@ -268,7 +301,7 @@ export default function StudioPage() {
     try {
       const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/stitch`, {
         method: 'POST',
-        headers: { Authorization: `Bearer dev-token` },
+        headers: { Authorization: `Bearer ${getAuthToken()}` },
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -294,7 +327,7 @@ export default function StudioPage() {
     try {
       await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/post`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify({}),
       });
       alert('✅ Reel posted to Instagram!');
@@ -312,12 +345,21 @@ export default function StudioPage() {
             <CSLogo size={36} />
             <span className="font-bold text-white hidden sm:block">thecraft<span style={{ color: '#F59E0B' }}>studios</span>.in</span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 glass px-4 py-2 rounded-xl border border-[rgba(74,108,247,0.3)]">
               <span className="text-[#94A3B8] text-sm">Credits:</span>
               <span className="font-bold gradient-text text-lg">{credits}</span>
             </div>
             <Link href="/studio/credits" className="gold-btn px-4 py-2 text-sm font-bold">Buy Credits</Link>
+            {user && (
+              <div className="flex items-center gap-2">
+                {user.picture
+                  ? <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-[rgba(74,108,247,0.4)]" />
+                  : <div className="w-8 h-8 rounded-full bg-[rgba(74,108,247,0.3)] flex items-center justify-center text-white text-sm font-bold">{user.name?.[0] || 'U'}</div>
+                }
+                <button onClick={() => { localStorage.removeItem('cs_token'); window.location.href = '/login'; }} className="text-xs text-[#94A3B8] hover:text-white">Sign out</button>
+              </div>
+            )}
           </div>
         </div>
       </header>

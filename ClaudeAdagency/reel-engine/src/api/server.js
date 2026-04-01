@@ -84,6 +84,15 @@ app.use('/api/payments', async (req, res, next) => {
   }
 });
 
+app.use('/api/auth', async (req, res, next) => {
+  try {
+    const { default: authRouter } = await import('./routes/auth.js');
+    authRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use('/api/audio', async (req, res, next) => {
   try {
     const { default: audioRouter } = await import('./routes/audio.js');

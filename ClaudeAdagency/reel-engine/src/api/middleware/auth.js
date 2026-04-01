@@ -69,6 +69,5 @@ export async function devAuth(req, res, next) {
   next();
 }
 
-// Use devAuth until a proper login system is built
-// Switch to requireAuth once you add user accounts / login
-export const authMiddleware = devAuth;
+// Use real JWT auth if GOOGLE_CLIENT_ID is configured, else devAuth for local dev
+export const authMiddleware = process.env.GOOGLE_CLIENT_ID ? requireAuth : devAuth;
