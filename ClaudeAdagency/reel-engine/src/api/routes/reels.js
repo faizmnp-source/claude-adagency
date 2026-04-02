@@ -284,6 +284,13 @@ router.post('/:id/post', authMiddleware, async (req, res) => {
     const caption = customCaption || reel.content?.caption || '';
     const hashtags = customHashtags || reel.content?.hashtags || [];
 
+    // Prefer per-user Instagram connection (Meta OAuth), fallback to global env vars.
+    const userId = req.user.id;
+    const [accessToken, instagramAccountId] = await Promise.all([
+      redis.get(`meta:access_token:${userId}`),
+      redis.get(`meta:ig_account_id:${userId}`),
+    ]);
+
     // Schedule (delay) if scheduleAt provided
     const delay = scheduleAt ? Math.max(0, new Date(scheduleAt) - Date.now()) : 0;
 
@@ -293,7 +300,9 @@ router.post('/:id/post', authMiddleware, async (req, res) => {
         s3Key: reel.finalS3Key,
         caption,
         hashtags,
-        userId: req.user.id,
+        userId,
+        accessToken: accessToken || undefined,
+        instagramAccountId: instagramAccountId || undefined,
       },
       delay
     );

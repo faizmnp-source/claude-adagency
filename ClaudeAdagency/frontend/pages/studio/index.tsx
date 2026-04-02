@@ -72,6 +72,8 @@ export default function StudioPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('upload');
   const [user, setUser] = useState<{ name?: string; email?: string; picture?: string } | null>(null);
+  const [igConnected, setIgConnected] = useState<boolean>(false);
+  const [igPageName, setIgPageName] = useState<string | null>(null);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [duration, setDuration] = useState<Duration>(30);
   const [voice, setVoice] = useState(true);
@@ -120,7 +122,39 @@ export default function StudioPage() {
           .then(d => { if (d.balance !== undefined) setCredits(d.balance); })
           .catch(() => {});
       });
+
+    // Load Instagram connection status
+    fetch(`${REEL_ENGINE_URL}/api/instagram/status`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (typeof d.connected === 'boolean') setIgConnected(d.connected);
+        if (d.pageName) setIgPageName(d.pageName);
+      })
+      .catch(() => {});
   }, []);
+
+  const connectInstagram = () => {
+    const token = localStorage.getItem('cs_token') || 'dev-token';
+    // Navigate to backend connect route (OAuth redirect flow)
+    window.location.href = `${REEL_ENGINE_URL}/api/instagram/connect?token=${encodeURIComponent(token)}`;
+  };
+
+  const disconnectInstagram = async () => {
+    const token = localStorage.getItem('cs_token') || 'dev-token';
+    try {
+      const res = await fetch(`${REEL_ENGINE_URL}/api/instagram/disconnect`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('disconnect_failed');
+      setIgConnected(false);
+      setIgPageName(null);
+    } catch {
+      // ignore
+    }
+  };
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -325,12 +359,17 @@ export default function StudioPage() {
   const postToInstagram = async () => {
     if (!result?.reelId) return;
     try {
-      await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/post`, {
+      const res = await fetch(`${REEL_ENGINE_URL}/api/reels/${result.reelId}/post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify({}),
       });
-      alert('✅ Reel posted to Instagram!');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Post failed ${res.status}`);
+      }
+      const data = await res.json().catch(() => ({}));
+      alert(data.message || '✅ Posting started (check worker logs).');
     } catch {
       alert('Failed to post. Check your Instagram connection in settings.');
     }
@@ -350,6 +389,23 @@ export default function StudioPage() {
               <span className="text-[#94A3B8] text-sm">Credits:</span>
               <span className="font-bold gradient-text text-lg">{credits}</span>
             </div>
+            {!igConnected ? (
+              <button
+                onClick={connectInstagram}
+                className="blue-btn px-4 py-2 text-sm font-bold"
+                title="Connect your Instagram Business account via Meta"
+              >
+                Connect Instagram
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 glass px-3 py-2 rounded-xl border border-[rgba(74,108,247,0.3)]">
+                <span className="text-xs text-[#94A3B8]">IG:</span>
+                <span className="text-xs text-white font-semibold">{igPageName || 'Connected'}</span>
+                <button onClick={disconnectInstagram} className="text-xs text-[#94A3B8] hover:text-white">
+                  Disconnect
+                </button>
+              </div>
+            )}
             <Link href="/studio/credits" className="gold-btn px-4 py-2 text-sm font-bold">Buy Credits</Link>
             {user && (
               <div className="flex items-center gap-2">
