@@ -8,7 +8,7 @@ const REEL_ENGINE_URL = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zool
 
 export default function LoginPage() {
   const router = useRouter();
-  const { token, error } = router.query;
+  const { token, error, details } = router.query;
 
   // If redirected back with token — store it and go to studio
   useEffect(() => {
@@ -45,11 +45,18 @@ export default function LoginPage() {
           {error && (
             <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center">
               {error === 'google_denied' && 'Google sign-in was cancelled.'}
+            {error === 'google_state_invalid' && 'Google sign-in security check failed. Please try again.'}
               {error === 'token_failed' && 'Authentication failed. Please try again.'}
               {error === 'server_error' && 'Server error. Please try again.'}
-              {!['google_denied', 'token_failed', 'server_error'].includes(error as string) && 'Something went wrong. Please try again.'}
+            {!['google_denied', 'google_state_invalid', 'token_failed', 'server_error'].includes(error as string) && 'Something went wrong. Please try again.'}
             </div>
           )}
+
+        {details && typeof details === 'string' && (
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center break-words">
+            {details}
+          </div>
+        )}
 
           {/* Google Sign In */}
           <button

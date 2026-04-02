@@ -6,6 +6,7 @@
  * POST /api/auth/logout          → clear session hint (JWT is stateless)
  */
 import { Router } from 'express';
+import { randomBytes } from 'crypto';
 import { signToken, requireAuth } from '../middleware/auth.js';
 import { logger } from '../../utils/logger.js';
 
@@ -16,12 +17,42 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://thecraftstudios.in';
 
 // Railway reel-engine public URL — used as OAuth redirect base
-const API_URL = process.env.REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
+// Normalize to avoid redirect_uri mismatches caused by trailing slashes.
+const API_URL = (process.env.REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app').replace(/\/$/, '');
 const REDIRECT_URI = `${API_URL}/api/auth/callback/google`;
+
+function parseCookies(cookieHeader = '') {
+  return cookieHeader
+    .split(';')
+    .map(v => v.trim())
+    .filter(Boolean)
+    .reduce((acc, part) => {
+      const idx = part.indexOf('=');
+      if (idx === -1) return acc;
+      const key = part.slice(0, idx);
+      const value = part.slice(idx + 1);
+      acc[key] = decodeURIComponent(value);
+      return acc;
+    }, {});
+}
 
 // ── GET /api/auth/google ──────────────────────────────────────────────────
 // Redirects browser to Google OAuth consent screen
 router.get('/google', (req, res) => {
+  const state = randomBytes(16).toString('hex');
+  const secure = Boolean(req.secure || req.headers['x-forwarded-proto'] === 'https');
+  // Set CSRF state in a cookie so we can validate in the callback.
+  res.cookie('cs_oauth_state', state, {
+    httpOnly: true,
+    secure,
+    sameSite: 'lax',
+    path: '/',
+    // Keep short-lived to reduce risk.
+    maxAge: 10 * 60 * 1000,
+  });
+
+  logger.info('Starting Google OAuth', { redirect_uri: REDIRECT_URI });
+
   const params = new URLSearchParams({
     client_id: GOOGLE_CLIENT_ID,
     redirect_uri: REDIRECT_URI,
@@ -29,6 +60,7 @@ router.get('/google', (req, res) => {
     scope: 'openid email profile',
     access_type: 'offline',
     prompt: 'select_account',
+    state,
   });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
@@ -36,11 +68,19 @@ router.get('/google', (req, res) => {
 // ── GET /api/auth/callback/google ─────────────────────────────────────────
 // Google redirects here with ?code=... after user approves
 router.get('/callback/google', async (req, res) => {
-  const { code, error } = req.query;
+  const { code, error, error_description, state } = req.query;
 
-  if (error || !code) {
-    logger.error('Google OAuth error', { error });
-    return res.redirect(`${FRONTEND_URL}/login?error=google_denied`);
+  const cookies = parseCookies(req.headers.cookie || '');
+  const expectedState = cookies.cs_oauth_state;
+
+  if (!code || error) {
+    logger.error('Google OAuth error', { error, error_description });
+    return res.redirect(`${FRONTEND_URL}/login?error=google_denied&details=${encodeURIComponent(error_description || error || '')}`);
+  }
+
+  if (!state || typeof state !== 'string' || !expectedState || typeof expectedState !== 'string' || state !== expectedState) {
+    logger.error('Google OAuth state mismatch', { state, expectedState: expectedState ? '[present]' : '[missing]' });
+    return res.redirect(`${FRONTEND_URL}/login?error=google_state_invalid`);
   }
 
   try {
