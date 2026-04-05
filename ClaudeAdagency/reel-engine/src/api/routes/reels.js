@@ -270,40 +270,66 @@ router.post('/:id/regenerate', authMiddleware, async (req, res) => {
 });
 
 // ── POST /api/reels/:id/post ──────────────────────────────────────────────
+// Posts the final reel to the user's connected Instagram account
 router.post('/:id/post', authMiddleware, async (req, res) => {
   try {
     const { id: reelId } = req.params;
-    const { scheduleAt, customCaption, customHashtags } = req.body;
+    const userId = req.user.id;
+    const { customCaption, customHashtags } = req.body;
+
+    // Check final video exists on disk
+    const finalPath = await redis.get(`reel:final:${reelId}`);
+    if (!finalPath || !existsSync(finalPath)) {
+      return res.status(400).json({ error: 'Final video not ready. Please generate and stitch first.' });
+    }
+
+    // Check user has Instagram connected
+    const igToken = await redis.get(`instagram:token:${userId}`);
+    const igAccountId = await redis.get(`instagram:account:${userId}`);
+    if (!igToken || !igAccountId) {
+      return res.status(400).json({
+        error: 'Instagram not connected. Connect your Instagram account first.',
+        code: 'IG_NOT_CONNECTED',
+      });
+    }
 
     const stored = await redis.get(`reel:result:${reelId}`);
-    if (!stored) return res.status(404).json({ error: 'Reel not found' });
+    const reel = stored ? JSON.parse(stored) : {};
 
-    const reel = JSON.parse(stored);
-    if (!reel.finalS3Key) return res.status(400).json({ error: 'Reel not yet completed' });
-
-    const caption = customCaption || reel.content?.caption || '';
+    const captionText = customCaption || reel.content?.caption || '';
     const hashtags = customHashtags || reel.content?.hashtags || [];
+    const fullCaption = hashtags.length
+      ? `${captionText}\n\n${hashtags.join(' ')}`
+      : captionText;
 
-    // Schedule (delay) if scheduleAt provided
-    const delay = scheduleAt ? Math.max(0, new Date(scheduleAt) - Date.now()) : 0;
+    // Build public video URL for Meta (uses the serve endpoint)
+    const host = process.env.REEL_ENGINE_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
+    const videoUrl = `${host}/api/reels/${reelId}/video`;
 
-    const job = await addInstagramPostJob(
-      reelId,
-      {
-        s3Key: reel.finalS3Key,
-        caption,
-        hashtags,
-        userId: req.user.id,
-      },
-      delay
-    );
+    logger.info('Posting reel to Instagram', { reelId, userId, igAccountId });
 
-    res.status(202).json({
-      message: delay > 0 ? 'Post scheduled' : 'Posting to Instagram...',
-      jobId: job.id,
-      scheduledFor: scheduleAt || 'immediately',
+    const { postReelToInstagram } = await import('../../services/instagram/metaApi.js');
+    const result = await postReelToInstagram({
+      videoUrl,
+      caption: fullCaption,
+      accessToken: igToken,
+      instagramAccountId: igAccountId,
+    });
+
+    // Mark reel as posted
+    await redis.set(`reel:posted:${reelId}`, JSON.stringify({
+      mediaId: result.mediaId,
+      permalink: result.permalink,
+      postedAt: Date.now(),
+    }), 'EX', 86400 * 7);
+
+    res.json({
+      message: 'Posted to Instagram!',
+      mediaId: result.mediaId,
+      permalink: result.permalink,
     });
   } catch (err) {
+    logger.error('Post to Instagram error', { err: err.message });
     res.status(500).json({ error: err.message });
   }
 });
@@ -398,7 +424,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
 
 // ── POST /api/reels/:id/stitch ────────────────────────────────────────────
 // Downloads Replicate clips + stitches with FFmpeg into one final MP4
-// Streams the finished MP4 directly back to the browser for download
+// Saves to disk and returns JSON { videoUrl } — does NOT stream bytes
 router.post('/:id/stitch', authMiddleware, async (req, res) => {
   const { id: reelId } = req.params;
   const tempFiles = [];
@@ -435,6 +461,7 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
     // Stitch clips together
     await mergeSceneClips(sceneClips);
     tempFiles.push(tmpFile('merged-raw.mp4'));
+    tempFiles.push(tmpFile('concat-list.txt'));
 
     // Final export — trim to exact reel duration + watermark + Instagram encoding
     const finalPath = await finalExport(
@@ -442,25 +469,31 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
       reelId,
       { watermarkText: 'thecraftstudios.in', trimTo: totalDuration }
     );
-    tempFiles.push(finalPath);
+    // Keep finalPath on disk — it's served via GET /:id/video
 
-    logger.info('Stitch complete, streaming MP4', { reelId, finalPath });
+    logger.info('Stitch complete, saving for playback', { reelId, finalPath });
 
-    // Stream MP4 back to browser
-    const { stat } = await import('fs/promises').then(m => ({ stat: m.stat }));
-    const fileStat = await import('fs/promises').then(m => m.stat(finalPath));
-    res.setHeader('Content-Type', 'video/mp4');
-    res.setHeader('Content-Length', fileStat.size);
-    res.setHeader('Content-Disposition', `attachment; filename="reel-${reelId}.mp4"`);
+    // Store final video path in Redis (48h TTL — long enough for client review)
+    await redis.set(`reel:final:${reelId}`, finalPath, 'EX', 172800);
 
-    const { createReadStream } = await import('fs');
-    const stream = createReadStream(finalPath);
-    stream.pipe(res);
-    stream.on('end', async () => {
-      // Clean up temp files
-      for (const f of tempFiles) {
-        await import('fs/promises').then(m => m.unlink(f).catch(() => {}));
-      }
+    // Update reel result with final ready flag
+    const updated = { ...reel, finalVideoReady: true, videoStatus: 'final_ready' };
+    await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
+
+    // Clean up only intermediate temp files (not the final MP4)
+    for (const f of tempFiles) {
+      await import('fs/promises').then(m => m.unlink(f).catch(() => {}));
+    }
+
+    // Build the serve URL using the public API host
+    const host = process.env.REEL_ENGINE_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
+    const videoUrl = `${host}/api/reels/${reelId}/video`;
+
+    res.json({
+      reelId,
+      videoUrl,
+      totalDuration,
+      message: 'Reel ready for review!',
     });
 
   } catch (err) {
@@ -470,6 +503,74 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
     }
     logger.error('Stitch error', { err: err.message });
     if (!res.headersSent) res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/reels/:id/video ──────────────────────────────────────────────
+// Stream final stitched MP4 — supports Range requests for seek in <video>
+router.get('/:id/video', async (req, res) => {
+  try {
+    const { id: reelId } = req.params;
+    const finalPath = await redis.get(`reel:final:${reelId}`);
+
+    if (!finalPath || !existsSync(finalPath)) {
+      return res.status(404).json({ error: 'Final video not found. Please stitch first.' });
+    }
+
+    const { stat } = await import('fs/promises').then(m => ({ stat: m.stat }));
+    const fileStat = await import('fs/promises').then(m => m.stat(finalPath));
+    const fileSize = fileStat.size;
+
+    const range = req.headers.range;
+    if (range) {
+      // Partial content — supports seeking in browser video player
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunkSize = (end - start) + 1;
+
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Content-Length', chunkSize);
+      res.setHeader('Content-Type', 'video/mp4');
+      res.status(206);
+
+      const { createReadStream } = await import('fs');
+      createReadStream(finalPath, { start, end }).pipe(res);
+    } else {
+      res.setHeader('Content-Length', fileSize);
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Content-Disposition', `inline; filename="reel-${reelId}.mp4"`);
+
+      const { createReadStream } = await import('fs');
+      createReadStream(finalPath).pipe(res);
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/reels/:id/download ───────────────────────────────────────────
+// Force-download the final MP4 (same as /video but with attachment header)
+router.get('/:id/download', authMiddleware, async (req, res) => {
+  try {
+    const { id: reelId } = req.params;
+    const finalPath = await redis.get(`reel:final:${reelId}`);
+
+    if (!finalPath || !existsSync(finalPath)) {
+      return res.status(404).json({ error: 'Final video not found. Please stitch first.' });
+    }
+
+    const fileStat = await import('fs/promises').then(m => m.stat(finalPath));
+    res.setHeader('Content-Type', 'video/mp4');
+    res.setHeader('Content-Length', fileStat.size);
+    res.setHeader('Content-Disposition', `attachment; filename="reel-${reelId}.mp4"`);
+
+    const { createReadStream } = await import('fs');
+    createReadStream(finalPath).pipe(res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

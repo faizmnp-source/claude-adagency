@@ -3,27 +3,7 @@
 import Link from 'next/link';
 
 const CSLogo = ({ size = 40 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="blueG-ir" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#5B8DEF"/><stop offset="60%" stopColor="#4A6CF7"/><stop offset="100%" stopColor="#7B5EA7"/>
-      </linearGradient>
-      <linearGradient id="goldG-ir" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#FCD34D"/><stop offset="100%" stopColor="#D97706"/>
-      </linearGradient>
-      <linearGradient id="sG-ir" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#5B8DEF"/><stop offset="50%" stopColor="#7B5EA7"/><stop offset="100%" stopColor="#F59E0B"/>
-      </linearGradient>
-    </defs>
-    <path d="M28 10 C14 10 6 18 6 30 C6 42 14 50 28 50" stroke="url(#blueG-ir)" strokeWidth="4.5" fill="none" strokeLinecap="round"/>
-    <circle cx="28" cy="10" r="2.5" fill="#5B8DEF"/><circle cx="15" cy="14" r="2" fill="#4A6CF7"/>
-    <circle cx="6" cy="30" r="2.5" fill="#5B8DEF"/><circle cx="28" cy="50" r="2.5" fill="#5B8DEF"/>
-    <path d="M38 14 C48 14 52 18 52 24 C52 30 44 30 38 30 C32 30 28 34 28 38 C28 44 32 46 42 46" stroke="url(#sG-ir)" strokeWidth="4" fill="none" strokeLinecap="round"/>
-    <circle cx="38" cy="14" r="2" fill="#5B8DEF"/><circle cx="52" cy="24" r="2" fill="#7B5EA7"/>
-    <circle cx="28" cy="38" r="2" fill="#E59830"/><circle cx="42" cy="46" r="2.5" fill="#F59E0B"/>
-    <polygon points="53,22 62,30 53,38" fill="url(#goldG-ir)"/>
-    <circle cx="53" cy="22" r="1.5" fill="#FCD34D"/><circle cx="53" cy="38" r="1.5" fill="#D97706"/>
-  </svg>
+  <img src="/image.png" alt="CS" width={size} height={size} style={{ objectFit: 'contain' }} />
 );
 
 const NAV_LINKS = [

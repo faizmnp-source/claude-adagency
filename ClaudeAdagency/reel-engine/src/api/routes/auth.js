@@ -1,9 +1,12 @@
 /**
- * Auth Routes — Google OAuth
- * GET /api/auth/google           → redirect to Google login
- * GET /api/auth/callback/google  → handle Google callback, issue JWT
- * GET /api/auth/me               → get current user info
- * POST /api/auth/logout          → clear session hint (JWT is stateless)
+ * Auth Routes — Google OAuth + Instagram OAuth
+ * GET /api/auth/google               → redirect to Google login
+ * GET /api/auth/callback/google      → handle Google callback, issue JWT
+ * GET /api/auth/me                   → get current user info
+ * GET /api/auth/instagram            → redirect to Meta/Instagram OAuth
+ * GET /api/auth/callback/instagram   → handle Instagram callback, store per-user token
+ * GET /api/auth/instagram/status     → check if current user has Instagram connected
+ * DELETE /api/auth/instagram         → disconnect Instagram
  */
 import { Router } from 'express';
 import { signToken, requireAuth } from '../middleware/auth.js';
@@ -13,11 +16,14 @@ const router = Router();
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const META_APP_ID = process.env.META_APP_ID;
+const META_APP_SECRET = process.env.META_APP_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://thecraftstudios.in';
 
 // Railway reel-engine public URL — used as OAuth redirect base
 const API_URL = process.env.REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 const REDIRECT_URI = `${API_URL}/api/auth/callback/google`;
+const IG_REDIRECT_URI = `${API_URL}/api/auth/callback/instagram`;
 
 // ── GET /api/auth/google ──────────────────────────────────────────────────
 // Redirects browser to Google OAuth consent screen
@@ -120,13 +126,204 @@ router.get('/me', requireAuth, async (req, res) => {
     const { getUserCredits } = await import('../../services/credits/creditService.js');
     const credits = await getUserCredits(req.user.id);
 
+    // Check Instagram connection status
+    const igAccountId = await redis.get(`instagram:account:${req.user.id}`);
+    const igProfile = igAccountId ? await redis.get(`instagram:profile:${req.user.id}`) : null;
+
     res.json({
       id: req.user.id,
       email: req.user.email,
       name: req.user.name || profile?.name,
       picture: req.user.picture || profile?.picture,
       credits,
+      instagram: igAccountId ? {
+        connected: true,
+        accountId: igAccountId,
+        ...(igProfile ? JSON.parse(igProfile) : {}),
+      } : { connected: false },
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/auth/instagram ───────────────────────────────────────────────
+// Redirects user to Meta/Facebook OAuth to connect their Instagram account
+// Pass ?token=JWT as query param since this is a browser redirect (no Auth header)
+router.get('/instagram', async (req, res) => {
+  const { token } = req.query;
+  if (!token) {
+    return res.redirect(`${FRONTEND_URL}/studio?error=missing_token`);
+  }
+  if (!META_APP_ID) {
+    return res.redirect(`${FRONTEND_URL}/studio?error=meta_not_configured`);
+  }
+
+  // Encode the JWT as state so we can associate the Instagram token with the user
+  const state = Buffer.from(token).toString('base64url');
+
+  const params = new URLSearchParams({
+    client_id: META_APP_ID,
+    redirect_uri: IG_REDIRECT_URI,
+    scope: 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
+    response_type: 'code',
+    state,
+  });
+
+  res.redirect(`https://www.facebook.com/dialog/oauth?${params}`);
+});
+
+// ── GET /api/auth/callback/instagram ─────────────────────────────────────
+// Meta redirects here after user approves Instagram permissions
+router.get('/callback/instagram', async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error || !code) {
+    logger.error('Instagram OAuth denied', { error });
+    return res.redirect(`${FRONTEND_URL}/studio?error=instagram_denied`);
+  }
+
+  try {
+    // Decode state back to JWT and verify user
+    const jwt = Buffer.from(state, 'base64url').toString();
+    const { requireAuth: verifyToken } = await import('../middleware/auth.js');
+
+    // Manually verify JWT (same logic as requireAuth)
+    const { createHmac, timingSafeEqual } = await import('crypto');
+    const { config } = await import('../../config/index.js');
+    const [header, payload, sig] = jwt.split('.');
+    const expectedSig = createHmac('sha256', config.auth.jwtSecret)
+      .update(`${header}.${payload}`)
+      .digest('base64url');
+
+    if (!timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+      return res.redirect(`${FRONTEND_URL}/studio?error=invalid_token`);
+    }
+
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
+      return res.redirect(`${FRONTEND_URL}/studio?error=token_expired`);
+    }
+
+    const userId = decoded.sub;
+
+    // Exchange code for short-lived token
+    const tokenRes = await fetch('https://graph.facebook.com/v21.0/oauth/access_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: META_APP_ID,
+        client_secret: META_APP_SECRET,
+        redirect_uri: IG_REDIRECT_URI,
+        code,
+      }),
+    });
+
+    if (!tokenRes.ok) {
+      const err = await tokenRes.text();
+      logger.error('Meta token exchange failed', { err });
+      return res.redirect(`${FRONTEND_URL}/studio?error=instagram_token_failed`);
+    }
+
+    const { access_token: shortToken } = await tokenRes.json();
+
+    // Exchange short-lived for long-lived token (60 days)
+    const longTokenRes = await fetch(
+      `https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${META_APP_ID}&client_secret=${META_APP_SECRET}&fb_exchange_token=${shortToken}`
+    );
+    const longTokenData = await longTokenRes.json();
+    const longToken = longTokenData.access_token || shortToken;
+
+    // Get user's Pages → find connected Instagram Business Account
+    const pagesRes = await fetch(
+      `https://graph.facebook.com/v21.0/me/accounts?access_token=${longToken}`
+    );
+    const pagesData = await pagesRes.json();
+    const pages = pagesData.data || [];
+
+    let igAccountId = null;
+    let igUsername = null;
+    let igName = null;
+
+    // Check each page for connected Instagram account
+    for (const page of pages) {
+      const igRes = await fetch(
+        `https://graph.facebook.com/v21.0/${page.id}?fields=instagram_business_account&access_token=${page.access_token || longToken}`
+      );
+      const igData = await igRes.json();
+      if (igData.instagram_business_account?.id) {
+        igAccountId = igData.instagram_business_account.id;
+        // Get IG profile info
+        const profileRes = await fetch(
+          `https://graph.facebook.com/v21.0/${igAccountId}?fields=username,name&access_token=${longToken}`
+        );
+        const profileData = await profileRes.json();
+        igUsername = profileData.username;
+        igName = profileData.name;
+        break;
+      }
+    }
+
+    if (!igAccountId) {
+      logger.warn('No Instagram Business Account found for user', { userId });
+      return res.redirect(`${FRONTEND_URL}/studio?error=no_ig_business_account`);
+    }
+
+    const { redis } = await import('../../queue/index.js');
+
+    // Store per-user Instagram credentials (60 day TTL — token expiry)
+    await redis.set(`instagram:token:${userId}`, longToken, 'EX', 60 * 24 * 3600);
+    await redis.set(`instagram:account:${userId}`, igAccountId, 'EX', 60 * 24 * 3600);
+    await redis.set(`instagram:profile:${userId}`, JSON.stringify({
+      username: igUsername,
+      name: igName,
+    }), 'EX', 60 * 24 * 3600);
+
+    logger.info('Instagram connected for user', { userId, igAccountId, igUsername });
+
+    res.redirect(`${FRONTEND_URL}/studio?instagram=connected&ig_username=${encodeURIComponent(igUsername || '')}`);
+
+  } catch (err) {
+    logger.error('Instagram OAuth callback error', { err: err.message });
+    res.redirect(`${FRONTEND_URL}/studio?error=instagram_server_error`);
+  }
+});
+
+// ── GET /api/auth/instagram/status ───────────────────────────────────────
+// Returns whether current user has Instagram connected
+router.get('/instagram/status', requireAuth, async (req, res) => {
+  try {
+    const { redis } = await import('../../queue/index.js');
+    const igAccountId = await redis.get(`instagram:account:${req.user.id}`);
+    const igProfile = igAccountId ? await redis.get(`instagram:profile:${req.user.id}`) : null;
+
+    if (!igAccountId) {
+      return res.json({ connected: false });
+    }
+
+    res.json({
+      connected: true,
+      accountId: igAccountId,
+      ...(igProfile ? JSON.parse(igProfile) : {}),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/auth/instagram ────────────────────────────────────────────
+// Disconnect Instagram account
+router.delete('/instagram', requireAuth, async (req, res) => {
+  try {
+    const { redis } = await import('../../queue/index.js');
+    const userId = req.user.id;
+    await Promise.all([
+      redis.del(`instagram:token:${userId}`),
+      redis.del(`instagram:account:${userId}`),
+      redis.del(`instagram:profile:${userId}`),
+    ]);
+    logger.info('Instagram disconnected', { userId });
+    res.json({ message: 'Instagram disconnected' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

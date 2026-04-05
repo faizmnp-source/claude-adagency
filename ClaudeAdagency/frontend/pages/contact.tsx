@@ -4,11 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const CSLogo = ({ size = 36 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1" y="1" width="38" height="38" rx="8" stroke="#4A6CF7" strokeWidth="1.5" fill="rgba(74,108,247,0.08)" />
-    <text x="5" y="27" fontFamily="Bebas Neue, sans-serif" fontSize="22" fill="#4A6CF7" letterSpacing="1">CS</text>
-    <polygon points="30,20 37,14 37,26" fill="#F59E0B" />
-  </svg>
+  <img src="/image.png" alt="CS" width={size} height={size} style={{ objectFit: 'contain' }} />
 );
 
 const ContactPage = () => {
