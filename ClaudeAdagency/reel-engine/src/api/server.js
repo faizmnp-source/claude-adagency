@@ -93,6 +93,15 @@ app.use('/api/auth', async (req, res, next) => {
   }
 });
 
+app.use('/api/instagram', async (req, res, next) => {
+  try {
+    const { default: instagramRouter } = await import('./routes/instagram.js');
+    instagramRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use('/api/audio', async (req, res, next) => {
   try {
     const { default: audioRouter } = await import('./routes/audio.js');
