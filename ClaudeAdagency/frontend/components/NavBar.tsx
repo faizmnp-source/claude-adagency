@@ -52,7 +52,7 @@ export const NavBar: React.FC = () => {
       }}>
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <Logo size="small" />
+          <Logo size="medium" />
         </Link>
 
         {/* Desktop nav */}
