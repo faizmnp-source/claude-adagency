@@ -2,10 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-
-const CSLogo = ({ size = 36 }: { size?: number }) => (
-  <img src="/image.png" alt="CS" width={size} height={size} style={{ objectFit: 'contain' }} />
-);
+import Logo from '../../components/Logo';
 
 const PACKS = [
   { id: 'starter', credits: 100, price: '₹499', reels: '2–6', icon: '🚀', tag: null },
@@ -87,9 +84,8 @@ export default function CreditsPage() {
       <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
         <header className="sticky top-0 z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
-              <CSLogo size={36} />
-              <span className="font-bold text-white hidden sm:block">thecraft<span style={{ color: '#F59E0B' }}>studios</span>.in</span>
+            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
+              <Logo variant="horizontal" size="small" color="color" />
             </Link>
             <Link href="/studio" className="ghost-btn px-4 py-2 text-sm">← Back to Studio</Link>
           </div>

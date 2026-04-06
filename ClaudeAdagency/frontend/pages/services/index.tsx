@@ -13,7 +13,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { CSLogo } from '../../components/CSLogo';
+import Logo from '../../components/Logo';
 
 /* ─────────────────────────────────────────
    ICONS (inline SVG — zero deps)
@@ -140,11 +140,8 @@ export default function ServicesPage() {
         }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '72px' }}>
 
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-              <CSLogo size={36} />
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '18px', letterSpacing: '0.06em' }}>
-                thecraft<span style={{ color: '#FF8C00' }}>studios</span>.in
-              </div>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <Logo variant="horizontal" size="small" color="color" />
             </Link>
 
             {/* Desktop nav */}

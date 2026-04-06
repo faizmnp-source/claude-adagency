@@ -4,10 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-/* ── CS Logo (image) ── */
-const CSLogoSmall = ({ size = 32 }: { size?: number }) => (
-  <img src="/image.png" alt="CS" width={size} height={size} style={{ objectFit: 'contain' }} />
-);
+import Logo from '../../components/Logo';
 
 /* ── Bell Icon ── */
 const BellIcon = () => (
@@ -318,8 +315,8 @@ export default function StudioPage() {
       {/* ── Header ── */}
       <header className="sticky top-0 z-50" style={{ background: 'rgba(5,11,24,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <CSLogoSmall size={30} />
+          <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
+            <Logo variant="icon" size="small" color="color" />
           </Link>
 
           <div className="flex items-center gap-3">

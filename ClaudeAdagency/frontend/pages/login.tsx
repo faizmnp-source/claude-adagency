@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { CSLogo } from '../components/CSLogo';
+import Logo from '../components/Logo';
 
 const REEL_ENGINE_URL = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 
@@ -153,14 +153,9 @@ export default function LoginPage() {
 
         {/* ── Logo & brand ── */}
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <Link href="/" style={{ display: 'inline-block', marginBottom: '16px' }} className="float-login">
-            <CSLogo size={64} />
+          <Link href="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px', textDecoration: 'none' }} className="float-login">
+            <Logo variant="vertical" size="large" color="color" />
           </Link>
-          <div>
-            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '28px', color: '#fff', letterSpacing: '0.05em' }}>thecraft</span>
-            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '28px', color: '#F59E0B', letterSpacing: '0.05em' }}>studios</span>
-            <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '28px', color: '#fff', letterSpacing: '0.05em' }}>.in</span>
-          </div>
           <p style={{ color: 'rgba(148,163,184,0.75)', fontSize: '14px', marginTop: '6px', fontFamily: "'Space Grotesk', sans-serif" }}>
             AI-Powered Ads & Automation Platform
           </p>

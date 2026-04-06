@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-
-const CSLogo = ({ size = 36 }: { size?: number }) => (
-  <img src="/image.png" alt="CS" width={size} height={size} style={{ objectFit: 'contain' }} />
-);
+import Logo from '../components/Logo';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -48,13 +45,8 @@ const ContactPage = () => {
       <header className="fixed top-0 w-full z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center gap-3">
-              <CSLogo size={36} />
-              <div className="hidden sm:block">
-                <span className="font-bold text-white">thecraft</span>
-                <span className="font-bold" style={{ color: '#F59E0B' }}>studios</span>
-                <span className="font-bold text-white">.in</span>
-              </div>
+            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
+              <Logo variant="horizontal" size="small" color="color" />
             </Link>
             <nav className="hidden md:flex items-center gap-8">
               <Link href="/" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Home</Link>
