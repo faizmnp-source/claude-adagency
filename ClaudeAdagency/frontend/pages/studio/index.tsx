@@ -384,8 +384,8 @@ export default function StudioPage() {
 
             {/* Title */}
             <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Create Viral Reel</h1>
-              <p className="text-[#94A3B8] text-sm">Turn your product into high-converting content</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">AI Reel Studio</h1>
+              <p className="text-[#94A3B8] text-sm">Turn your product into scroll-stopping content — in minutes.</p>
             </div>
 
             {/* Product input */}
@@ -607,7 +607,7 @@ export default function StudioPage() {
                   <div className="feature-badge mb-4" style={{ color: '#E040FB', borderColor: 'rgba(229,9,20,0.3)', background: 'rgba(229,9,20,0.06)' }}>🎉 Reel Ready</div>
                 )}
 
-                <h2 className="text-xl font-bold text-white mb-4">Your Viral Reel</h2>
+                <h2 className="text-xl font-bold text-white mb-4">Your Reel is Ready</h2>
 
                 {/* Video player */}
                 <div className="aspect-[9/16] rounded-xl overflow-hidden mb-5" style={{ background: 'rgba(5,11,24,0.8)', border: '1px solid rgba(255,255,255,0.08)' }}>
