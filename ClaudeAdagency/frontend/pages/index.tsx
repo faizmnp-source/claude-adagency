@@ -8,7 +8,7 @@
  *   • frontend-design         → Red/black cinematic aesthetic, Bebas Neue display
  *
  * Pages Router → pages/index.tsx
- * Colors: bg #0A0A0A | accent #EE0000 | text #FFFFFF / #E8E8E8
+ * Colors: bg #0A0A0A | accent #E50914 (Netflix red) | text #FFFFFF / #E8E8E8
  */
 
 import Head from 'next/head';
@@ -19,9 +19,9 @@ import { ScrollReveal } from '../components/ScrollReveal';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 
 /* ─── Palette ────────────────────────────────── */
-const R = '#EE0000';
-const R_GLOW = 'rgba(238,0,0,0.35)';
-const R_GLOW_SOFT = 'rgba(238,0,0,0.15)';
+const R = '#E50914';           // Netflix red — flat, no shine
+const R_GLOW = 'rgba(229,9,20,0.18)';      // very subtle, only for borders
+const R_GLOW_SOFT = 'rgba(229,9,20,0.08)'; // near invisible glow
 const BG = '#0A0A0A';
 const BG2 = '#111111';
 const BG3 = '#1A1A1A';
@@ -155,7 +155,7 @@ export default function HomePage() {
         <header style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
           background: scrolled ? 'rgba(10,10,10,0.97)' : 'transparent',
-          borderBottom: scrolled ? `1px solid rgba(238,0,0,0.18)` : '1px solid transparent',
+          borderBottom: scrolled ? `1px solid rgba(229,9,20,0.18)` : '1px solid transparent',
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           transition: 'all 0.3s',
         }}>
@@ -174,9 +174,9 @@ export default function HomePage() {
                   onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}
                 >{label}</Link>
               ))}
-              <Link href="/services" style={{ padding: '10px 24px', borderRadius: '4px', background: R, color: TEXT, fontSize: '13px', fontWeight: 700, textDecoration: 'none', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', boxShadow: `0 0 20px ${R_GLOW}`, transition: 'all 0.2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px rgba(238,0,0,0.65)`; (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${R_GLOW}`; (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+              <Link href="/services" style={{ padding: '10px 24px', borderRadius: '4px', background: R, color: TEXT, fontSize: '13px', fontWeight: 700, textDecoration: 'none', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', transition: 'all 0.2s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
               >GET STARTED</Link>
             </nav>
 
@@ -188,7 +188,7 @@ export default function HomePage() {
           </div>
 
           {mobileOpen && (
-            <div style={{ background: 'rgba(10,10,10,0.99)', borderTop: `1px solid rgba(238,0,0,0.15)`, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ background: 'rgba(10,10,10,0.99)', borderTop: `1px solid rgba(229,9,20,0.15)`, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {NAV.map(({ href, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{ fontSize: '16px', fontWeight: 500, color: TEXT2, textDecoration: 'none' }}>{label}</Link>
               ))}
@@ -212,20 +212,20 @@ export default function HomePage() {
           background: `radial-gradient(ellipse at 50% 40%, #1c1c1c 0%, ${BG} 65%)`,
         }}>
           {/* Dramatic red radial glow — center BG */}
-          <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%)', width: '900px', height: '700px', background: `radial-gradient(ellipse, rgba(238,0,0,0.14) 0%, transparent 65%)`, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%)', width: '900px', height: '700px', background: `radial-gradient(ellipse, rgba(229,9,20,0.14) 0%, transparent 65%)`, pointerEvents: 'none' }} />
           {/* Top vignette */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: `linear-gradient(to bottom, ${BG}, transparent)`, pointerEvents: 'none' }} />
           {/* Bottom fade */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '200px', background: `linear-gradient(to bottom, transparent, ${BG})`, pointerEvents: 'none' }} />
           {/* Red particles (CSS only) */}
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(1.5px 1.5px at 12% 18%, rgba(238,0,0,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 88% 22%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(2px 2px at 50% 70%, rgba(238,0,0,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 75% 60%, rgba(238,0,0,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 40% 40%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 65% 10%, rgba(238,0,0,0.4) 0%, transparent 100%)`, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(1.5px 1.5px at 12% 18%, rgba(229,9,20,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 88% 22%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(2px 2px at 50% 70%, rgba(229,9,20,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 75% 60%, rgba(229,9,20,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 40% 40%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 65% 10%, rgba(229,9,20,0.4) 0%, transparent 100%)`, pointerEvents: 'none' }} />
 
           {/* Content */}
           <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 24px', maxWidth: '960px', margin: '0 auto' }}>
 
             {/* Eyebrow */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 20px', border: `1px solid rgba(238,0,0,0.45)`, background: 'rgba(238,0,0,0.06)', borderRadius: '2px', marginBottom: '36px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: R, boxShadow: `0 0 10px ${R}`, display: 'inline-block', animation: 'redPulse 2s ease-in-out infinite' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 20px', border: `1px solid rgba(229,9,20,0.45)`, background: 'rgba(229,9,20,0.06)', borderRadius: '2px', marginBottom: '36px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: R, display: 'inline-block', animation: 'redPulse 2s ease-in-out infinite' }} />
               <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: R }}>India's Premier Digital Agency</span>
             </div>
 
@@ -236,11 +236,10 @@ export default function HomePage() {
               lineHeight: 0.9,
               letterSpacing: '6px',
               color: TEXT,
-              textShadow: `0 0 40px rgba(238,0,0,0.4), 0 0 80px rgba(238,0,0,0.15)`,
               marginBottom: '20px',
             }}>
               YOUR COMPLETE<br />
-              <span style={{ color: R, textShadow: `0 0 50px rgba(238,0,0,0.7), 0 0 100px rgba(238,0,0,0.3)` }}>DIGITAL PLATFORM</span>
+              <span style={{ color: R }}>DIGITAL PLATFORM</span>
             </h1>
 
             {/* Subheading — Bebas Neue, red accent */}
@@ -262,12 +261,11 @@ export default function HomePage() {
                 background: R, color: TEXT,
                 fontSize: '16px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
                 textDecoration: 'none',
-                boxShadow: `0 0 30px rgba(238,0,0,0.6), 0 0 60px rgba(238,0,0,0.2)`,
                 transition: 'all 0.25s',
                 borderRadius: '2px',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 0 50px rgba(238,0,0,0.85), 0 0 100px rgba(238,0,0,0.3)`; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 0 30px rgba(238,0,0,0.6), 0 0 60px rgba(238,0,0,0.2)`; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
               >
                 START BUILDING NOW
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -283,7 +281,7 @@ export default function HomePage() {
                 borderRadius: '2px',
                 transition: 'all 0.25s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(238,0,0,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${R_GLOW_SOFT}`; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
               >
                 SCHEDULE DEMO
@@ -303,7 +301,7 @@ export default function HomePage() {
             skill: scroll-experience (animated counters)
             skill: landing-page-generator (grid pattern)
         ══════════════════════════════ */}
-        <section style={{ background: '#000', borderTop: `1px solid rgba(238,0,0,0.12)`, borderBottom: `1px solid rgba(238,0,0,0.12)`, padding: '64px 24px' }}>
+        <section style={{ background: '#000', borderTop: `1px solid rgba(229,9,20,0.12)`, borderBottom: `1px solid rgba(229,9,20,0.12)`, padding: '64px 24px' }}>
           <div style={{ maxWidth: '960px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', textAlign: 'center' }}>
             {[
               { icon: Ic.briefcase, target: 500, suffix: '+', label: 'Digital Platforms Built' },
@@ -314,7 +312,7 @@ export default function HomePage() {
                 <div style={{ color: R, display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
                   {s.icon}
                 </div>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '52px', color: TEXT, lineHeight: 1, marginBottom: '8px', textShadow: `0 0 20px ${R_GLOW_SOFT}` }}>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '52px', color: TEXT, lineHeight: 1, marginBottom: '8px' }}>
                   <AnimatedCounter target={s.target} prefix={s.prefix ?? ''} suffix={s.suffix} />
                 </div>
                 <div style={{ fontSize: '13px', color: MUTED, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{s.label}</div>
@@ -332,7 +330,7 @@ export default function HomePage() {
           <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
 
             <ScrollReveal direction="up" style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', border: `1px solid rgba(238,0,0,0.35)`, background: 'rgba(238,0,0,0.05)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: R, marginBottom: '20px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', border: `1px solid rgba(229,9,20,0.35)`, background: 'rgba(229,9,20,0.05)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: R, marginBottom: '20px' }}>
                 <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: R, display: 'inline-block' }} />
                 What We Build
               </div>
@@ -375,21 +373,21 @@ export default function HomePage() {
                       overflow: 'hidden',
                       cursor: 'pointer',
                       transform: svc.featured ? 'translateY(-16px)' : 'none',
-                      boxShadow: svc.featured ? `0 0 40px rgba(238,0,0,0.25), 0 0 80px rgba(238,0,0,0.08)` : 'none',
+                      boxShadow: svc.featured ? `0 0 40px rgba(229,9,20,0.25), 0 0 80px rgba(229,9,20,0.08)` : 'none',
                       transition: 'all 0.3s ease',
                       height: '100%',
                     }}
                       onMouseEnter={e => {
                         const el = e.currentTarget as HTMLElement;
                         el.style.boxShadow = svc.featured
-                          ? `0 0 60px rgba(238,0,0,0.5), 0 0 120px rgba(238,0,0,0.15)`
-                          : `0 0 35px rgba(238,0,0,0.2)`;
+                          ? `0 0 60px rgba(229,9,20,0.5), 0 0 120px rgba(229,9,20,0.15)`
+                          : `0 0 35px rgba(229,9,20,0.2)`;
                         el.style.transform = svc.featured ? 'translateY(-20px) scale(1.02)' : 'scale(1.05) translateY(-4px)';
                         el.style.border = `${svc.featured ? '2px' : '1px'} solid ${R}`;
                       }}
                       onMouseLeave={e => {
                         const el = e.currentTarget as HTMLElement;
-                        el.style.boxShadow = svc.featured ? `0 0 40px rgba(238,0,0,0.25)` : 'none';
+                        el.style.boxShadow = svc.featured ? `0 0 40px rgba(229,9,20,0.25)` : 'none';
                         el.style.transform = svc.featured ? 'translateY(-16px)' : 'none';
                         el.style.border = svc.featured ? `2px solid ${R}` : `1px solid rgba(255,255,255,0.08)`;
                         if (!svc.featured) el.style.borderLeft = `4px solid ${R}`;
@@ -397,12 +395,12 @@ export default function HomePage() {
                     >
                       {/* Inner glow for featured */}
                       {svc.featured && (
-                        <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '280px', height: '160px', background: `radial-gradient(ellipse, rgba(238,0,0,0.1) 0%, transparent 70%)`, pointerEvents: 'none' }} />
+                        <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '280px', height: '160px', background: `radial-gradient(ellipse, rgba(229,9,20,0.1) 0%, transparent 70%)`, pointerEvents: 'none' }} />
                       )}
 
                       {/* Core badge */}
                       {svc.featured && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid rgba(238,0,0,0.5)`, background: 'rgba(238,0,0,0.08)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: R, marginBottom: '20px' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid rgba(229,9,20,0.5)`, background: 'rgba(229,9,20,0.08)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: R, marginBottom: '20px' }}>
                           ⭐ Core Service
                         </div>
                       )}
@@ -412,7 +410,7 @@ export default function HomePage() {
                         width: svc.featured ? '64px' : '56px',
                         height: svc.featured ? '64px' : '56px',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: 'rgba(238,0,0,0.08)', border: `1px solid rgba(238,0,0,0.25)`,
+                        background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.25)`,
                         color: R, marginBottom: '24px',
                         boxShadow: svc.featured ? `0 0 20px ${R_GLOW_SOFT}` : 'none',
                       }}>
@@ -449,10 +447,10 @@ export default function HomePage() {
                       <div style={{
                         display: 'inline-flex', alignItems: 'center', gap: '8px',
                         padding: svc.featured ? '13px 28px' : '11px 22px',
-                        background: svc.featured ? R : 'rgba(238,0,0,0.06)',
+                        background: svc.featured ? R : 'rgba(229,9,20,0.06)',
                         color: svc.featured ? TEXT : R,
                         fontSize: '13px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em',
-                        border: svc.featured ? 'none' : `1px solid rgba(238,0,0,0.3)`,
+                        border: svc.featured ? 'none' : `1px solid rgba(229,9,20,0.3)`,
                         transition: 'all 0.2s',
                         boxShadow: svc.featured ? `0 0 20px ${R_GLOW}` : 'none',
                       }}>
@@ -502,7 +500,7 @@ export default function HomePage() {
                   }}
                     onMouseEnter={e => {
                       const el = e.currentTarget as HTMLElement;
-                      el.style.boxShadow = `0 0 30px ${R_GLOW_SOFT}`;
+                      el.style.boxShadow = "none";
                       el.style.transform = 'scale(1.02) translateY(-3px)';
                     }}
                     onMouseLeave={e => {
@@ -511,7 +509,7 @@ export default function HomePage() {
                       el.style.transform = 'scale(1) translateY(0)';
                     }}
                   >
-                    <div style={{ width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(238,0,0,0.08)', border: `1px solid rgba(238,0,0,0.2)`, color: R, marginBottom: '20px', boxShadow: `0 0 16px ${R_GLOW_SOFT}` }}>
+                    <div style={{ width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.2)`, color: R, marginBottom: '20px', }}>
                       {b.icon}
                     </div>
                     <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', letterSpacing: '2px', color: TEXT, marginBottom: '12px' }}>
@@ -532,7 +530,7 @@ export default function HomePage() {
         ══════════════════════════════ */}
         <section style={{ position: 'relative', overflow: 'hidden', padding: '120px 24px' }}>
           {/* Full red gradient background */}
-          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, #EE0000 0%, #BB0000 60%, #8B0000 100%)` }} />
+          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, #E50914 0%, #B0060F 60%, #8B0000 100%)` }} />
           {/* Dark overlay for contrast */}
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.42)' }} />
           {/* Radial center glow */}
@@ -639,9 +637,9 @@ export default function HomePage() {
                     { icon: Ic.instagram, label: 'Instagram' },
                     { icon: Ic.twitter, label: 'Twitter' },
                   ].map(({ icon, label }) => (
-                    <a key={label} href="#" aria-label={label} style={{ width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid rgba(238,0,0,0.3)`, color: R, textDecoration: 'none', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 0 16px ${R_GLOW}`; (e.currentTarget as HTMLElement).style.borderColor = R; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(238,0,0,0.3)'; }}
+                    <a key={label} href="#" aria-label={label} style={{ width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid rgba(229,9,20,0.3)`, color: R, textDecoration: 'none', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.borderColor = R; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(229,9,20,0.3)'; }}
                     >{icon}</a>
                   ))}
                 </div>
@@ -713,8 +711,8 @@ export default function HomePage() {
 
         /* Red pulse dot */
         @keyframes redPulse {
-          0%, 100% { box-shadow: 0 0 8px #EE0000; opacity: 1; }
-          50% { box-shadow: 0 0 20px #EE0000; opacity: 0.65; }
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.45; }
         }
 
         /* Smooth scroll */
