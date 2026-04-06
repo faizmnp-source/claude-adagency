@@ -18,11 +18,11 @@
   --border:     rgba(74,108,247,0.2);
   --border-gold:rgba(245,158,11,0.3);
 
-  --neon-cyan:    #00E5FF;
-  --neon-blue:    #4A6CF7;
-  --neon-purple:  #7B2FFF;
-  --neon-magenta: #FF00FF;
-  --neon-pink:    #E040FB;
+  --neon-cyan:    #E50914;
+  --neon-blue:    #E50914;
+  --neon-purple:  #E50914;
+  --neon-magenta: #B0060F;
+  --neon-pink:    #E50914;
 
   /* Legacy vars kept for dashboard compat */
   --ink:    #050B18;
@@ -202,7 +202,7 @@ body {
   justify-content: center;
   padding: 18px 48px;
   border-radius: 16px;
-  background: rgba(10,16,32,0.9);
+  background: rgba(10,10,10,0.9);
   color: #fff;
   font-size: 18px;
   font-weight: 700;
@@ -284,14 +284,14 @@ body {
   font-family: 'Space Grotesk', sans-serif;
 }
 .mode-pill:hover {
-  border-color: rgba(74,108,247,0.4);
-  background: rgba(74,108,247,0.08);
+  border-color: rgba(229,9,20,0.4);
+  background: rgba(229,9,20,0.06);
 }
 .mode-pill-active {
-  border-color: rgba(0,229,255,0.5);
-  background: rgba(0,229,255,0.06);
+  border-color: rgba(229,9,20,0.6);
+  background: rgba(229,9,20,0.08);
   color: #fff;
-  box-shadow: 0 0 16px rgba(0,229,255,0.15), inset 0 0 16px rgba(0,229,255,0.05);
+  box-shadow: none;
 }
 
 /* Feature badge (for landing page) */
@@ -360,8 +360,8 @@ body {
   color: rgba(148,163,184,0.5);
 }
 .dark-input:focus {
-  border-color: rgba(74,108,247,0.5);
-  box-shadow: 0 0 0 3px rgba(74,108,247,0.1);
+  border-color: rgba(229,9,20,0.5);
+  box-shadow: 0 0 0 3px rgba(229,9,20,0.08);
 }
 
 .dark-input-label {
@@ -391,7 +391,7 @@ body {
   background-clip: text;
 }
 .purple-gradient-text {
-  background: linear-gradient(135deg, #7B5EA7 0%, #E040FB 50%, #FF6090 100%);
+  background: linear-gradient(135deg, #E50914 0%, #B0060F 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -529,7 +529,7 @@ body {
 .purple-orb {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(123,46,255,0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(229,9,20,0.12) 0%, transparent 70%);
   pointer-events: none;
   filter: blur(40px);
 }

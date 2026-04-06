@@ -6,7 +6,7 @@
  *   • page-cro               → Visual hierarchy, center-card elevation
  *   • marketing-psychology    → Loss-aversion CTA, social proof strip
  *
- * Design: dark-saas | #000 bg | #FF8C00 orange accent
+ * Design: dark-saas | #000 bg | #E50914 orange accent
  * Router: Next.js Pages Router → pages/services/index.tsx
  */
 
@@ -73,7 +73,7 @@ const SERVICES = [
     features: ['Instagram Reels & Auto-Post', 'Paid Campaigns (Meta + Google)', 'Real-Time Analytics', 'Content Strategy'],
     link: '/services/instagram-reels',
     featured: true,
-    accent: '#FF8C00',
+    accent: '#E50914',
     label: '⭐ Core Service',
   },
   {
@@ -134,7 +134,7 @@ export default function ServicesPage() {
         <header style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
           background: scrolled ? 'rgba(0,0,0,0.95)' : 'transparent',
-          borderBottom: scrolled ? '1px solid rgba(255,140,0,0.12)' : '1px solid transparent',
+          borderBottom: scrolled ? '1px solid rgba(229,9,20,0.12)' : '1px solid transparent',
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           transition: 'all 0.3s',
         }}>
@@ -148,14 +148,14 @@ export default function ServicesPage() {
             <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
               {NAV_LINKS.map(({ href, label }) => (
                 <Link key={href} href={href}
-                  style={{ color: href === '/services' ? '#FF8C00' : 'rgba(255,255,255,0.6)', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', letterSpacing: '0.02em' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#FF8C00')}
-                  onMouseLeave={e => (e.currentTarget.style.color = href === '/services' ? '#FF8C00' : 'rgba(255,255,255,0.6)')}
+                  style={{ color: href === '/services' ? '#E50914' : 'rgba(255,255,255,0.6)', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', letterSpacing: '0.02em' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
+                  onMouseLeave={e => (e.currentTarget.style.color = href === '/services' ? '#E50914' : 'rgba(255,255,255,0.6)')}
                 >{label}</Link>
               ))}
-              <Link href="/contact" style={{ padding: '10px 24px', borderRadius: '8px', background: '#FF8C00', color: '#000', fontSize: '14px', fontWeight: 800, textDecoration: 'none', boxShadow: '0 0 20px rgba(255,140,0,0.35)', transition: 'all 0.2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 35px rgba(255,140,0,0.6)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(255,140,0,0.35)'; }}
+              <Link href="/contact" style={{ padding: '10px 24px', borderRadius: '8px', background: '#E50914', color: '#000', fontSize: '14px', fontWeight: 800, textDecoration: 'none', boxShadow: '0 0 20px rgba(229,9,20,0.35)', transition: 'all 0.2s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 35px rgba(229,9,20,0.6)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(229,9,20,0.35)'; }}
               >Get a Quote</Link>
             </nav>
 
@@ -170,13 +170,13 @@ export default function ServicesPage() {
           </div>
 
           {mobileOpen && (
-            <div style={{ background: 'rgba(0,0,0,0.98)', borderTop: '1px solid rgba(255,140,0,0.1)', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ background: 'rgba(0,0,0,0.98)', borderTop: '1px solid rgba(229,9,20,0.1)', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {NAV_LINKS.map(({ href, label }) => (
                 <Link key={href} href={href} onClick={() => setMobileOpen(false)}
-                  style={{ color: href === '/services' ? '#FF8C00' : 'rgba(255,255,255,0.75)', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}
+                  style={{ color: href === '/services' ? '#E50914' : 'rgba(255,255,255,0.75)', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}
                 >{label}</Link>
               ))}
-              <Link href="/contact" onClick={() => setMobileOpen(false)} style={{ marginTop: '8px', padding: '14px 24px', borderRadius: '8px', background: '#FF8C00', color: '#000', fontSize: '15px', fontWeight: 800, textDecoration: 'none', textAlign: 'center' }}>
+              <Link href="/contact" onClick={() => setMobileOpen(false)} style={{ marginTop: '8px', padding: '14px 24px', borderRadius: '8px', background: '#E50914', color: '#000', fontSize: '15px', fontWeight: 800, textDecoration: 'none', textAlign: 'center' }}>
                 Get a Quote
               </Link>
             </div>
@@ -189,21 +189,21 @@ export default function ServicesPage() {
         ════════════════════ */}
         <section style={{ position: 'relative', paddingTop: '160px', paddingBottom: '100px', overflow: 'hidden', textAlign: 'center' }}>
           {/* Orange radial glow */}
-          <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)', width: '900px', height: '500px', background: 'radial-gradient(ellipse at 50% 0%, rgba(255,140,0,0.18) 0%, transparent 65%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '0', left: '50%', transform: 'translateX(-50%)', width: '900px', height: '500px', background: 'radial-gradient(ellipse at 50% 0%, rgba(229,9,20,0.18) 0%, transparent 65%)', pointerEvents: 'none' }} />
           {/* Bottom fade */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '160px', background: 'linear-gradient(transparent, #000)', pointerEvents: 'none' }} />
 
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto', padding: '0 24px' }}>
             {/* Eyebrow */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '7px 18px', borderRadius: '100px', border: '1px solid rgba(255,140,0,0.4)', background: 'rgba(255,140,0,0.06)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#FF8C00', marginBottom: '28px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#FF8C00', boxShadow: '0 0 8px #FF8C00', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '7px 18px', borderRadius: '100px', border: '1px solid rgba(229,9,20,0.4)', background: 'rgba(229,9,20,0.06)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#E50914', marginBottom: '28px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#E50914', boxShadow: '0 0 8px #E50914', display: 'inline-block', animation: 'pulse 2s infinite' }} />
               Our Services
             </div>
 
             {/* H1 */}
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(52px, 9vw, 96px)', lineHeight: 0.92, letterSpacing: '0.01em', color: '#fff', marginBottom: '20px' }}>
               Everything You Need<br />
-              <span style={{ color: '#FF8C00' }}>to Scale</span>
+              <span style={{ color: '#E50914' }}>to Scale</span>
             </h1>
 
             {/* Subheading */}
@@ -237,10 +237,10 @@ export default function ServicesPage() {
                       borderRadius: '20px',
                       padding: svc.featured ? '40px 36px' : '36px 32px',
                       background: svc.featured
-                        ? 'rgba(255,140,0,0.04)'
+                        ? 'rgba(229,9,20,0.04)'
                         : 'rgba(255,255,255,0.02)',
                       border: svc.featured
-                        ? '2px solid #FF8C00'
+                        ? '2px solid #E50914'
                         : '1px solid rgba(255,255,255,0.1)',
                       position: 'relative',
                       overflow: 'hidden',
@@ -249,10 +249,10 @@ export default function ServicesPage() {
                       transform: isHovered ? 'scale(1.04) translateY(-4px)' : 'scale(1)',
                       boxShadow: isHovered
                         ? (svc.featured
-                          ? '0 20px 60px rgba(255,140,0,0.35), 0 0 0 1px rgba(255,140,0,0.6)'
-                          : '0 20px 50px rgba(255,140,0,0.12), 0 0 0 1px rgba(255,140,0,0.3)')
+                          ? '0 20px 60px rgba(229,9,20,0.35), 0 0 0 1px rgba(229,9,20,0.6)'
+                          : '0 20px 50px rgba(229,9,20,0.12), 0 0 0 1px rgba(229,9,20,0.3)')
                         : (svc.featured
-                          ? '0 8px 40px rgba(255,140,0,0.15)'
+                          ? '0 8px 40px rgba(229,9,20,0.15)'
                           : 'none'),
                     }}
                     onMouseEnter={() => setHovered(svc.id)}
@@ -262,21 +262,21 @@ export default function ServicesPage() {
                     <div style={{
                       position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
                       background: svc.featured
-                        ? 'linear-gradient(90deg, #FF6B00, #FF8C00, #FFA500)'
+                        ? 'linear-gradient(90deg, #FF6B00, #E50914, #FFA500)'
                         : isHovered
-                        ? 'linear-gradient(90deg, transparent, rgba(255,140,0,0.6), transparent)'
+                        ? 'linear-gradient(90deg, transparent, rgba(229,9,20,0.6), transparent)'
                         : 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)',
                       transition: 'all 0.3s',
                     }} />
 
                     {/* Inner radial glow on featured */}
                     {svc.featured && (
-                      <div style={{ position: 'absolute', top: '-40px', left: '50%', transform: 'translateX(-50%)', width: '300px', height: '200px', background: 'radial-gradient(ellipse, rgba(255,140,0,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', top: '-40px', left: '50%', transform: 'translateX(-50%)', width: '300px', height: '200px', background: 'radial-gradient(ellipse, rgba(229,9,20,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
                     )}
 
                     {/* Core service badge */}
                     {svc.label && (
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', borderRadius: '100px', border: '1px solid rgba(255,140,0,0.5)', background: 'rgba(255,140,0,0.08)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#FF8C00', marginBottom: '20px' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', borderRadius: '100px', border: '1px solid rgba(229,9,20,0.5)', background: 'rgba(229,9,20,0.08)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#E50914', marginBottom: '20px' }}>
                         {svc.label}
                       </div>
                     )}
@@ -286,14 +286,14 @@ export default function ServicesPage() {
                       width: svc.featured ? '68px' : '60px',
                       height: svc.featured ? '68px' : '60px',
                       borderRadius: '16px',
-                      background: svc.featured ? 'rgba(255,140,0,0.1)' : 'rgba(255,255,255,0.04)',
-                      border: svc.featured ? '1px solid rgba(255,140,0,0.35)' : '1px solid rgba(255,255,255,0.1)',
+                      background: svc.featured ? 'rgba(229,9,20,0.1)' : 'rgba(255,255,255,0.04)',
+                      border: svc.featured ? '1px solid rgba(229,9,20,0.35)' : '1px solid rgba(255,255,255,0.1)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: svc.featured ? '#FF8C00' : 'rgba(255,255,255,0.6)',
+                      color: svc.featured ? '#E50914' : 'rgba(255,255,255,0.6)',
                       marginBottom: '24px',
-                      boxShadow: svc.featured ? '0 0 24px rgba(255,140,0,0.2)' : 'none',
+                      boxShadow: svc.featured ? '0 0 24px rgba(229,9,20,0.2)' : 'none',
                       transition: 'all 0.2s',
                     }}>
                       {svc.icon}
@@ -309,7 +309,7 @@ export default function ServicesPage() {
                       marginBottom: '14px',
                     }}>
                       {svc.featured
-                        ? <>{svc.title.split(' & ')[0]} &<br /><span style={{ color: '#FF8C00' }}>{svc.title.split(' & ')[1]}</span></>
+                        ? <>{svc.title.split(' & ')[0]} &<br /><span style={{ color: '#E50914' }}>{svc.title.split(' & ')[1]}</span></>
                         : svc.title}
                     </h3>
 
@@ -322,7 +322,7 @@ export default function ServicesPage() {
                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '32px' }}>
                       {svc.features.map((feat, fi) => (
                         <li key={fi} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: svc.featured ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.55)' }}>
-                          <span style={{ color: svc.featured ? '#FF8C00' : 'rgba(255,255,255,0.35)', flexShrink: 0 }}>
+                          <span style={{ color: svc.featured ? '#E50914' : 'rgba(255,255,255,0.35)', flexShrink: 0 }}>
                             <IconCheck />
                           </span>
                           {feat}
@@ -337,13 +337,13 @@ export default function ServicesPage() {
                       gap: '8px',
                       padding: svc.featured ? '14px 28px' : '12px 24px',
                       borderRadius: '10px',
-                      background: svc.featured ? '#FF8C00' : 'rgba(255,255,255,0.06)',
+                      background: svc.featured ? '#E50914' : 'rgba(255,255,255,0.06)',
                       color: svc.featured ? '#000' : 'rgba(255,255,255,0.7)',
                       fontSize: svc.featured ? '15px' : '14px',
                       fontWeight: svc.featured ? 800 : 600,
                       border: svc.featured ? 'none' : '1px solid rgba(255,255,255,0.1)',
                       transition: 'all 0.2s',
-                      boxShadow: svc.featured ? '0 0 24px rgba(255,140,0,0.35)' : 'none',
+                      boxShadow: svc.featured ? '0 0 24px rgba(229,9,20,0.35)' : 'none',
                     }}>
                       {svc.featured ? 'Start Scaling →' : 'Learn More'}
                       <IconArrow />
@@ -358,7 +358,7 @@ export default function ServicesPage() {
         {/* ════════════════════
             SOCIAL PROOF STRIP
         ════════════════════ */}
-        <section style={{ padding: '48px 24px', borderTop: '1px solid rgba(255,140,0,0.08)', borderBottom: '1px solid rgba(255,140,0,0.08)', background: 'rgba(255,140,0,0.02)' }}>
+        <section style={{ padding: '48px 24px', borderTop: '1px solid rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.08)', background: 'rgba(229,9,20,0.02)' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '32px', textAlign: 'center' }}>
             {[
               { val: '150+', label: 'Brands Served' },
@@ -367,7 +367,7 @@ export default function ServicesPage() {
               { val: '98%', label: 'Client Retention' },
             ].map((s, i) => (
               <div key={i}>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '42px', color: '#FF8C00', lineHeight: 1, marginBottom: '6px' }}>{s.val}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '42px', color: '#E50914', lineHeight: 1, marginBottom: '6px' }}>{s.val}</div>
                 <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{s.label}</div>
               </div>
             ))}
@@ -379,12 +379,12 @@ export default function ServicesPage() {
             landing-page-generator: Bottom CTA pattern
         ════════════════════ */}
         <section style={{ padding: '100px 24px', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '700px', height: '400px', background: 'radial-gradient(ellipse, rgba(255,140,0,0.09) 0%, transparent 65%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '700px', height: '400px', background: 'radial-gradient(ellipse, rgba(229,9,20,0.09) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
           <div style={{ position: 'relative', zIndex: 1, maxWidth: '600px', margin: '0 auto' }}>
             <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 6vw, 64px)', color: '#fff', lineHeight: 0.95, marginBottom: '16px', letterSpacing: '0.01em' }}>
               Not Sure Which Service<br />
-              <span style={{ color: '#FF8C00' }}>You Need?</span>
+              <span style={{ color: '#E50914' }}>You Need?</span>
             </h2>
             <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, marginBottom: '36px' }}>
               Our experts will audit your current setup and recommend exactly what will move the needle for your business.
@@ -394,14 +394,14 @@ export default function ServicesPage() {
               <Link href="/contact" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 padding: '16px 40px', borderRadius: '10px',
-                background: '#FF8C00', color: '#000',
+                background: '#E50914', color: '#000',
                 fontSize: '16px', fontWeight: 800,
                 textDecoration: 'none', letterSpacing: '0.03em',
-                boxShadow: '0 0 35px rgba(255,140,0,0.4)',
+                boxShadow: '0 0 35px rgba(229,9,20,0.4)',
                 transition: 'all 0.2s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 55px rgba(255,140,0,0.6)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 35px rgba(255,140,0,0.4)'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 55px rgba(229,9,20,0.6)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 35px rgba(229,9,20,0.4)'; }}
               >
                 Schedule Free Consultation
               </Link>
@@ -414,7 +414,7 @@ export default function ServicesPage() {
                 border: '1px solid rgba(255,255,255,0.12)',
                 transition: 'all 0.2s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,140,0,0.4)'; (e.currentTarget as HTMLElement).style.color = '#FF8C00'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(229,9,20,0.4)'; (e.currentTarget as HTMLElement).style.color = '#E50914'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.12)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'; }}
               >
                 ← Back to Home
@@ -428,7 +428,7 @@ export default function ServicesPage() {
         ════════════════════ */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '24px', textAlign: 'center' }}>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
-            © {new Date().getFullYear()} TheCraftStudios · <a href="mailto:info@thecraftstudios.in" style={{ color: 'rgba(255,140,0,0.6)', textDecoration: 'none' }}>info@thecraftstudios.in</a>
+            © {new Date().getFullYear()} TheCraftStudios · <a href="mailto:info@thecraftstudios.in" style={{ color: 'rgba(229,9,20,0.6)', textDecoration: 'none' }}>info@thecraftstudios.in</a>
           </p>
         </div>
 
@@ -468,8 +468,8 @@ export default function ServicesPage() {
 
         /* Pulse dot */
         @keyframes pulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 8px #FF8C00; }
-          50% { opacity: 0.6; box-shadow: 0 0 16px #FF8C00; }
+          0%, 100% { opacity: 1; box-shadow: 0 0 8px #E50914; }
+          50% { opacity: 0.6; box-shadow: 0 0 16px #E50914; }
         }
       `}</style>
     </>

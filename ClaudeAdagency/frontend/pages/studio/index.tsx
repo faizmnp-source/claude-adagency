@@ -16,7 +16,7 @@ const BellIcon = () => (
 );
 
 type Step = 'upload' | 'settings' | 'generating' | 'done';
-type Duration = 15 | 30 | 50;
+type Duration = 5 | 15 | 30 | 50;
 type PipelineStage = 'script' | 'clips' | 'stitching' | 'ready';
 type Mode = 'express' | 'auto' | 'manual';
 
@@ -315,16 +315,23 @@ export default function StudioPage() {
       {/* ── Header ── */}
       <header className="sticky top-0 z-50" style={{ background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,9,20,0.12)' }}>
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-            <Logo variant="icon" size="small" color="color" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
+              <Logo variant="icon" size="small" color="color" />
+            </Link>
+            <Link href="/services/instagram-reels"
+              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+            >Social Media Services →</Link>
+          </div>
 
           <div className="flex items-center gap-3">
             {/* Instagram badge */}
             {instagram.connected ? (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
-                style={{ background: 'rgba(224,64,251,0.08)', border: '1px solid rgba(224,64,251,0.25)' }}>
-                <span className="text-[#E040FB]">📸</span>
+                style={{ background: 'rgba(229,9,20,0.08)', border: '1px solid rgba(229,9,20,0.25)' }}>
+                <span className="text-[#E50914]">📸</span>
                 <span className="text-white hidden sm:block">@{instagram.username || 'IG'}</span>
                 <button onClick={disconnectInstagram} className="text-[#94A3B8] hover:text-red-400 ml-1">✕</button>
               </div>
@@ -344,9 +351,9 @@ export default function StudioPage() {
 
             {/* User avatar */}
             {user && user.picture ? (
-              <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-[rgba(123,46,255,0.3)]" />
+              <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-[rgba(229,9,20,0.3)]" />
             ) : user ? (
-              <div className="w-8 h-8 rounded-full bg-[rgba(123,46,255,0.2)] flex items-center justify-center text-white text-sm font-bold">{user.name?.[0] || 'U'}</div>
+              <div className="w-8 h-8 rounded-full bg-[rgba(229,9,20,0.15)] flex items-center justify-center text-white text-sm font-bold">{user.name?.[0] || 'U'}</div>
             ) : null}
 
             <BellIcon />
@@ -462,10 +469,10 @@ export default function StudioPage() {
             <div className="mb-6">
               <label className="text-sm text-[#94A3B8] mb-3 block">Duration</label>
               <div className="flex gap-3">
-                {([15, 30, 50] as Duration[]).map((d) => (
+                {([5, 15, 30, 50] as Duration[]).map((d) => (
                   <button key={d} onClick={() => setDuration(d)}
                     className={`mode-pill flex-1 justify-center ${duration === d ? 'mode-pill-active' : ''}`}>
-                    {d}s <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
+                    {d === 5 ? '5s ⚡' : `${d}s`} <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
                   </button>
                 ))}
               </div>
@@ -549,7 +556,7 @@ export default function StudioPage() {
                 {/* Progress bar */}
                 <div className="w-full rounded-full h-2 mb-3 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
                   <div className="h-2 rounded-full transition-all duration-700"
-                    style={{ width: `${STAGE_PERCENT[pipelineStage]}%`, background: 'linear-gradient(90deg, #00E5FF, #7B2FFF, #E040FB)' }}></div>
+                    style={{ width: `${STAGE_PERCENT[pipelineStage]}%`, background: 'linear-gradient(90deg, #E50914, #B0060F)' }}></div>
                 </div>
                 <div className="flex justify-between text-xs text-[#94A3B8] mb-8">
                   <span>{pipelineMessage}</span>
@@ -565,7 +572,7 @@ export default function StudioPage() {
                       <div key={s.key} className="rounded-lg p-3 text-center transition-all"
                         style={{
                           background: done ? 'rgba(123,46,255,0.12)' : active ? 'rgba(0,229,255,0.06)' : 'rgba(255,255,255,0.02)',
-                          border: `1px solid ${done ? 'rgba(123,46,255,0.3)' : active ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                          border: `1px solid ${done ? 'rgba(229,9,20,0.3)' : active ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
                         }}>
                         <div className="text-lg mb-1">{done ? '✅' : s.icon}</div>
                         <div className={done ? 'text-[#C084FC]' : active ? 'text-[#67E8F9]' : 'text-[#94A3B8]'}>{s.label}</div>
@@ -597,7 +604,7 @@ export default function StudioPage() {
                 {approveSuccess ? (
                   <div className="feature-badge mb-4" style={{ color: '#22c55e', borderColor: 'rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.06)' }}>✅ Posted to Instagram!</div>
                 ) : (
-                  <div className="feature-badge mb-4" style={{ color: '#E040FB', borderColor: 'rgba(224,64,251,0.3)', background: 'rgba(224,64,251,0.06)' }}>🎉 Reel Ready</div>
+                  <div className="feature-badge mb-4" style={{ color: '#E040FB', borderColor: 'rgba(229,9,20,0.3)', background: 'rgba(229,9,20,0.06)' }}>🎉 Reel Ready</div>
                 )}
 
                 <h2 className="text-xl font-bold text-white mb-4">Your Viral Reel</h2>
@@ -692,7 +699,7 @@ export default function StudioPage() {
                       className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${
                         activeTab === tab ? 'text-white bg-[rgba(123,46,255,0.08)]' : 'text-[#94A3B8] hover:text-white'
                       }`}
-                      style={activeTab === tab ? { borderBottom: '2px solid #7B2FFF' } : {}}>
+                      style={activeTab === tab ? { borderBottom: '2px solid #E50914' } : {}}>
                       {tab === 'script' ? '📝 Script' : tab === 'caption' ? '💬 Caption' : '🎥 Scenes'}
                     </button>
                   ))}
@@ -710,7 +717,7 @@ export default function StudioPage() {
                         ))}
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-[#E040FB] uppercase tracking-wider mb-3">📜 Full Script</h4>
+                        <h4 className="text-xs font-bold text-[#E50914] uppercase tracking-wider mb-3">📜 Full Script</h4>
                         <div className="rounded-xl p-4 text-[#94A3B8] text-sm leading-relaxed whitespace-pre-wrap"
                           style={{ background: 'rgba(5,11,24,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}>
                           {result.content.script}
@@ -728,7 +735,7 @@ export default function StudioPage() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-[#E040FB] uppercase tracking-wider mb-3"># Hashtags</h4>
+                        <h4 className="text-xs font-bold text-[#E50914] uppercase tracking-wider mb-3"># Hashtags</h4>
                         <div className="flex flex-wrap gap-2">
                           {result.content.hashtags?.map((tag, i) => (
                             <span key={i} className="px-2 py-1 rounded-full text-xs font-semibold text-[#C084FC]"
@@ -746,12 +753,12 @@ export default function StudioPage() {
                         <div key={i} className="rounded-xl p-4" style={{ background: 'rgba(13,22,40,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#C084FC] font-bold text-sm"
-                              style={{ background: 'rgba(123,46,255,0.1)', border: '1px solid rgba(123,46,255,0.2)' }}>
+                              style={{ background: 'rgba(123,46,255,0.1)', border: '1px solid rgba(229,9,20,0.15)' }}>
                               {scene.sceneNumber}
                             </div>
                             <div>
                               <span className="text-white font-semibold text-sm">{scene.title || `Scene ${scene.sceneNumber}`}</span>
-                              <span className="text-[#E040FB] text-xs ml-2">{scene.startTime}s – {scene.startTime + scene.duration}s</span>
+                              <span className="text-[#E50914] text-xs ml-2">{scene.startTime}s – {scene.startTime + scene.duration}s</span>
                             </div>
                           </div>
                           <p className="text-[#94A3B8] text-sm">{scene.description}</p>
@@ -764,7 +771,7 @@ export default function StudioPage() {
               </div>
 
               {!instagram.connected && !approveSuccess && (
-                <div className="rounded-2xl p-5" style={{ background: 'rgba(224,64,251,0.03)', border: '1px solid rgba(224,64,251,0.1)' }}>
+                <div className="rounded-2xl p-5" style={{ background: 'rgba(224,64,251,0.03)', border: '1px solid rgba(229,9,20,0.1)' }}>
                   <div className="flex items-center gap-4">
                     <div className="text-3xl">📸</div>
                     <div className="flex-1">
