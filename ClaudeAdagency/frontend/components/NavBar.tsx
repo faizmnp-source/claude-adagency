@@ -48,7 +48,7 @@ export const NavBar: React.FC = () => {
     }}>
       <div style={{
         maxWidth: '1240px', margin: '0 auto', padding: '0 24px',
-        height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>

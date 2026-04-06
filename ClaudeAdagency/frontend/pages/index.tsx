@@ -159,9 +159,9 @@ export default function HomePage() {
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           transition: 'all 0.3s',
         }}>
-          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-              <Logo variant="horizontal" size="small" color="color" />
+              <Logo variant="horizontal" size="medium" color="color" />
             </Link>
 
             <nav className="cs-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
@@ -585,7 +585,7 @@ export default function HomePage() {
               {/* Brand */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                  <Logo variant="horizontal" size="small" color="color" />
+                  <Logo variant="horizontal" size="medium" color="color" />
                 </div>
                 <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.7, maxWidth: '220px' }}>
                   Your complete digital platform — built for brands that want to scale.
