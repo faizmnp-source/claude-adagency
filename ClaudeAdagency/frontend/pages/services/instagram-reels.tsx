@@ -1,227 +1,257 @@
 'use client';
 
+import Head from 'next/head';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
+import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
 
-const NAV_LINKS = [
-  { href: '/services/instagram-reels', label: 'Reels & Branding' },
-  { href: '/services/development', label: 'Web & App' },
-  { href: '/services/software', label: 'AI & Software' },
-];
+const RED = '#E50914';
+const RED_DIM = 'rgba(229,9,20,0.15)';
 
 const InstagramReelsPage = () => {
   return (
-    <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
-      <header className="fixed top-0 w-full z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-              <Logo variant="horizontal" size="small" color="color" />
-            </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link key={href} href={href} className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">{label}</Link>
+    <>
+      <Head>
+        <title>Instagram Reels &amp; Branding — TheCraftStudios</title>
+        <meta name="description" content="Professional Instagram reels, brand identity &amp; auto-posting. From concept to your feed — we handle everything so your brand dominates social media." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
+
+      <NavBar />
+
+      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
+
+        {/* Hero */}
+        <section style={{ paddingTop: '120px', paddingBottom: '80px', padding: '120px 16px 80px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: RED, display: 'inline-block' }}></span>
+              Instagram Reels &amp; Branding
+            </div>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(56px, 10vw, 96px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', lineHeight: 1, letterSpacing: '0.02em' }}>
+              Reels That<br /><span style={{ color: RED }}>Actually Go Viral</span>
+            </h1>
+            <p style={{ color: '#888888', fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+              Professional Instagram reels, brand identity &amp; auto-posting. From concept to your feed —
+              we handle everything so your brand dominates social media.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', marginBottom: '64px' }}>
+              <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 40px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+                Book Your Reels
+              </Link>
+              <a href="#pricing" style={{ border: `1px solid rgba(229,9,20,0.4)`, color: '#E8E8E8', padding: '16px 40px', borderRadius: '8px', fontWeight: 600, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+                View Pricing
+              </a>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', maxWidth: '600px', margin: '0 auto' }}>
+              {[{ value: '500+', label: 'Reels Created' }, { value: '10M+', label: 'Views Generated' }, { value: '3x', label: 'Avg Engagement Boost' }].map((s, i) => (
+                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: RED, marginBottom: '4px' }}>{s.value}</div>
+                  <div style={{ fontSize: '12px', color: '#888888' }}>{s.label}</div>
+                </div>
               ))}
-              <Link href="/contact" className="gold-btn px-5 py-2 text-sm font-bold">Get Started</Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden space-bg circuit-bg">
-        <div className="blue-orb w-[600px] h-[600px] -top-32 left-1/2 -translate-x-1/2 opacity-40"></div>
-        <div className="gold-orb w-[300px] h-[300px] top-20 right-0 opacity-40"></div>
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="badge mb-6 mx-auto inline-flex">
-            <span className="w-2 h-2 rounded-full bg-[#4A6CF7] animate-pulse"></span>
-            Instagram Reels & Branding
-          </div>
-          <h1 className="font-display text-6xl md:text-7xl lg:text-8xl text-white mb-6 uppercase leading-none">
-            Reels That<br /><span className="gradient-text">Actually Go Viral</span>
-          </h1>
-          <p className="text-[#94A3B8] text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
-            Professional Instagram reels, brand identity & auto-posting. From concept to your feed —
-            we handle everything so your brand dominates social media.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact" className="gold-btn px-10 py-4 text-lg font-bold">Book Your Reels</Link>
-            <Link href="#pricing" className="ghost-btn px-10 py-4 text-lg font-semibold">View Pricing</Link>
-          </div>
-          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-16">
-            {[{ value: '500+', label: 'Reels Created' }, { value: '10M+', label: 'Views Generated' }, { value: '3x', label: 'Avg Engagement Boost' }].map((s, i) => (
-              <div key={i} className="glass rounded-xl p-4">
-                <div className="text-2xl font-bold gradient-text mb-1">{s.value}</div>
-                <div className="text-xs text-[#94A3B8]">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What We Deliver */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0D1628' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="badge mb-6 inline-flex">What You Get</div>
-              <h2 className="font-display text-5xl text-white mb-8 uppercase">What We Deliver</h2>
-              <ul className="space-y-4">
-                {[
-                  'Professional scriptwriting tailored to your brand',
-                  'High-quality video production and filming',
-                  'Expert editing with trending music & effects',
-                  'Hashtag strategy and growth optimization',
-                  'Auto-posting to Instagram at peak times',
-                  'Performance analytics and monthly insights',
-                  'Brand identity design & visual guidelines',
-                  'Community management & DM handling',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-4">
-                    <div className="w-6 h-6 rounded-full bg-[rgba(74,108,247,0.15)] border border-[rgba(74,108,247,0.4)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-[#4A6CF7] text-xs font-bold">✓</span>
-                    </div>
-                    <span className="text-[#94A3B8] text-lg">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="relative">
-              <div className="glass rounded-2xl p-12 text-center relative overflow-hidden">
-                <div className="blue-orb w-64 h-64 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60"></div>
-                <div className="relative z-10">
-                  <div className="text-8xl mb-6">🎬</div>
-                  <p className="text-white text-xl font-bold mb-2">Professional Content Creation</p>
-                  <p className="text-[#94A3B8]">From concept to viral in 48 hours</p>
-                </div>
-              </div>
-              <div className="absolute -bottom-4 -right-4 glass px-5 py-3 rounded-xl border border-[rgba(245,158,11,0.3)]">
-                <div className="text-xl font-bold" style={{ color: '#F59E0B' }}>48hrs</div>
-                <div className="text-xs text-[#94A3B8]">Turnaround</div>
-              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Process */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 relative space-bg circuit-bg">
-        <div className="gold-orb w-[400px] h-[400px] right-0 top-0 opacity-20"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">The Process</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Our Process</h2>
-            <p className="text-[#94A3B8] text-lg">Four steps from concept to viral content</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-            <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-[rgba(74,108,247,0.4)] to-transparent"></div>
-            {[
-              { step: '01', icon: '💡', title: 'Concept', desc: 'We brainstorm viral-worthy ideas tailored to your brand and niche.' },
-              { step: '02', icon: '📝', title: 'Script', desc: 'Professional scripts with strong hooks optimized for engagement.' },
-              { step: '03', icon: '🎬', title: 'Film & Edit', desc: 'High-quality production with trending effects and music.' },
-              { step: '04', icon: '🚀', title: 'Auto-Post', desc: 'Scheduled at peak times with optimized hashtags.' },
-            ].map((item, i) => (
-              <div key={i} className="text-center group">
-                <div className="w-20 h-20 rounded-2xl glass border border-[rgba(74,108,247,0.3)] flex items-center justify-center text-3xl mx-auto mb-5 relative z-10 group-hover:border-[#4A6CF7] transition-colors">{item.icon}</div>
-                <div className="text-[#F59E0B] font-bold text-sm tracking-widest mb-2">{item.step}</div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-[#94A3B8] text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0A1020' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Pricing</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Simple Pricing</h2>
-            <p className="text-[#94A3B8] text-lg">Choose the plan that fits your growth goals</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { name: 'Starter', price: '$999', period: '/month', features: ['3 reels per month', 'Basic editing', 'Trending music', 'Standard hashtags', 'Monthly analytics'], highlighted: false },
-              { name: 'Growth', price: '$1,999', period: '/month', features: ['8 reels per month', 'Professional editing', 'Trending audio optimization', 'Hashtag strategy', 'Weekly analytics', 'Community engagement'], highlighted: true },
-              { name: 'Viral', price: '$2,999', period: '/month', features: ['15 reels per month', 'Custom scripts', 'Premium editing & effects', 'Advanced hashtag strategy', 'Daily analytics', 'Full growth management', 'Priority support'], highlighted: false },
-            ].map((plan, i) => (
-              <div key={i} className={`rounded-2xl p-8 relative overflow-hidden ${plan.highlighted ? 'bg-gradient-to-b from-[#4A6CF7] to-[#3B5BDB] border-2 border-[#4A6CF7] transform scale-105 shadow-[0_0_60px_rgba(74,108,247,0.4)]' : 'glass border border-[rgba(74,108,247,0.2)]'}`}>
-                {plan.highlighted && <div className="absolute top-4 right-4 bg-[rgba(255,255,255,0.2)] rounded-full px-3 py-1 text-xs font-bold text-white">Most Popular</div>}
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <div className="mb-6">
-                  <span className={`text-5xl font-bold ${plan.highlighted ? 'text-white' : 'gradient-text'}`}>{plan.price}</span>
-                  <span className={plan.highlighted ? 'text-blue-100' : 'text-[#94A3B8]'}>{plan.period}</span>
+        {/* What We Deliver */}
+        <section style={{ padding: '96px 16px', background: '#111111' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'center' }}>
+              <div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                  What You Get
                 </div>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((f, j) => (
-                    <li key={j} className="flex items-center gap-3">
-                      <span className={`flex-shrink-0 font-bold ${plan.highlighted ? 'text-[#FCD34D]' : 'text-[#4A6CF7]'}`}>✓</span>
-                      <span className={plan.highlighted ? 'text-blue-50' : 'text-[#94A3B8]'}>{f}</span>
+                <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 6vw, 56px)', color: '#fff', marginBottom: '32px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                  What We Deliver
+                </h2>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {[
+                    'Professional scriptwriting tailored to your brand',
+                    'High-quality video production and filming',
+                    'Expert editing with trending music & effects',
+                    'Hashtag strategy and growth optimization',
+                    'Auto-posting to Instagram at peak times',
+                    'Performance analytics and monthly insights',
+                    'Brand identity design & visual guidelines',
+                    'Community management & DM handling',
+                  ].map((item, i) => (
+                    <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(229,9,20,0.1)', border: `1px solid rgba(229,9,20,0.4)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                        <span style={{ color: RED, fontSize: '11px', fontWeight: 700 }}>✓</span>
+                      </div>
+                      <span style={{ color: '#888888', fontSize: '18px' }}>{item}</span>
                     </li>
                   ))}
                 </ul>
-                <Link href="/contact" className={`block w-full text-center py-3 rounded-xl font-bold transition-all ${plan.highlighted ? 'bg-white text-[#4A6CF7] hover:bg-[#FCD34D] hover:text-[#050B18]' : 'gold-btn w-full justify-center'}`}>Get Started</Link>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Success Stories */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 relative space-bg circuit-bg">
-        <div className="blue-orb w-[400px] h-[400px] left-0 top-0 opacity-20"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Results</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Success Stories</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { brand: 'Fashion Brand X', before: '5K followers', after: '50K followers', growth: '+900%', time: '3 months' },
-              { brand: 'Beauty Influencer', before: '10K followers', after: '100K followers', growth: '+900%', time: '4 months' },
-              { brand: 'E-commerce Store', before: '2K followers', after: '25K followers', growth: '+1,150%', time: '2 months' },
-            ].map((study, i) => (
-              <div key={i} className="glass glass-hover rounded-2xl p-8 relative overflow-hidden">
-                <div className="blue-orb w-48 h-48 right-0 bottom-0 opacity-30"></div>
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white mb-6">{study.brand}</h3>
-                  <div className="space-y-4 mb-6">
-                    <div><p className="text-[#94A3B8] text-xs mb-1 uppercase tracking-wider">Before</p><p className="text-2xl font-bold text-[#94A3B8]">{study.before}</p></div>
-                    <div className="h-px bg-gradient-to-r from-[#4A6CF7] to-transparent"></div>
-                    <div><p className="text-[#94A3B8] text-xs mb-1 uppercase tracking-wider">After {study.time}</p><p className="text-2xl font-bold text-white">{study.after}</p></div>
-                  </div>
-                  <div className="inline-flex items-center gap-2 bg-[rgba(245,158,11,0.15)] border border-[rgba(245,158,11,0.3)] rounded-full px-4 py-2">
-                    <span className="text-xl font-bold" style={{ color: '#F59E0B' }}>{study.growth}</span>
-                    <span className="text-[#94A3B8] text-sm">growth</span>
-                  </div>
+              <div style={{ position: 'relative' }}>
+                <div style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '48px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎬</div>
+                  <p style={{ color: '#fff', fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>Professional Content Creation</p>
+                  <p style={{ color: '#888888' }}>From concept to viral in 48 hours</p>
+                </div>
+                <div style={{ position: 'absolute', bottom: '-16px', right: '-16px', background: '#1A1A1A', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '12px', padding: '12px 20px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: 700, color: RED }}>48hrs</div>
+                  <div style={{ fontSize: '12px', color: '#888888' }}>Turnaround</div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050B18 0%, #0D1628 50%, #050B18 100%)' }}>
-        <div className="blue-orb w-[400px] h-[400px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="font-display text-6xl md:text-7xl text-white mb-6 uppercase">Ready to Create<br /><span className="gradient-text">Viral Content?</span></h2>
-          <p className="text-[#94A3B8] text-xl mb-10">Let's turn your brand story into engaging, viral-worthy Instagram reels.</p>
-          <Link href="/contact" className="gold-btn px-12 py-4 text-lg font-bold">Book Your Reels Today →</Link>
-        </div>
-      </section>
-
-      <footer className="py-10 px-4 border-t border-[rgba(74,108,247,0.15)]" style={{ background: '#050B18' }}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[#94A3B8] text-sm">&copy; 2024 TheCraftStudios. All rights reserved.</p>
-          <div className="flex gap-6 text-sm">
-            <a href="mailto:info@thecraftstudios.in" className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors">info@thecraftstudios.in</a>
-            <a href="tel:+917760501116" className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors">+91 77605 01116</a>
+        {/* Process */}
+        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                The Process
+              </div>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
+                Our Process
+              </h2>
+              <p style={{ color: '#888888', fontSize: '18px' }}>Four steps from concept to viral content</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+              {[
+                { step: '01', icon: '💡', title: 'Concept', desc: 'We brainstorm viral-worthy ideas tailored to your brand and niche.' },
+                { step: '02', icon: '📝', title: 'Script', desc: 'Professional scripts with strong hooks optimized for engagement.' },
+                { step: '03', icon: '🎬', title: 'Film & Edit', desc: 'High-quality production with trending effects and music.' },
+                { step: '04', icon: '🚀', title: 'Auto-Post', desc: 'Scheduled at peak times with optimized hashtags.' },
+              ].map((item, i) => (
+                <div key={i} style={{ textAlign: 'center' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '16px', background: '#1A1A1A', border: `1px solid ${RED_DIM}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 20px' }}>{item.icon}</div>
+                  <div style={{ color: RED, fontWeight: 700, fontSize: '13px', letterSpacing: '0.15em', marginBottom: '8px' }}>{item.step}</div>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{item.title}</h3>
+                  <p style={{ color: '#888888', fontSize: '14px', lineHeight: 1.7 }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" style={{ padding: '96px 16px', background: '#111111' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                Pricing
+              </div>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
+                Simple Pricing
+              </h2>
+              <p style={{ color: '#888888', fontSize: '18px' }}>Choose the plan that fits your growth goals</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
+              {[
+                { name: 'Starter', price: '$999', period: '/month', features: ['3 reels per month', 'Basic editing', 'Trending music', 'Standard hashtags', 'Monthly analytics'], highlighted: false },
+                { name: 'Growth', price: '$1,999', period: '/month', features: ['8 reels per month', 'Professional editing', 'Trending audio optimization', 'Hashtag strategy', 'Weekly analytics', 'Community engagement'], highlighted: true },
+                { name: 'Viral', price: '$2,999', period: '/month', features: ['15 reels per month', 'Custom scripts', 'Premium editing & effects', 'Advanced hashtag strategy', 'Daily analytics', 'Full growth management', 'Priority support'], highlighted: false },
+              ].map((plan, i) => (
+                <div key={i} style={{
+                  borderRadius: '16px',
+                  padding: '32px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: plan.highlighted ? RED : '#1A1A1A',
+                  border: plan.highlighted ? `1px solid ${RED}` : `1px solid ${RED_DIM}`,
+                }}>
+                  {plan.highlighted && (
+                    <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', borderRadius: '999px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: '#fff' }}>
+                      Most Popular
+                    </div>
+                  )}
+                  <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>{plan.name}</h3>
+                  <div style={{ marginBottom: '24px' }}>
+                    <span style={{ fontSize: '48px', fontWeight: 700, color: '#fff' }}>{plan.price}</span>
+                    <span style={{ color: plan.highlighted ? 'rgba(255,255,255,0.7)' : '#888888' }}>{plan.period}</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {plan.features.map((f, j) => (
+                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ flexShrink: 0, fontWeight: 700, color: plan.highlighted ? '#fff' : RED }}>✓</span>
+                        <span style={{ color: plan.highlighted ? 'rgba(255,255,255,0.9)' : '#888888' }}>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/contact" style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'center',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    background: plan.highlighted ? '#fff' : RED,
+                    color: plan.highlighted ? RED : '#fff',
+                    boxSizing: 'border-box',
+                  }}>
+                    Get Started
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Success Stories */}
+        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                Results
+              </div>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                Success Stories
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
+              {[
+                { brand: 'Fashion Brand X', before: '5K followers', after: '50K followers', growth: '+900%', time: '3 months' },
+                { brand: 'Beauty Influencer', before: '10K followers', after: '100K followers', growth: '+900%', time: '4 months' },
+                { brand: 'E-commerce Store', before: '2K followers', after: '25K followers', growth: '+1,150%', time: '2 months' },
+              ].map((study, i) => (
+                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '24px' }}>{study.brand}</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                    <div>
+                      <p style={{ color: '#888888', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Before</p>
+                      <p style={{ fontSize: '24px', fontWeight: 700, color: '#888888' }}>{study.before}</p>
+                    </div>
+                    <div style={{ height: '1px', background: `linear-gradient(to right, ${RED}, transparent)` }}></div>
+                    <div>
+                      <p style={{ color: '#888888', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>After {study.time}</p>
+                      <p style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>{study.after}</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.1)', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '999px', padding: '8px 16px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, color: RED }}>{study.growth}</span>
+                    <span style={{ color: '#888888', fontSize: '14px' }}>growth</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section style={{ padding: '80px 16px', background: '#111111', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '896px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 8vw, 80px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+              Ready to Create<br /><span style={{ color: RED }}>Viral Content?</span>
+            </h2>
+            <p style={{ color: '#888888', fontSize: '20px', marginBottom: '40px' }}>Let's turn your brand story into engaging, viral-worthy Instagram reels.</p>
+            <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 48px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+              Book Your Reels Today →
+            </Link>
+          </div>
+        </section>
+
+        <Footer />
+      </div>
+    </>
   );
 };
 

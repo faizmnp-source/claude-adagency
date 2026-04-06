@@ -310,10 +310,10 @@ export default function StudioPage() {
   const currentStageIdx = PIPELINE_STAGES.findIndex(s => s.key === pipelineStage);
 
   return (
-    <div className="min-h-screen nebula-bg" style={{ background: '#050B18', color: '#fff' }}>
+    <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#fff' }}>
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-50" style={{ background: 'rgba(5,11,24,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <header className="sticky top-0 z-50" style={{ background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,9,20,0.12)' }}>
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
             <Logo variant="icon" size="small" color="color" />

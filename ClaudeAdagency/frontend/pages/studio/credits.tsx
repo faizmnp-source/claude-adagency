@@ -1,8 +1,13 @@
 'use client';
 
+import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import Logo from '../../components/Logo';
+import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
+
+const RED = '#E50914';
+const RED_DIM = 'rgba(229,9,20,0.15)';
 
 const PACKS = [
   { id: 'starter', credits: 100, price: '₹499', reels: '2–6', icon: '🚀', tag: null },
@@ -53,7 +58,7 @@ export default function CreditsPage() {
         name: 'TheCraftStudios',
         description: order.pack.name,
         order_id: order.orderId,
-        theme: { color: '#4A6CF7' },
+        theme: { color: RED },
         prefill: { name: '', email: '', contact: '' },
         handler: async (response: any) => {
           // Step 3: Verify payment on backend + credit user
@@ -81,73 +86,89 @@ export default function CreditsPage() {
 
   return (
     <>
-      <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
-        <header className="sticky top-0 z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
-          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-              <Logo variant="horizontal" size="small" color="color" />
-            </Link>
-            <Link href="/studio" className="ghost-btn px-4 py-2 text-sm">← Back to Studio</Link>
-          </div>
-        </header>
+      <Head>
+        <title>Buy Credits — TheCraftStudios Studio</title>
+        <meta name="description" content="Purchase credit packs to generate AI-powered Instagram reels. Pay via UPI, Cards, NetBanking, and Wallets." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
 
-        <div className="max-w-5xl mx-auto px-4 py-16">
+      <NavBar />
+
+      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '100px 16px 64px' }}>
           {success ? (
-            <div className="text-center py-24">
-              <div className="text-6xl mb-6">✓</div>
-              <h2 className="text-3xl font-bold text-white mb-3">Credits Added!</h2>
-              <p className="text-[#94A3B8] mb-8">Your credits have been added to your account.</p>
-              <Link href="/studio" className="gold-btn px-8 py-3 font-bold inline-flex">Go to Studio →</Link>
+            <div style={{ textAlign: 'center', paddingTop: '96px', paddingBottom: '96px' }}>
+              <div style={{ fontSize: '64px', marginBottom: '24px', color: RED }}>✓</div>
+              <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>Credits Added!</h2>
+              <p style={{ color: '#888888', marginBottom: '32px' }}>Your credits have been added to your account.</p>
+              <Link href="/studio" style={{ background: RED, color: '#fff', padding: '12px 32px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>
+                Go to Studio →
+              </Link>
             </div>
           ) : (
             <>
-              <div className="text-center mb-16">
-                <div className="badge mb-4 mx-auto inline-flex" style={{ color: '#F59E0B', borderColor: 'rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.1)' }}>
+              <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
                   Credit Packs
                 </div>
-                <h1 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Buy Credits</h1>
-                <p className="text-[#94A3B8] text-lg">1 second of reel = 2 credits · 3 free regenerations per reel</p>
-                <p className="text-[#4A6CF7] text-sm mt-2">Pay via UPI · Cards · NetBanking · Wallets</p>
+                <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 8vw, 64px)', color: '#fff', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                  Buy Credits
+                </h1>
+                <p style={{ color: '#888888', fontSize: '18px' }}>1 second of reel = 2 credits · 3 free regenerations per reel</p>
+                <p style={{ color: RED, fontSize: '14px', marginTop: '8px' }}>Pay via UPI · Cards · NetBanking · Wallets</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px', marginBottom: '64px' }}>
                 {PACKS.map((pack) => (
-                  <div key={pack.id} className={`rounded-2xl p-8 relative overflow-hidden ${
-                    pack.id === 'growth'
-                      ? 'bg-gradient-to-b from-[#4A6CF7] to-[#3B5BDB] border-2 border-[#4A6CF7] transform scale-105 shadow-[0_0_60px_rgba(74,108,247,0.4)]'
-                      : 'glass border border-[rgba(74,108,247,0.2)]'
-                  }`}>
+                  <div key={pack.id} style={{
+                    borderRadius: '16px',
+                    padding: '32px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    background: pack.id === 'growth' ? RED : '#1A1A1A',
+                    border: pack.id === 'growth' ? `1px solid ${RED}` : `1px solid ${RED_DIM}`,
+                  }}>
                     {pack.tag && (
-                      <div className="absolute top-4 right-4 bg-[rgba(255,255,255,0.2)] rounded-full px-3 py-1 text-xs font-bold text-white">
+                      <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', borderRadius: '999px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: '#fff' }}>
                         {pack.tag}
                       </div>
                     )}
-                    <div className="text-4xl mb-4">{pack.icon}</div>
-                    <div className={`text-4xl font-bold mb-1 ${pack.id === 'growth' ? 'text-white' : 'gradient-text'}`}>
+                    <div style={{ fontSize: '36px', marginBottom: '16px' }}>{pack.icon}</div>
+                    <div style={{ fontSize: '40px', fontWeight: 700, marginBottom: '4px', color: '#fff' }}>
                       {pack.credits}
                     </div>
-                    <div className={`text-sm mb-5 ${pack.id === 'growth' ? 'text-blue-100' : 'text-[#94A3B8]'}`}>Credits</div>
-                    <div className="text-3xl font-bold mb-6 text-white">{pack.price}</div>
-                    <ul className="space-y-2 mb-8">
+                    <div style={{ fontSize: '14px', marginBottom: '20px', color: pack.id === 'growth' ? 'rgba(255,255,255,0.7)' : '#888888' }}>Credits</div>
+                    <div style={{ fontSize: '30px', fontWeight: 700, marginBottom: '24px', color: '#fff' }}>{pack.price}</div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {[
                         `${pack.reels} reels (15–50s)`,
                         '3 free regens per reel',
                         'All features included',
                         'No expiry',
                       ].map((f, i) => (
-                        <li key={i} className={`flex items-center gap-2 text-sm ${pack.id === 'growth' ? 'text-blue-50' : 'text-[#94A3B8]'}`}>
-                          <span className={pack.id === 'growth' ? 'text-[#FCD34D]' : 'text-[#4A6CF7]'}>✓</span>{f}
+                        <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: pack.id === 'growth' ? 'rgba(255,255,255,0.9)' : '#888888' }}>
+                          <span style={{ color: pack.id === 'growth' ? '#fff' : RED }}>✓</span>{f}
                         </li>
                       ))}
                     </ul>
                     <button
                       onClick={() => handlePurchase(pack.id)}
                       disabled={loading === pack.id}
-                      className={`w-full py-3 rounded-xl font-bold transition-all disabled:opacity-60 ${
-                        pack.id === 'growth'
-                          ? 'bg-white text-[#4A6CF7] hover:bg-[#FCD34D] hover:text-[#050B18]'
-                          : 'gold-btn w-full justify-center'
-                      }`}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '12px',
+                        fontWeight: 700,
+                        fontSize: '15px',
+                        cursor: loading === pack.id ? 'not-allowed' : 'pointer',
+                        opacity: loading === pack.id ? 0.6 : 1,
+                        border: 'none',
+                        background: pack.id === 'growth' ? '#fff' : RED,
+                        color: pack.id === 'growth' ? RED : '#fff',
+                        transition: 'opacity 0.2s',
+                      }}
                     >
                       {loading === pack.id ? 'Opening...' : 'Buy Now'}
                     </button>
@@ -155,14 +176,18 @@ export default function CreditsPage() {
                 ))}
               </div>
 
-              <div className="glass rounded-2xl p-8 border border-[rgba(74,108,247,0.2)] text-center">
-                <h3 className="text-xl font-bold text-white mb-2">Need more? Contact us for agency pricing</h3>
-                <p className="text-[#94A3B8] mb-4">Custom credit bundles, white-label options, API access</p>
-                <Link href="/contact" className="gold-btn px-8 py-3 font-bold inline-flex">Contact Sales →</Link>
+              <div style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Need more? Contact us for agency pricing</h3>
+                <p style={{ color: '#888888', marginBottom: '16px' }}>Custom credit bundles, white-label options, API access</p>
+                <Link href="/contact" style={{ background: RED, color: '#fff', padding: '12px 32px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>
+                  Contact Sales →
+                </Link>
               </div>
             </>
           )}
         </div>
+
+        <Footer />
       </div>
     </>
   );

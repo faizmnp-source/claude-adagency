@@ -1,9 +1,15 @@
 'use client';
 
+import Head from 'next/head';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Logo from '../components/Logo';
+
+const R    = '#E50914';
+const BG   = '#0A0A0A';
+const TEXT = '#FFFFFF';
+const MUTED = 'rgba(255,255,255,0.55)';
 
 const REEL_ENGINE_URL = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 
@@ -23,160 +29,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080808', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+    <>
+      <Head>
+        <title>Sign In — The Craft Studio</title>
+        <meta name="description" content="Sign in to The Craft Studio AI platform." />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
 
-      <style suppressHydrationWarning>{`
-        /* Fire background orb */
-        .login-orb {
-          position: absolute;
-          border-radius: 50%;
-          pointer-events: none;
-          filter: blur(80px);
-        }
+      <div style={{
+        minHeight: '100vh', background: BG, color: TEXT,
+        fontFamily: "'Inter', sans-serif",
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', overflow: 'hidden',
+      }}>
 
-        /* Fire CTA button */
-        .fire-btn-login {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          width: 100%;
-          padding: 17px 32px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #FF6B00, #F59E0B);
-          color: #080808;
-          font-size: 16px;
-          font-weight: 800;
-          font-family: 'Space Grotesk', sans-serif;
-          letter-spacing: 0.04em;
-          border: none;
-          cursor: pointer;
-          text-decoration: none;
-          transition: transform 0.15s, box-shadow 0.2s;
-          box-shadow: 0 0 30px rgba(255,107,0,0.45), 0 0 60px rgba(255,107,0,0.15);
-        }
-        .fire-btn-login:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 0 50px rgba(255,107,0,0.65), 0 0 80px rgba(245,158,11,0.25);
-        }
-        .fire-btn-login:active { transform: scale(0.98); }
+        {/* Subtle red radial glow */}
+        <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%,-50%)', width: '600px', height: '400px', background: 'radial-gradient(ellipse, rgba(229,9,20,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-        /* Login card */
-        .login-card {
-          background: rgba(20,14,8,0.92);
-          border: 1px solid rgba(245,158,11,0.2);
-          border-radius: 24px;
-          padding: 48px 40px;
-          backdrop-filter: blur(30px);
-          box-shadow:
-            0 0 0 1px rgba(245,158,11,0.08),
-            0 40px 100px rgba(0,0,0,0.6),
-            inset 0 1px 0 rgba(245,158,11,0.1);
-          position: relative;
-          overflow: hidden;
-        }
+        <div style={{ width: '100%', maxWidth: '440px', padding: '0 24px', position: 'relative', zIndex: 1 }}>
 
-        /* Top accent line */
-        .login-card::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, #FF6B00, #F59E0B, transparent);
-          border-radius: 24px 24px 0 0;
-        }
+          {/* Logo */}
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <Link href="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', marginBottom: '14px' }}>
+              <Logo size="large" />
+            </Link>
+            <p style={{ color: MUTED, fontSize: '14px', letterSpacing: '0.04em' }}>
+              AI-Powered Ads & Automation Platform
+            </p>
+          </div>
 
-        /* Divider */
-        .divider {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin: 28px 0;
-        }
-        .divider::before,
-        .divider::after {
-          content: '';
-          flex: 1;
-          height: 1px;
-          background: rgba(245,158,11,0.12);
-        }
+          {/* Card */}
+          <div style={{
+            background: '#111111',
+            border: `1px solid rgba(229,9,20,0.2)`,
+            padding: '44px 36px',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            {/* Top red accent line */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: `linear-gradient(90deg, transparent, ${R}, transparent)` }} />
 
-        /* Stat badge */
-        .stat-badge {
-          display: inline-flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 14px 20px;
-          border-radius: 14px;
-          background: rgba(15,12,8,0.8);
-          border: 1px solid rgba(245,158,11,0.15);
-          flex: 1;
-          text-align: center;
-        }
-
-        /* Feature tag */
-        .login-feat {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px 0;
-          border-bottom: 1px solid rgba(245,158,11,0.06);
-          font-size: 14px;
-          color: rgba(148,163,184,0.85);
-          font-family: 'Space Grotesk', sans-serif;
-        }
-        .login-feat:last-child { border-bottom: none; }
-
-        /* Float animation */
-        @keyframes floatLogin {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        .float-login { animation: floatLogin 4s ease-in-out infinite; }
-
-        /* Slide in */
-        @keyframes slideInUp {
-          from { opacity: 0; transform: translateY(32px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .slide-login { animation: slideInUp 0.65s cubic-bezier(0.16,1,0.3,1) both; }
-      `}</style>
-
-      {/* Background orbs */}
-      <div className="login-orb" style={{ width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(255,107,0,0.1) 0%, transparent 70%)', top: '-10%', right: '-5%' }}></div>
-      <div className="login-orb" style={{ width: '350px', height: '350px', background: 'radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)', bottom: '-5%', left: '-5%' }}></div>
-      {/* Star field */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 65% 50%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 90% 80%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.2) 0%, transparent 100%)', pointerEvents: 'none' }}></div>
-
-      <div className="w-full max-w-md px-4 relative z-10 slide-login">
-
-        {/* ── Logo & brand ── */}
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <Link href="/" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px', textDecoration: 'none' }} className="float-login">
-            <Logo variant="vertical" size="large" color="color" />
-          </Link>
-          <p style={{ color: 'rgba(148,163,184,0.75)', fontSize: '14px', marginTop: '6px', fontFamily: "'Space Grotesk', sans-serif" }}>
-            AI-Powered Ads & Automation Platform
-          </p>
-        </div>
-
-        {/* ── Login Card ── */}
-        <div className="login-card">
-          {/* Inner glow */}
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 0%, rgba(255,107,0,0.06) 0%, transparent 50%)', pointerEvents: 'none', borderRadius: '24px' }}></div>
-
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '32px', color: '#fff', textAlign: 'center', marginBottom: '6px', letterSpacing: '0.04em' }}>
-              Sign In to Studio
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '32px', letterSpacing: '0.06em', color: TEXT, textAlign: 'center', marginBottom: '6px' }}>
+              SIGN IN TO STUDIO
             </h2>
-            <p style={{ color: 'rgba(148,163,184,0.75)', textAlign: 'center', fontSize: '14px', marginBottom: '32px', fontFamily: "'Space Grotesk', sans-serif" }}>
+            <p style={{ color: MUTED, textAlign: 'center', fontSize: '14px', marginBottom: '32px' }}>
               Create your workspace and start scaling revenue
             </p>
 
             {/* Error state */}
             {error && (
-              <div style={{ marginBottom: '24px', padding: '12px 16px', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#F87171', fontSize: '14px', textAlign: 'center', fontFamily: "'Space Grotesk', sans-serif" }}>
+              <div style={{ marginBottom: '24px', padding: '12px 16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#F87171', fontSize: '14px', textAlign: 'center' }}>
                 {error === 'google_denied' && 'Google sign-in was cancelled.'}
                 {error === 'token_failed' && 'Authentication failed. Please try again.'}
                 {error === 'server_error' && 'Server error. Please try again.'}
@@ -185,7 +86,19 @@ export default function LoginPage() {
             )}
 
             {/* Google Sign In */}
-            <button onClick={handleGoogleLogin} className="fire-btn-login">
+            <button
+              onClick={handleGoogleLogin}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+                width: '100%', padding: '15px 24px',
+                background: TEXT, color: '#0A0A0A',
+                border: 'none', cursor: 'pointer',
+                fontFamily: "'Inter', sans-serif", fontSize: '15px', fontWeight: 700,
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#E8E8E8'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = TEXT; }}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -196,61 +109,62 @@ export default function LoginPage() {
             </button>
 
             {/* Divider */}
-            <div className="divider">
-              <span style={{ fontSize: '12px', color: 'rgba(148,163,184,0.5)', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 500, letterSpacing: '0.08em' }}>WHAT YOU GET</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', margin: '28px 0' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(229,9,20,0.15)' }} />
+              <span style={{ fontSize: '11px', color: MUTED, fontWeight: 600, letterSpacing: '0.12em' }}>WHAT YOU GET</span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(229,9,20,0.15)' }} />
             </div>
 
-            {/* Features list */}
-            <div style={{ marginBottom: '28px' }}>
+            {/* Features */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '28px' }}>
               {[
                 { icon: '🎯', text: 'AI-generated ad creatives & scripts' },
                 { icon: '📣', text: 'Social media automation & auto-posting' },
                 { icon: '📈', text: 'Real-time ROAS & performance tracking' },
               ].map((feat, i) => (
-                <div key={i} className="login-feat">
-                  <span style={{ fontSize: '18px' }}>{feat.icon}</span>
-                  <span>{feat.text}</span>
-                  <span style={{ marginLeft: 'auto', color: '#F59E0B', fontWeight: 700, fontSize: '13px' }}>✓</span>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: '#1A1A1A', border: `1px solid rgba(229,9,20,0.12)` }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>{feat.icon}</span>
+                  <span style={{ fontSize: '14px', color: '#E8E8E8', flex: 1 }}>{feat.text}</span>
+                  <span style={{ color: R, fontWeight: 700, fontSize: '13px' }}>✓</span>
                 </div>
               ))}
             </div>
 
-            {/* Stats row */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+            {/* Stats */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '28px' }}>
               {[
                 { value: '30', label: 'Free Credits', icon: '⚡' },
                 { value: '150+', label: 'Brands Trust Us', icon: '🚀' },
                 { value: '10M+', label: 'Views Generated', icon: '👁' },
               ].map((stat, i) => (
-                <div key={i} className="stat-badge">
-                  <span style={{ fontSize: '16px', marginBottom: '4px' }}>{stat.icon}</span>
-                  <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', color: '#F59E0B', lineHeight: 1 }}>{stat.value}</span>
-                  <span style={{ fontSize: '10px', color: 'rgba(148,163,184,0.65)', fontWeight: 500, marginTop: '2px', textAlign: 'center', lineHeight: 1.3 }}>{stat.label}</span>
+                <div key={i} style={{
+                  flex: 1, textAlign: 'center', padding: '14px 8px',
+                  background: '#1A1A1A', border: `1px solid rgba(229,9,20,0.15)`,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                }}>
+                  <span style={{ fontSize: '14px' }}>{stat.icon}</span>
+                  <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', color: R, lineHeight: 1 }}>{stat.value}</span>
+                  <span style={{ fontSize: '10px', color: MUTED, lineHeight: 1.3, textAlign: 'center' }}>{stat.label}</span>
                 </div>
               ))}
             </div>
 
             {/* Terms */}
-            <p style={{ color: 'rgba(148,163,184,0.55)', fontSize: '12px', textAlign: 'center', lineHeight: '1.6', fontFamily: "'Space Grotesk', sans-serif" }}>
-              By signing in, you agree to our terms of service.
-              <br />
-              New users get{' '}
-              <span style={{ color: '#F59E0B', fontWeight: 700 }}>30 free credits</span>
-              {' '}to start creating.
+            <p style={{ color: MUTED, fontSize: '12px', textAlign: 'center', lineHeight: 1.6 }}>
+              By signing in, you agree to our terms of service.<br />
+              New users get <span style={{ color: R, fontWeight: 700 }}>30 free credits</span> to start.
             </p>
           </div>
-        </div>
 
-        {/* Back link */}
-        <p style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/" style={{ color: 'rgba(148,163,184,0.6)', fontSize: '13px', textDecoration: 'none', fontFamily: "'Space Grotesk', sans-serif", transition: 'color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#F59E0B')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(148,163,184,0.6)')}
-          >
-            ← Back to Homepage
-          </Link>
-        </p>
+          {/* Back link */}
+          <p style={{ textAlign: 'center', marginTop: '24px' }}>
+            <Link href="/" style={{ color: MUTED, fontSize: '13px', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = R)}
+              onMouseLeave={e => (e.currentTarget.style.color = MUTED)}
+            >← Back to Homepage</Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

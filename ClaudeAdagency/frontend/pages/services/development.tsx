@@ -1,177 +1,180 @@
 'use client';
 
+import Head from 'next/head';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
+import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
 
-const NAV_LINKS = [
-  { href: '/services/instagram-reels', label: 'Reels & Branding' },
-  { href: '/services/development', label: 'Web & App' },
-  { href: '/services/software', label: 'AI & Software' },
-];
+const RED = '#E50914';
+const RED_DIM = 'rgba(229,9,20,0.15)';
+const RED_MED = 'rgba(229,9,20,0.2)';
 
 const DevelopmentPage = () => {
   return (
-    <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
+    <>
+      <Head>
+        <title>Web &amp; App Development — TheCraftStudios</title>
+        <meta name="description" content="Custom websites, Android &amp; iOS apps — built to look great, load fast, and turn visitors into paying customers." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
 
-      <header className="fixed top-0 w-full z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-              <Logo variant="horizontal" size="small" color="color" />
-            </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link key={href} href={href} className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">{label}</Link>
-              ))}
-              <Link href="/contact" className="gold-btn px-5 py-2 text-sm font-bold">Get Started</Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <NavBar />
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden space-bg circuit-bg">
-        <div className="blue-orb w-[500px] h-[500px] -top-32 right-0 opacity-40"></div>
-        <div className="gold-orb w-[300px] h-[300px] bottom-0 left-0 opacity-30"></div>
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="badge mb-6 mx-auto inline-flex">Web, Mobile & App Development</div>
-          <h1 className="font-display text-6xl md:text-7xl lg:text-8xl text-white mb-6 uppercase leading-none">
-            Web & App<br /><span className="gradient-text">That Converts</span>
-          </h1>
-          <p className="text-[#94A3B8] text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
-            Custom websites, Android & iOS apps — built to look great, load fast, and turn
-            visitors into paying customers.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact" className="gold-btn px-10 py-4 text-lg font-bold">Start Your Project →</Link>
-            <Link href="/services/software" className="ghost-btn px-10 py-4 text-lg font-semibold">
-              Need AI / SaaS? →
-            </Link>
-          </div>
-        </div>
-      </section>
+      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
 
-      {/* Services Grid */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0D1628' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">What We Build</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Our Development Services</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: '🖥️', color: '#4A6CF7', title: 'Website Design & Development', items: ['Landing pages', 'Corporate websites', 'Portfolio sites', 'Custom CMS'], desc: 'Responsive, fast-loading websites that look stunning on every device and are built to convert.' },
-              { icon: '📱', color: '#F59E0B', title: 'Android & iOS App Development', items: ['Native Android apps', 'Native iOS apps', 'Cross-platform (React Native)', 'App Store submission'], desc: 'Mobile-first apps built for performance, designed for user delight and business growth.' },
-              { icon: '🛒', color: '#4A6CF7', title: 'E-commerce Solutions', items: ['Online stores', 'Payment integration', 'Inventory management', 'Order tracking'], desc: 'Complete e-commerce platforms with seamless checkout optimized for maximum conversions.' },
-            ].map((s, i) => (
-              <div key={i} className="glass glass-hover p-8 rounded-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl" style={{ background: `radial-gradient(circle, ${s.color}15 0%, transparent 70%)` }}></div>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-6 relative" style={{ background: `${s.color}15`, border: `1px solid ${s.color}40` }}>{s.icon}</div>
-                <h3 className="text-xl font-bold text-white mb-3">{s.title}</h3>
-                <p className="text-[#94A3B8] text-sm mb-5 leading-relaxed">{s.desc}</p>
-                <ul className="space-y-2">
-                  {s.items.map((item, j) => (
-                    <li key={j} className="flex items-center gap-2 text-sm text-[#94A3B8]">
-                      <span className="font-bold" style={{ color: s.color }}>✓</span>{item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* Software/SaaS CTA card */}
-          <div className="mt-10 glass rounded-2xl p-8 border border-[rgba(245,158,11,0.3)] relative overflow-hidden">
-            <div className="gold-orb w-64 h-64 right-0 top-0 opacity-30"></div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div>
-                <div className="badge mb-4 inline-flex" style={{ color: '#F59E0B', borderColor: 'rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.1)' }}>🤖 Also Building</div>
-                <h3 className="font-display text-3xl text-white mb-3 uppercase">Need AI Automations or SaaS?</h3>
-                <p className="text-[#94A3B8] max-w-xl">We also build AI-powered SaaS products, finance automation tools, sales CRMs, and custom software. Click below to explore our dedicated software page.</p>
-              </div>
-              <Link href="/services/software" className="gold-btn px-8 py-4 font-bold whitespace-nowrap flex-shrink-0">
-                Explore AI & SaaS →
+        {/* Hero */}
+        <section style={{ paddingTop: '72px', paddingBottom: '80px', padding: '72px 16px 80px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1, paddingTop: '48px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+              Web, Mobile &amp; App Development
+            </div>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(56px, 10vw, 96px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', lineHeight: 1, letterSpacing: '0.02em' }}>
+              Web &amp; App<br /><span style={{ color: RED }}>That Converts</span>
+            </h1>
+            <p style={{ color: '#888888', fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+              Custom websites, Android &amp; iOS apps — built to look great, load fast, and turn
+              visitors into paying customers.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center' }}>
+              <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 40px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+                Start Your Project →
+              </Link>
+              <Link href="/services/software" style={{ border: `1px solid rgba(229,9,20,0.4)`, color: '#E8E8E8', padding: '16px 40px', borderRadius: '8px', fontWeight: 600, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+                Need AI / SaaS? →
               </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Process */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 relative space-bg circuit-bg">
-        <div className="blue-orb w-[400px] h-[400px] right-0 top-0 opacity-20"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">How We Work</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Development Process</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-            <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-[rgba(74,108,247,0.4)] to-transparent"></div>
-            {[
-              { step: '01', icon: '📋', title: 'Discovery', desc: 'We understand your goals, users, and requirements in detail.' },
-              { step: '02', icon: '🎨', title: 'Design', desc: 'UI/UX wireframes and pixel-perfect designs for approval.' },
-              { step: '03', icon: '⚙️', title: 'Build', desc: 'Full development with regular progress updates.' },
-              { step: '04', icon: '🚀', title: 'Launch', desc: 'Testing, deployment, and post-launch support.' },
-            ].map((item, i) => (
-              <div key={i} className="text-center group">
-                <div className="w-20 h-20 rounded-2xl glass border border-[rgba(74,108,247,0.3)] flex items-center justify-center text-3xl mx-auto mb-5 relative z-10 group-hover:border-[#4A6CF7] transition-colors">{item.icon}</div>
-                <div className="text-[#F59E0B] font-bold text-sm tracking-widest mb-2">{item.step}</div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-[#94A3B8] text-sm leading-relaxed">{item.desc}</p>
+        {/* Services Grid */}
+        <section style={{ padding: '96px 16px', background: '#111111' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                What We Build
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                Our Development Services
+              </h2>
+            </div>
 
-      {/* Tech Stack */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0A1020' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Tech Stack</div>
-            <h2 className="font-display text-5xl text-white mb-4 uppercase">What We Use</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { category: 'Frontend', items: ['React / Next.js', 'React Native', 'TypeScript', 'Tailwind CSS'] },
-              { category: 'Backend', items: ['Node.js', 'Python/FastAPI', 'Django', 'REST & GraphQL'] },
-              { category: 'Mobile', items: ['React Native', 'Android (Kotlin)', 'iOS (Swift)', 'Flutter'] },
-              { category: 'Cloud & DB', items: ['AWS / GCP', 'PostgreSQL', 'MongoDB', 'Redis'] },
-            ].map((stack, i) => (
-              <div key={i} className="glass rounded-2xl p-6 border border-[rgba(74,108,247,0.2)]">
-                <h4 className="text-[#4A6CF7] font-bold text-sm uppercase tracking-wider mb-4">{stack.category}</h4>
-                <ul className="space-y-2">
-                  {stack.items.map((item, j) => (
-                    <li key={j} className="text-[#94A3B8] text-sm">{item}</li>
-                  ))}
-                </ul>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
+              {[
+                { icon: '🖥️', title: 'Website Design & Development', items: ['Landing pages', 'Corporate websites', 'Portfolio sites', 'Custom CMS'], desc: 'Responsive, fast-loading websites that look stunning on every device and are built to convert.' },
+                { icon: '📱', title: 'Android & iOS App Development', items: ['Native Android apps', 'Native iOS apps', 'Cross-platform (React Native)', 'App Store submission'], desc: 'Mobile-first apps built for performance, designed for user delight and business growth.' },
+                { icon: '🛒', title: 'E-commerce Solutions', items: ['Online stores', 'Payment integration', 'Inventory management', 'Order tracking'], desc: 'Complete e-commerce platforms with seamless checkout optimized for maximum conversions.' },
+              ].map((s, i) => (
+                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '24px', background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.2)` }}>{s.icon}</div>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{s.title}</h3>
+                  <p style={{ color: '#888888', fontSize: '14px', marginBottom: '20px', lineHeight: 1.7 }}>{s.desc}</p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {s.items.map((item, j) => (
+                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#888888' }}>
+                        <span style={{ color: RED, fontWeight: 700 }}>✓</span>{item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Software/SaaS CTA card */}
+            <div style={{ marginTop: '40px', background: '#1A1A1A', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '32px' }}>
+                <div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid rgba(229,9,20,0.4)`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.08)' }}>
+                    🤖 Also Building
+                  </div>
+                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '32px', color: '#fff', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Need AI Automations or SaaS?</h3>
+                  <p style={{ color: '#888888', maxWidth: '560px', lineHeight: 1.7 }}>We also build AI-powered SaaS products, finance automation tools, sales CRMs, and custom software. Click below to explore our dedicated software page.</p>
+                </div>
+                <Link href="/services/software" style={{ background: RED, color: '#fff', padding: '16px 32px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0, display: 'inline-block' }}>
+                  Explore AI &amp; SaaS →
+                </Link>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050B18 0%, #0D1628 50%, #050B18 100%)' }}>
-        <div className="blue-orb w-[400px] h-[400px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="font-display text-6xl md:text-7xl text-white mb-6 uppercase">Ready to Build<br /><span className="gradient-text">Something Great?</span></h2>
-          <p className="text-[#94A3B8] text-xl mb-10">Tell us about your project and we'll get back to you within 24 hours.</p>
-          <Link href="/contact" className="gold-btn px-12 py-4 text-lg font-bold">Start Your Project →</Link>
-        </div>
-      </section>
-
-      <footer className="py-10 px-4 border-t border-[rgba(74,108,247,0.15)]" style={{ background: '#050B18' }}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[#94A3B8] text-sm">&copy; 2024 TheCraftStudios. All rights reserved.</p>
-          <div className="flex gap-6 text-sm">
-            <a href="mailto:info@thecraftstudios.in" className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors">info@thecraftstudios.in</a>
-            <a href="tel:+917760501116" className="text-[#94A3B8] hover:text-[#F59E0B] transition-colors">+91 77605 01116</a>
+        {/* Process */}
+        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                How We Work
+              </div>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                Development Process
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+              {[
+                { step: '01', icon: '📋', title: 'Discovery', desc: 'We understand your goals, users, and requirements in detail.' },
+                { step: '02', icon: '🎨', title: 'Design', desc: 'UI/UX wireframes and pixel-perfect designs for approval.' },
+                { step: '03', icon: '⚙️', title: 'Build', desc: 'Full development with regular progress updates.' },
+                { step: '04', icon: '🚀', title: 'Launch', desc: 'Testing, deployment, and post-launch support.' },
+              ].map((item, i) => (
+                <div key={i} style={{ textAlign: 'center' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '16px', background: '#1A1A1A', border: `1px solid ${RED_DIM}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 20px' }}>{item.icon}</div>
+                  <div style={{ color: RED, fontWeight: 700, fontSize: '13px', letterSpacing: '0.15em', marginBottom: '8px' }}>{item.step}</div>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{item.title}</h3>
+                  <p style={{ color: '#888888', fontSize: '14px', lineHeight: 1.7 }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+
+        {/* Tech Stack */}
+        <section style={{ padding: '96px 16px', background: '#111111' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                Tech Stack
+              </div>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 6vw, 56px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                What We Use
+              </h2>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+              {[
+                { category: 'Frontend', items: ['React / Next.js', 'React Native', 'TypeScript', 'Tailwind CSS'] },
+                { category: 'Backend', items: ['Node.js', 'Python/FastAPI', 'Django', 'REST & GraphQL'] },
+                { category: 'Mobile', items: ['React Native', 'Android (Kotlin)', 'iOS (Swift)', 'Flutter'] },
+                { category: 'Cloud & DB', items: ['AWS / GCP', 'PostgreSQL', 'MongoDB', 'Redis'] },
+              ].map((stack, i) => (
+                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '24px' }}>
+                  <h4 style={{ color: RED, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>{stack.category}</h4>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {stack.items.map((item, j) => (
+                      <li key={j} style={{ color: '#888888', fontSize: '14px' }}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section style={{ padding: '80px 16px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '896px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 8vw, 80px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+              Ready to Build<br /><span style={{ color: RED }}>Something Great?</span>
+            </h2>
+            <p style={{ color: '#888888', fontSize: '20px', marginBottom: '40px' }}>Tell us about your project and we'll get back to you within 24 hours.</p>
+            <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 48px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+              Start Your Project →
+            </Link>
+          </div>
+        </section>
+
+        <Footer />
+      </div>
+    </>
   );
 };
 

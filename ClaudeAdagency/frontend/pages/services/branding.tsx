@@ -1,225 +1,233 @@
 'use client';
 
+import Head from 'next/head';
 import Link from 'next/link';
-import Logo from '../../components/Logo';
+import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
+
+const RED = '#E50914';
+const RED_DIM = 'rgba(229,9,20,0.15)';
 
 const BrandingPage = () => {
   return (
-    <div className="min-h-screen" style={{ background: '#050B18', color: '#fff' }}>
+    <>
+      <Head>
+        <title>Branding &amp; Social Media Growth — TheCraftStudios</title>
+        <meta name="description" content="Grow your Instagram channel with strategic planning, visual branding, and community management that turns followers into loyal customers." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
 
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-[#050B18]/95 backdrop-blur-md border-b border-[rgba(74,108,247,0.2)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-              <Logo variant="horizontal" size="small" color="color" />
+      <NavBar />
+
+      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
+
+        {/* Hero */}
+        <section style={{ paddingTop: '120px', paddingBottom: '80px', padding: '120px 16px 80px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: RED, display: 'inline-block' }}></span>
+              Branding &amp; Social Media Growth
+            </div>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(56px, 10vw, 96px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', lineHeight: 1, letterSpacing: '0.02em' }}>
+              Build a Brand<br />
+              <span style={{ color: RED }}>People Remember</span>
+            </h1>
+            <p style={{ color: '#888888', fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+              Grow your Instagram channel with strategic planning, visual branding, and community management
+              that turns followers into loyal customers.
+            </p>
+            <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 40px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+              Start Growing Today →
             </Link>
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Home</Link>
-              <Link href="/services/instagram-reels" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Instagram Reels</Link>
-              <Link href="/services/development" className="text-[#94A3B8] hover:text-white transition-colors font-medium text-sm">Development</Link>
-              <Link href="/contact" className="gold-btn px-5 py-2 text-sm font-bold">Get Started</Link>
-            </nav>
           </div>
-        </div>
-      </header>
+        </section>
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden space-bg circuit-bg">
-        <div className="gold-orb w-[500px] h-[500px] -top-32 left-1/4 opacity-30"></div>
-        <div className="blue-orb w-[400px] h-[400px] top-20 right-0 opacity-30"></div>
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="badge mb-6 mx-auto inline-flex">
-            <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" style={{ background: '#F59E0B' }}></span>
-            Branding & Social Media Growth
-          </div>
-          <h1 className="font-display text-6xl md:text-7xl lg:text-8xl text-white mb-6 uppercase leading-none">
-            Build a Brand<br />
-            <span className="gradient-text">People Remember</span>
-          </h1>
-          <p className="text-[#94A3B8] text-xl max-w-3xl mx-auto mb-10 leading-relaxed">
-            Grow your Instagram channel with strategic planning, visual branding, and community management
-            that turns followers into loyal customers.
-          </p>
-          <Link href="/contact" className="gold-btn px-10 py-4 text-lg font-bold">Start Growing Today →</Link>
-        </div>
-      </section>
-
-      {/* Services Grid */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0D1628' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Services</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Our Branding Services</h2>
-            <p className="text-[#94A3B8] text-lg">Complete solutions for brand growth and management</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: '📊', title: 'Instagram Channel Strategy', color: '#4A6CF7', items: ['Content planning', 'Audience analysis', 'Growth roadmap'] },
-              { icon: '🎨', title: 'Visual Branding Design', color: '#F59E0B', items: ['Logo design', 'Brand guidelines', 'Visual assets'] },
-              { icon: '📅', title: 'Content Calendar Planning', color: '#4A6CF7', items: ['Monthly planning', 'Consistency strategy', 'Theme development'] },
-              { icon: '💬', title: 'Community Management', color: '#F59E0B', items: ['Response management', 'Engagement tracking', 'DM handling'] },
-              { icon: '🤝', title: 'Influencer Collaboration', color: '#4A6CF7', items: ['Outreach strategy', 'Partnership management', 'Campaign tracking'] },
-              { icon: '📈', title: 'Analytics & Growth Tracking', color: '#F59E0B', items: ['Performance reports', 'Growth metrics', 'ROI analysis'] },
-            ].map((service, i) => (
-              <div key={i} className="glass glass-hover p-8 rounded-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl"
-                  style={{ background: `radial-gradient(circle, ${service.color}15 0%, transparent 70%)` }}></div>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-5 relative"
-                  style={{ background: `${service.color}15`, border: `1px solid ${service.color}40` }}>
-                  {service.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">{service.title}</h3>
-                <ul className="space-y-3">
-                  {service.items.map((item, j) => (
-                    <li key={j} className="flex items-center gap-3 text-[#94A3B8] text-sm">
-                      <span className="font-bold" style={{ color: service.color }}>✓</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+        {/* Services Grid */}
+        <section style={{ padding: '96px 16px', background: '#111111' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                Services
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
+                Our Branding Services
+              </h2>
+              <p style={{ color: '#888888', fontSize: '18px' }}>Complete solutions for brand growth and management</p>
+            </div>
 
-      {/* Pricing */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 relative space-bg circuit-bg">
-        <div className="blue-orb w-[500px] h-[500px] left-0 top-0 opacity-20"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Pricing</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Growth Packages</h2>
-            <p className="text-[#94A3B8] text-lg">Flexible plans for growing your Instagram presence</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'Basic',
-                price: '$499',
-                period: '/month',
-                features: ['Strategy session', '30-day plan', 'Monthly check-in', 'Growth recommendations'],
-                highlighted: false,
-              },
-              {
-                name: 'Pro',
-                price: '$999',
-                period: '/month',
-                features: ['Full month management', 'Custom graphics', 'Weekly check-ins', 'Content calendar', 'Analytics reports'],
-                highlighted: true,
-              },
-              {
-                name: 'Premium',
-                price: '$1,499',
-                period: '/month',
-                features: ['Daily posting', 'Engagement management', 'Custom graphics suite', 'Analytics & tracking', 'Community management', 'Priority support'],
-                highlighted: false,
-              },
-            ].map((pkg, i) => (
-              <div key={i} className={`rounded-2xl p-8 relative overflow-hidden ${
-                pkg.highlighted
-                  ? 'bg-gradient-to-b from-[#4A6CF7] to-[#3B5BDB] border-2 border-[#4A6CF7] transform scale-105 shadow-[0_0_60px_rgba(74,108,247,0.4)]'
-                  : 'glass border border-[rgba(74,108,247,0.2)]'
-              }`}>
-                {pkg.highlighted && (
-                  <div className="absolute top-4 right-4 bg-[rgba(255,255,255,0.2)] rounded-full px-3 py-1 text-xs font-bold text-white">
-                    Most Popular
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
+              {[
+                { icon: '📊', title: 'Instagram Channel Strategy', items: ['Content planning', 'Audience analysis', 'Growth roadmap'] },
+                { icon: '🎨', title: 'Visual Branding Design', items: ['Logo design', 'Brand guidelines', 'Visual assets'] },
+                { icon: '📅', title: 'Content Calendar Planning', items: ['Monthly planning', 'Consistency strategy', 'Theme development'] },
+                { icon: '💬', title: 'Community Management', items: ['Response management', 'Engagement tracking', 'DM handling'] },
+                { icon: '🤝', title: 'Influencer Collaboration', items: ['Outreach strategy', 'Partnership management', 'Campaign tracking'] },
+                { icon: '📈', title: 'Analytics & Growth Tracking', items: ['Performance reports', 'Growth metrics', 'ROI analysis'] },
+              ].map((service, i) => (
+                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', marginBottom: '20px', background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.2)` }}>
+                    {service.icon}
                   </div>
-                )}
-                <h3 className="text-2xl font-bold text-white mb-2">{pkg.name}</h3>
-                <div className="mb-6">
-                  <span className={`text-5xl font-bold ${pkg.highlighted ? 'text-white' : 'gradient-text'}`}>{pkg.price}</span>
-                  <span className={pkg.highlighted ? 'text-blue-100' : 'text-[#94A3B8]'}>{pkg.period}</span>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '16px' }}>{service.title}</h3>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {service.items.map((item, j) => (
+                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#888888', fontSize: '14px' }}>
+                        <span style={{ fontWeight: 700, color: RED }}>✓</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-3 mb-8">
-                  {pkg.features.map((feature, j) => (
-                    <li key={j} className="flex items-center gap-3">
-                      <span className={`flex-shrink-0 font-bold ${pkg.highlighted ? 'text-[#FCD34D]' : 'text-[#4A6CF7]'}`}>✓</span>
-                      <span className={pkg.highlighted ? 'text-blue-50' : 'text-[#94A3B8]'}>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/contact" className={`block w-full text-center py-3 rounded-xl font-bold transition-all ${
-                  pkg.highlighted
-                    ? 'bg-white text-[#4A6CF7] hover:bg-[#FCD34D] hover:text-[#050B18]'
-                    : 'gold-btn w-full justify-center'
-                }`}>
-                  Get Started
-                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                Pricing
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
+                Growth Packages
+              </h2>
+              <p style={{ color: '#888888', fontSize: '18px' }}>Flexible plans for growing your Instagram presence</p>
+            </div>
 
-      {/* Success Stories */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: '#0A1020' }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="badge mb-4 mx-auto inline-flex">Results</div>
-            <h2 className="font-display text-5xl md:text-6xl text-white mb-4 uppercase">Success Stories</h2>
-            <p className="text-[#94A3B8] text-lg">Real results from brands we've helped grow</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { brand: 'Fashion Brand X', before: '5K followers', after: '50K followers', growth: '+900%', time: '3 months' },
-              { brand: 'Beauty Influencer', before: '10K followers', after: '100K followers', growth: '+900%', time: '4 months' },
-              { brand: 'E-commerce Store', before: '2K followers', after: '25K followers', growth: '+1,150%', time: '2 months' },
-            ].map((study, i) => (
-              <div key={i} className="glass glass-hover rounded-2xl p-8 relative overflow-hidden">
-                <div className="blue-orb w-48 h-48 right-0 bottom-0 opacity-30"></div>
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white mb-6">{study.brand}</h3>
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <p className="text-[#94A3B8] text-xs mb-1 uppercase tracking-wider">Before</p>
-                      <p className="text-2xl font-bold text-[#94A3B8]">{study.before}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
+              {[
+                {
+                  name: 'Basic',
+                  price: '$499',
+                  period: '/month',
+                  features: ['Strategy session', '30-day plan', 'Monthly check-in', 'Growth recommendations'],
+                  highlighted: false,
+                },
+                {
+                  name: 'Pro',
+                  price: '$999',
+                  period: '/month',
+                  features: ['Full month management', 'Custom graphics', 'Weekly check-ins', 'Content calendar', 'Analytics reports'],
+                  highlighted: true,
+                },
+                {
+                  name: 'Premium',
+                  price: '$1,499',
+                  period: '/month',
+                  features: ['Daily posting', 'Engagement management', 'Custom graphics suite', 'Analytics & tracking', 'Community management', 'Priority support'],
+                  highlighted: false,
+                },
+              ].map((pkg, i) => (
+                <div key={i} style={{
+                  borderRadius: '16px',
+                  padding: '32px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: pkg.highlighted ? RED : '#1A1A1A',
+                  border: pkg.highlighted ? `1px solid ${RED}` : `1px solid ${RED_DIM}`,
+                }}>
+                  {pkg.highlighted && (
+                    <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', borderRadius: '999px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: '#fff' }}>
+                      Most Popular
                     </div>
-                    <div className="h-px bg-gradient-to-r from-[#4A6CF7] to-transparent"></div>
+                  )}
+                  <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>{pkg.name}</h3>
+                  <div style={{ marginBottom: '24px' }}>
+                    <span style={{ fontSize: '48px', fontWeight: 700, color: '#fff' }}>{pkg.price}</span>
+                    <span style={{ color: pkg.highlighted ? 'rgba(255,255,255,0.7)' : '#888888' }}>{pkg.period}</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {pkg.features.map((feature, j) => (
+                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ flexShrink: 0, fontWeight: 700, color: pkg.highlighted ? '#fff' : RED }}>✓</span>
+                        <span style={{ color: pkg.highlighted ? 'rgba(255,255,255,0.9)' : '#888888' }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/contact" style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'center',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    background: pkg.highlighted ? '#fff' : RED,
+                    color: pkg.highlighted ? RED : '#fff',
+                    boxSizing: 'border-box',
+                  }}>
+                    Get Started
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Success Stories */}
+        <section style={{ padding: '96px 16px', background: '#111111' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
+                Results
+              </div>
+              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
+                Success Stories
+              </h2>
+              <p style={{ color: '#888888', fontSize: '18px' }}>Real results from brands we've helped grow</p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
+              {[
+                { brand: 'Fashion Brand X', before: '5K followers', after: '50K followers', growth: '+900%', time: '3 months' },
+                { brand: 'Beauty Influencer', before: '10K followers', after: '100K followers', growth: '+900%', time: '4 months' },
+                { brand: 'E-commerce Store', before: '2K followers', after: '25K followers', growth: '+1,150%', time: '2 months' },
+              ].map((study, i) => (
+                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '24px' }}>{study.brand}</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
                     <div>
-                      <p className="text-[#94A3B8] text-xs mb-1 uppercase tracking-wider">After {study.time}</p>
-                      <p className="text-2xl font-bold text-white">{study.after}</p>
+                      <p style={{ color: '#888888', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Before</p>
+                      <p style={{ fontSize: '24px', fontWeight: 700, color: '#888888' }}>{study.before}</p>
+                    </div>
+                    <div style={{ height: '1px', background: `linear-gradient(to right, ${RED}, transparent)` }}></div>
+                    <div>
+                      <p style={{ color: '#888888', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>After {study.time}</p>
+                      <p style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>{study.after}</p>
                     </div>
                   </div>
-                  <div className="inline-flex items-center gap-2 bg-[rgba(245,158,11,0.15)] border border-[rgba(245,158,11,0.3)] rounded-full px-4 py-2">
-                    <span className="text-xl font-bold" style={{ color: '#F59E0B' }}>{study.growth}</span>
-                    <span className="text-[#94A3B8] text-sm">growth</span>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.1)', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '999px', padding: '8px 16px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, color: RED }}>{study.growth}</span>
+                    <span style={{ color: '#888888', fontSize: '14px' }}>growth</span>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #050B18 0%, #0D1628 50%, #050B18 100%)' }}>
-        <div className="gold-orb w-[400px] h-[400px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="font-display text-6xl md:text-7xl text-white mb-6 uppercase">
-            Ready to Grow<br /><span className="gradient-text">Your Instagram?</span>
-          </h2>
-          <p className="text-[#94A3B8] text-xl mb-10">
-            Let's create a strategy that turns followers into real business results.
-          </p>
-          <Link href="/contact" className="gold-btn px-12 py-4 text-lg font-bold">
-            Start Your Growth Today →
-          </Link>
-        </div>
-      </section>
+        {/* CTA */}
+        <section style={{ padding: '80px 16px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: '896px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 8vw, 80px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+              Ready to Grow<br /><span style={{ color: RED }}>Your Instagram?</span>
+            </h2>
+            <p style={{ color: '#888888', fontSize: '20px', marginBottom: '40px' }}>
+              Let's create a strategy that turns followers into real business results.
+            </p>
+            <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 48px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
+              Start Your Growth Today →
+            </Link>
+          </div>
+        </section>
 
-      {/* Footer */}
-      <footer className="py-10 px-4 border-t border-[rgba(74,108,247,0.15)]" style={{ background: '#050B18' }}>
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-[#94A3B8] text-sm">&copy; 2024 TheCraftStudios. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 
