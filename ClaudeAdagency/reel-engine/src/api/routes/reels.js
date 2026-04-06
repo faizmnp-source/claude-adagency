@@ -621,4 +621,30 @@ router.get('/me/credits', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/reels/:id/review ────────────────────────────────────────────
+// AI reviews reel content and suggests improvements
+router.post('/:id/review', async (req, res) => {
+  try {
+    const reelData = await redis.get(`reel:result:${req.params.id}`);
+    if (!reelData) return res.status(404).json({ error: 'Reel not found' });
+
+    const reel = JSON.parse(reelData);
+    const { region, industry, brandName } = req.body;
+
+    const { reviewContent } = await import('../../services/ai/contentReviewer.js');
+    const review = await reviewContent({
+      content: reel.content || reel,
+      type: 'reel',
+      brandName,
+      region,
+      industry,
+    });
+
+    res.json({ review });
+  } catch (err) {
+    console.error('[reels/review]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

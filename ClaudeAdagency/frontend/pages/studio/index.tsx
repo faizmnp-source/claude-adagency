@@ -101,6 +101,26 @@ export default function StudioPage() {
   const [voiceoverUrl, setVoiceoverUrl] = useState<string | null>(null);
   const [voiceoverLoading, setVoiceoverLoading] = useState(false);
 
+  // ── Image Studio state ──
+  const [studioTab, setStudioTab]             = useState<'reel' | 'image'>('reel');
+  const [imgPostType, setImgPostType]         = useState('educational');
+  const [imgMode, setImgMode]                 = useState<'express' | 'manual' | 'auto'>('express');
+  const [imgFeatures, setImgFeatures]         = useState('');
+  const [imgOffer, setImgOffer]               = useState('');
+  const [imgDesignStyle, setImgDesignStyle]   = useState('bold');
+  const [imgScheduleDay, setImgScheduleDay]   = useState('');
+  const [imgScheduleTime, setImgScheduleTime] = useState('');
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [imgLoading, setImgLoading]           = useState(false);
+  const [imgError, setImgError]               = useState('');
+  const [aiReview, setAiReview]               = useState<any>(null);
+  const [reviewLoading, setReviewLoading]     = useState(false);
+  const [imgCount, setImgCount]               = useState(1);
+  const [autoSchedule, setAutoSchedule]       = useState<any[]>([]);
+  const [brandName, setBrandName]             = useState('');
+  const [region, setRegion]                   = useState('india');
+  const [industryCode, setIndustryCode]       = useState('ecommerce');
+
   const dropRef = useRef<HTMLDivElement>(null);
   const creditCost = duration * 2;
 
@@ -333,6 +353,70 @@ export default function StudioPage() {
 
   const currentStageIdx = PIPELINE_STAGES.findIndex(s => s.key === pipelineStage);
 
+  // ── Image Studio: generate images ──
+  const handleGenerateImages = async () => {
+    setImgLoading(true);
+    setImgError('');
+    setGeneratedImages([]);
+    setAiReview(null);
+    try {
+      const token = getAuthToken();
+      const payload = {
+        postType: imgPostType,
+        productDescription,
+        brandName,
+        features: imgFeatures.split(',').map((f: string) => f.trim()).filter(Boolean),
+        offer: imgOffer,
+        region,
+        industry: industryCode,
+        designStyle: imgDesignStyle,
+        mode: imgMode,
+        count: imgCount,
+        ...(imgMode === 'manual' && { scheduleDay: imgScheduleDay, scheduleTime: imgScheduleTime }),
+      };
+      const res = await fetch(`${REEL_ENGINE_URL}/api/images/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Image generation failed');
+      setGeneratedImages(data.images.map((img: any) => img.imageUrl));
+      if (data.schedule) setAutoSchedule(data.schedule);
+    } catch (err: any) {
+      setImgError(err.message);
+    } finally {
+      setImgLoading(false);
+    }
+  };
+
+  // ── Image Studio: AI review ──
+  const handleImageReview = async () => {
+    if (!generatedImages.length) return;
+    setReviewLoading(true);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${REEL_ENGINE_URL}/api/images/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          content: { imageUrls: generatedImages, postType: imgPostType, designStyle: imgDesignStyle },
+          postType: imgPostType,
+          brandName,
+          region,
+          industry: industryCode,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Review failed');
+      setAiReview(data.review);
+    } catch (err: any) {
+      setImgError(err.message);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#fff' }}>
 
@@ -387,6 +471,26 @@ export default function StudioPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
 
+        {/* ── Studio Tab Switcher ── */}
+        <div className="flex justify-center mb-6">
+          <div className="flex gap-2 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <button
+              onClick={() => setStudioTab('reel')}
+              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${studioTab === 'reel' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
+              style={studioTab === 'reel' ? { background: '#E50914' } : {}}
+            >
+              🎬 Reel Studio
+            </button>
+            <button
+              onClick={() => setStudioTab('image')}
+              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${studioTab === 'image' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
+              style={studioTab === 'image' ? { background: '#E50914' } : {}}
+            >
+              🖼️ Image Studio
+            </button>
+          </div>
+        </div>
+
         {/* Error */}
         {error && (
           <div className="mb-5 rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -403,7 +507,7 @@ export default function StudioPage() {
             STEP: UPLOAD / SETTINGS
             Matches Figma "Create Viral Reel"
             ═══════════════════════════════════ */}
-        {(step === 'upload' || step === 'settings') && (
+        {studioTab === 'reel' && (step === 'upload' || step === 'settings') && (
           <div className="max-w-lg mx-auto">
 
             {/* Title */}
@@ -689,7 +793,7 @@ export default function StudioPage() {
         {/* ═══════════════════════════════════
             STEP: GENERATING (pipeline)
             ═══════════════════════════════════ */}
-        {step === 'generating' && (
+        {studioTab === 'reel' && step === 'generating' && (
           <div className="max-w-lg mx-auto mt-8">
             <div className="rounded-2xl p-10 text-center relative overflow-hidden" style={{ background: 'rgba(13,22,40,0.5)', border: '1px solid rgba(123,46,255,0.15)' }}>
               <div className="purple-orb w-64 h-64 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40" style={{ position: 'absolute' }}></div>
@@ -746,7 +850,7 @@ export default function StudioPage() {
         {/* ═══════════════════════════════════
             STEP: DONE — Approve / Reject / Download
             ═══════════════════════════════════ */}
-        {step === 'done' && result && (
+        {studioTab === 'reel' && step === 'done' && result && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             {/* Left: Video + Actions */}
@@ -937,6 +1041,272 @@ export default function StudioPage() {
             </div>
           </div>
         )}
+        {/* ═══════════════════════════════════
+            IMAGE STUDIO
+            ═══════════════════════════════════ */}
+        {studioTab === 'image' && (
+          <div className="max-w-lg mx-auto">
+
+            {/* Title */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Image Studio</h1>
+              <p className="text-[#94A3B8] text-sm">Generate scroll-stopping marketing images for Instagram — in seconds.</p>
+            </div>
+
+            {/* Error */}
+            {imgError && (
+              <div className="mb-5 rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <span className="text-red-400 text-xl">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-red-400 font-semibold text-sm">Error</p>
+                  <p className="text-[#94A3B8] text-xs">{imgError}</p>
+                </div>
+                <button onClick={() => setImgError('')} className="text-[#94A3B8] hover:text-white">✕</button>
+              </div>
+            )}
+
+            {/* Mode selector */}
+            <div className="mb-6">
+              <label className="text-sm text-[#94A3B8] mb-3 block">Mode</label>
+              <div className="flex gap-3">
+                {([
+                  { key: 'express' as const, label: '⚡ Express' },
+                  { key: 'manual'  as const, label: '✏️ Manual'  },
+                  { key: 'auto'    as const, label: '🤖 Auto'    },
+                ]).map(m => (
+                  <button key={m.key} onClick={() => setImgMode(m.key)}
+                    className={`mode-pill flex-1 justify-center ${imgMode === m.key ? 'mode-pill-active' : ''}`}>
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Post Type */}
+            <div className="mb-6">
+              <label className="text-sm text-[#94A3B8] mb-3 block">Post Type</label>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { key: 'educational', label: '📚 Educational' },
+                  { key: 'offer',       label: '🎁 Offer'       },
+                  { key: 'highlight',   label: '✨ Highlight'   },
+                  { key: 'awareness',   label: '📢 Awareness'   },
+                  { key: 'testimonial', label: '💬 Testimonial' },
+                  { key: 'tips',        label: '💡 Tips'        },
+                ]).map(p => (
+                  <button key={p.key} onClick={() => setImgPostType(p.key)}
+                    className={`mode-pill ${imgPostType === p.key ? 'mode-pill-active' : ''}`}>
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Design Style */}
+            <div className="mb-6">
+              <label className="text-sm text-[#94A3B8] mb-3 block">Design Style</label>
+              <div className="flex flex-wrap gap-2">
+                {(['bold', 'minimal', 'cinematic', 'playful', 'corporate']).map(s => (
+                  <button key={s} onClick={() => setImgDesignStyle(s)}
+                    className={`mode-pill capitalize ${imgDesignStyle === s ? 'mode-pill-active' : ''}`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Number of images */}
+            <div className="mb-6">
+              <label className="text-sm text-[#94A3B8] mb-3 block">Number of Images</label>
+              <div className="flex gap-3">
+                {([1, 2, 3, 4]).map(n => (
+                  <button key={n} onClick={() => setImgCount(n)}
+                    className={`mode-pill flex-1 justify-center ${imgCount === n ? 'mode-pill-active' : ''}`}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Description */}
+            <div className="mb-4">
+              <label className="dark-input-label">Product Description</label>
+              <input type="text" value={productDescription} onChange={e => setProductDescription(e.target.value)}
+                placeholder="Describe your product..." className="dark-input" />
+            </div>
+
+            {/* Brand Name */}
+            <div className="mb-4">
+              <label className="dark-input-label">Brand Name</label>
+              <input type="text" value={brandName} onChange={e => setBrandName(e.target.value)}
+                placeholder="e.g. MyBrand" className="dark-input" />
+            </div>
+
+            {/* Features */}
+            <div className="mb-4">
+              <label className="dark-input-label">Key Features</label>
+              <input type="text" value={imgFeatures} onChange={e => setImgFeatures(e.target.value)}
+                placeholder="Key features, comma separated" className="dark-input" />
+            </div>
+
+            {/* Offer — shown for offer post type */}
+            {imgPostType === 'offer' && (
+              <div className="mb-4">
+                <label className="dark-input-label">Offer</label>
+                <input type="text" value={imgOffer} onChange={e => setImgOffer(e.target.value)}
+                  placeholder="e.g. 50% off this weekend only" className="dark-input" />
+              </div>
+            )}
+
+            {/* Manual schedule */}
+            {imgMode === 'manual' && (
+              <div className="mb-4 grid grid-cols-2 gap-3">
+                <div>
+                  <label className="dark-input-label">Schedule Day</label>
+                  <select value={imgScheduleDay} onChange={e => setImgScheduleDay(e.target.value)}
+                    className="dark-input">
+                    <option value="">Select day</option>
+                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="dark-input-label">Time</label>
+                  <input type="time" value={imgScheduleTime} onChange={e => setImgScheduleTime(e.target.value)}
+                    className="dark-input" />
+                </div>
+              </div>
+            )}
+
+            {/* Auto mode message */}
+            {imgMode === 'auto' && (
+              <div className="mb-4 rounded-xl p-3 text-sm text-[#94A3B8]"
+                style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.15)' }}>
+                🤖 AI will suggest the best posting times for your industry and region.
+              </div>
+            )}
+
+            {/* Generate Button */}
+            <button
+              onClick={handleGenerateImages}
+              disabled={imgLoading || !productDescription}
+              className="neon-btn w-full mb-6 disabled:opacity-50"
+            >
+              {imgLoading ? '⏳ Generating...' : 'Generate Images ✨'}
+            </button>
+
+            {/* Generated Images Grid */}
+            {generatedImages.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
+                <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                  {generatedImages.map((url, i) => (
+                    <div key={i} className="relative rounded-xl overflow-hidden group"
+                      style={{ aspectRatio: '1/1', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <img src={url} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <a href={url} download={`image-${i + 1}.webp`} target="_blank" rel="noopener noreferrer"
+                          className="px-3 py-2 rounded-lg text-xs font-bold text-white"
+                          style={{ background: '#E50914' }}>
+                          ⬇️ Download
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* AI Review button */}
+                <button
+                  onClick={handleImageReview}
+                  disabled={reviewLoading}
+                  className="w-full mt-4 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8' }}
+                >
+                  {reviewLoading ? '⏳ Reviewing...' : '🔍 AI Review'}
+                </button>
+              </div>
+            )}
+
+            {/* Auto Schedule */}
+            {autoSchedule.length > 0 && (
+              <div className="mb-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)' }}>
+                <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
+                  <h3 className="text-sm font-bold text-white">🗓️ Recommended Posting Schedule</h3>
+                </div>
+                <div className="divide-y" style={{ divideColor: 'rgba(255,255,255,0.06)' }}>
+                  {autoSchedule.map((slot, i) => (
+                    <div key={i} className="px-4 py-3 flex items-start gap-3" style={{ background: 'rgba(13,22,40,0.4)' }}>
+                      <div className="text-[#E50914] font-bold text-xs w-24 shrink-0">{slot.day} {slot.time}</div>
+                      <div className="text-[#94A3B8] text-xs">{slot.rationale}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* AI Review Results */}
+            {aiReview && (
+              <div className="mb-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)', background: 'rgba(13,22,40,0.5)' }}>
+                <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white">🔍 AI Content Review</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#94A3B8]">Score:</span>
+                      <span className="font-bold text-sm" style={{ color: aiReview.overallScore >= 80 ? '#22c55e' : aiReview.overallScore >= 60 ? '#f59e0b' : '#ef4444' }}>
+                        {aiReview.overallScore}/100
+                      </span>
+                      {aiReview.viralPotential && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                          style={{
+                            background: aiReview.viralPotential === 'high' ? 'rgba(34,197,94,0.1)' : aiReview.viralPotential === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+                            color: aiReview.viralPotential === 'high' ? '#22c55e' : aiReview.viralPotential === 'medium' ? '#f59e0b' : '#ef4444',
+                            border: `1px solid ${aiReview.viralPotential === 'high' ? 'rgba(34,197,94,0.3)' : aiReview.viralPotential === 'medium' ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                          }}>
+                          {aiReview.viralPotential} viral
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 space-y-4">
+                  {aiReview.strengths?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-green-400 mb-2">✅ Strengths</p>
+                      <ul className="space-y-1">
+                        {aiReview.strengths.map((s: string, i: number) => (
+                          <li key={i} className="text-xs text-[#94A3B8]">• {s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {aiReview.improvements?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-[#E50914] mb-2">💡 Improvements</p>
+                      <div className="space-y-2">
+                        {aiReview.improvements.map((imp: any, i: number) => (
+                          <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.12)' }}>
+                            <p className="text-xs font-semibold text-white mb-1 capitalize">{imp.field}</p>
+                            <p className="text-xs text-[#94A3B8] mb-1">{imp.issue}</p>
+                            <p className="text-xs text-[#C084FC]">→ {imp.suggestion}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {aiReview.engagementPrediction && (
+                    <div>
+                      <p className="text-xs font-bold text-[#94A3B8] mb-1">📊 Engagement Prediction</p>
+                      <p className="text-xs text-[#94A3B8]">{aiReview.engagementPrediction}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
       </div>
     </div>
   );

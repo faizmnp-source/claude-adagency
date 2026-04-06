@@ -111,6 +111,24 @@ app.use('/api/audio', async (req, res, next) => {
   }
 });
 
+app.use('/api/images', async (req, res, next) => {
+  try {
+    const { default: imagesRouter } = await import('./routes/images.js');
+    imagesRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.use('/api/products', async (req, res, next) => {
+  try {
+    const { default: productsRouter } = await import('./routes/products.js');
+    productsRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── SSE: Real-time job progress ────────────────────────────────────────────
 app.get('/api/reels/:id/progress', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
