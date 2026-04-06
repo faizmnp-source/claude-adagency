@@ -28,10 +28,10 @@ interface LogoProps {
 }
 
 const HEIGHT: Record<LogoSize, number> = {
-  small:  70,
-  medium: 90,
-  large:  110,
-  xl:     150,
+  small:  120,
+  medium: 120,
+  large:  120,
+  xl:     160,
 };
 
 export const Logo: React.FC<LogoProps> = ({

@@ -159,7 +159,7 @@ export default function HomePage() {
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           transition: 'all 0.3s',
         }}>
-          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
               <Logo variant="horizontal" size="medium" color="color" />
             </Link>
