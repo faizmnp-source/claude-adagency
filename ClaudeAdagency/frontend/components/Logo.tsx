@@ -28,10 +28,10 @@ interface LogoProps {
 }
 
 const HEIGHT: Record<LogoSize, number> = {
-  small:  120,
-  medium: 120,
-  large:  120,
-  xl:     160,
+  small:  100,
+  medium: 100,
+  large:  100,
+  xl:     140,
 };
 
 export const Logo: React.FC<LogoProps> = ({
@@ -54,7 +54,11 @@ export const Logo: React.FC<LogoProps> = ({
         src="/logofinal.png"
         alt="The Craft Studios"
         height={h}
-        style={{ height: h, width: 'auto', display: 'block', objectFit: 'contain' }}
+        style={{
+          height: h, width: 'auto', display: 'block', objectFit: 'contain',
+          background: '#0A0A0A',
+          mixBlendMode: 'lighten',
+        }}
         draggable={false}
       />
     </span>
