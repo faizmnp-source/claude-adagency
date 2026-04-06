@@ -81,6 +81,16 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       music = true,
       tone = 'energetic',
       targetAudience,
+      region = 'india',    // Region code for regional customization (india|america|pakistan|bangladesh|middle_east|british)
+      language = 'hinglish', // Language code for script generation (english|hindi|urdu|hinglish, default: hinglish for India)
+      industryCode = 'ecommerce', // Industry code for industry-specific content (ecommerce|fashion|beauty|food|technology|fitness|health|education|realestate|etc)
+      customCta = '',        // Override auto-generated CTA with exact text
+      seasonalEvent = '',    // e.g. "diwali", "blackfriday", "eid", "holi", "valentines", "productlaunch", "newyear", "christmas"
+      brandVoice = '',       // Brand personality doc
+      hashtagWhitelist = '', // Comma-separated hashtags to ALWAYS include
+      hashtagBlacklist = '', // Comma-separated hashtags to NEVER use
+      videoStyle = '',       // "cinematic" | "fast-cut" | "documentary" | "minimalist" | "ugc" | "talking-head"
+      seriesContext = '',    // Campaign series info
     } = req.body;
 
     const userId = req.user.id;
@@ -124,6 +134,16 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       duration: parseInt(duration),
       tone,
       targetAudience,
+      region,
+      language,
+      industryCode,
+      customCta,
+      seasonalEvent,
+      brandVoice,
+      hashtagWhitelist,
+      hashtagBlacklist,
+      videoStyle,
+      seriesContext,
     });
 
     // Save base64 images as temp files so Replicate can fetch them via public URL
@@ -168,6 +188,16 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       music,
       tone,
       targetAudience,
+      region, // pass region to worker for consistency
+      language, // pass language to worker for consistency
+      industryCode, // pass industry to worker for consistency
+      customCta,
+      seasonalEvent,
+      brandVoice,
+      hashtagWhitelist,
+      hashtagBlacklist,
+      videoStyle,
+      seriesContext,
       content, // pass pre-generated content so worker skips Claude step
     }).catch(() => {}); // fire and forget
 

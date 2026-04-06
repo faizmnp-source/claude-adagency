@@ -1,10 +1,13 @@
 /**
  * AI Content Generator — powered by Claude + viral-reel-director skill
  * Generates: script, hooks, caption, hashtags, scene breakdown
+ * NOW WITH REGIONAL CUSTOMIZATION
  */
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from '../../config/index.js';
 import { logger } from '../../utils/logger.js';
+import { enhancePromptsForRegion } from './regionalPromptEnhancer.js';
+import { combineRegionalAndIndustryGuidance } from './industryPromptEnhancer.js';
 
 const client = new Anthropic({ apiKey: config.anthropic.apiKey });
 
@@ -63,7 +66,7 @@ const OUTPUT_SCHEMA = `Return ONLY this JSON structure (no markdown, no backtick
 }`;
 
 /**
- * Generate viral reel content using Claude
+ * Generate viral reel content using Claude with regional, language, & industry customization
  * @param {Object} params
  * @param {string[]} params.imageUrls - S3 URLs of uploaded product images
  * @param {string} params.productDescription - Optional product description
@@ -71,7 +74,17 @@ const OUTPUT_SCHEMA = `Return ONLY this JSON structure (no markdown, no backtick
  * @param {number} params.duration - Reel duration in seconds (15, 30, 50)
  * @param {string} params.tone - 'energetic' | 'professional' | 'emotional' | 'comedic'
  * @param {string} params.targetAudience - e.g. "Indian women 18-35, beauty conscious"
- * @returns {Promise<Object>} Structured JSON content
+ * @param {string} params.region - Region code: 'india' | 'america' | 'pakistan' | 'bangladesh' | 'middle_east' | 'british' (default: 'india')
+ * @param {string} params.language - Language: 'english' | 'hindi' | 'urdu' | 'hinglish' (default: 'hinglish' for india)
+ * @param {string} params.industryCode - Industry: 'ecommerce' | 'fashion' | 'beauty' | 'food' | 'technology' | 'fitness' | 'health' | 'education' | 'realestate' | etc. (default: 'ecommerce')
+ * @param {string} params.customCta - Override the auto-generated CTA with this exact text
+ * @param {string} params.seasonalEvent - e.g. "diwali", "blackfriday", "eid", "holi", "valentines", "productlaunch", "newyear", "christmas"
+ * @param {string} params.brandVoice - Brand personality doc, e.g. "Bold, youthful, anti-corporate. Think Zomato's Twitter voice."
+ * @param {string} params.hashtagWhitelist - Comma-separated branded hashtags to ALWAYS include
+ * @param {string} params.hashtagBlacklist - Comma-separated hashtags to NEVER use
+ * @param {string} params.videoStyle - One of: "cinematic", "fast-cut", "documentary", "minimalist", "ugc", "talking-head"
+ * @param {string} params.seriesContext - Campaign series info, e.g. "Post 3 of 5 in our Diwali sale campaign."
+ * @returns {Promise<Object>} Structured JSON content with region, language, & industry optimization
  */
 export async function generateReelContent({
   imageUrls = [],
@@ -80,8 +93,61 @@ export async function generateReelContent({
   duration = 30,
   tone = 'energetic',
   targetAudience = 'Indian social media users 18-35',
+  region = 'india',
+  language = 'hinglish', // English, Hindi, Urdu, Hinglish
+  industryCode = 'ecommerce',
+  customCta = '',
+  seasonalEvent = '',
+  brandVoice = '',
+  hashtagWhitelist = '',
+  hashtagBlacklist = '',
+  videoStyle = '',
+  seriesContext = '',
 }) {
-  logger.info('Generating reel content with Claude', { duration, tone, brandName });
+  logger.info('Generating reel content with Claude', { duration, tone, brandName, region, language, industryCode });
+
+  // Get region-aware + language-aware prompts
+  const {
+    systemPrompt: regionalSystemPrompt,
+    userPrompt: regionalUserPrompt,
+    outputSchema: regionalOutputSchema,
+    languageConfig,
+  } = enhancePromptsForRegion({
+    productDescription,
+    brandName,
+    duration,
+    tone,
+    targetAudience,
+    region,
+    language,
+  });
+
+  // Get industry-specific guidance to enhance prompts
+  const industryGuidance = combineRegionalAndIndustryGuidance({
+    region,
+    industryCode,
+    productDescription,
+  });
+
+  // Combine regional + industry prompts for maximum targeting
+  const enhancedSystemPrompt = `${regionalSystemPrompt}
+
+${industryGuidance.systemAddition}`;
+
+  // Build advanced customization additions
+  const advancedAdditions = [
+    customCta ? `\nCUSTOM CTA: Use this exact call-to-action: "${customCta}"` : '',
+    seasonalEvent ? `\nSEASONAL EVENT: This reel is for "${seasonalEvent}". Incorporate relevant cultural references, urgency, and event-specific hooks.` : '',
+    brandVoice ? `\nBRAND VOICE & PERSONALITY:\n${brandVoice}` : '',
+    hashtagWhitelist ? `\nHASHTAGS TO ALWAYS INCLUDE: ${hashtagWhitelist}` : '',
+    hashtagBlacklist ? `\nHASHTAGS TO NEVER USE: ${hashtagBlacklist}` : '',
+    videoStyle ? `\nVIDEO STYLE: "${videoStyle}" — apply this visual pacing and style throughout all scenes.` : '',
+    seriesContext ? `\nSERIES/CAMPAIGN CONTEXT:\n${seriesContext}` : '',
+  ].join('');
+
+  const enhancedUserPrompt = `${regionalUserPrompt}
+
+${industryGuidance.userAddition}${advancedAdditions}`;
 
   // Build the user message — include images if provided
   const userContent = [];
@@ -106,34 +172,18 @@ export async function generateReelContent({
     }
   }
 
-  const sceneCount = Math.ceil(duration / (duration === 15 ? 3 : duration === 30 ? 5 : 7));
-
+  // Add enhanced user prompt with output schema (regional + industry)
   userContent.push({
     type: 'text',
-    text: `Create a viral Instagram Reel for this product:
+    text: `${enhancedUserPrompt}
 
-BRAND: ${brandName}
-PRODUCT: ${productDescription || 'As shown in the images above'}
-REEL DURATION: ${duration} seconds
-TARGET AUDIENCE: ${targetAudience}
-TONE: ${tone}
-PLATFORM: Instagram Reels (9:16 vertical, mobile-first)
-NUMBER OF SCENES: ${sceneCount} scenes (each ~${Math.round(duration / sceneCount)}s)
-
-REQUIREMENTS:
-- The hook (first 3 seconds) MUST stop the scroll immediately
-- Script must be read naturally in ${duration} seconds
-- Each scene's "replicatePrompt" must be a detailed text-to-video prompt with consistent character/product appearance
-- Caption must be SEO-rich for Instagram discovery in India
-- Include 15 relevant hashtags (mix of niche + broad)
-
-${OUTPUT_SCHEMA}`,
+${regionalOutputSchema}`,
   });
 
   const response = await client.messages.create({
     model: config.anthropic.model,
     max_tokens: 4096,
-    system: VIRAL_REEL_DIRECTOR_SYSTEM,
+    system: enhancedSystemPrompt,
     messages: [{ role: 'user', content: userContent }],
   });
 
@@ -165,9 +215,20 @@ ${OUTPUT_SCHEMA}`,
   logger.info('Claude content generation complete', {
     scenes: parsed.scenes.length,
     hashtagCount: parsed.hashtags?.length,
+    language: language,
+    elevenLabsLanguageCode: languageConfig.elevenLabsLanguageCode,
   });
 
-  return parsed;
+  // Return with language metadata for downstream processing
+  return {
+    ...parsed,
+    _metadata: {
+      language,
+      elevenLabsLanguageCode: languageConfig.elevenLabsLanguageCode,
+      languageName: languageConfig.name,
+      voicePreferences: languageConfig.voicePreferences,
+    },
+  };
 }
 
 /**
