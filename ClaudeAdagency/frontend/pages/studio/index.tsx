@@ -902,10 +902,11 @@ export default function StudioPage() {
                       ))}
                     </div>
                     <button
-                      onClick={connectInstagram}
-                      className="neon-btn w-full mt-4"
+                      onClick={() => generatedImages[0] && handlePostImage(generatedImages[0])}
+                      disabled={imgPosting || !generatedImages.length}
+                      className="neon-btn w-full mt-4 disabled:opacity-50"
                     >
-                      📸 Post to Instagram
+                      {imgPosting ? '⏳ Posting...' : '📸 Post to Instagram'}
                     </button>
                   </div>
                 )}
