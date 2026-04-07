@@ -11,6 +11,12 @@ import rateLimit from 'express-rate-limit';
 const app = express();
 const PORT = parseInt(process.env.PORT || '4000');
 
+// ── Trust Railway's proxy (MUST be before rate limiter) ───────────────────
+// Railway runs behind a load balancer that sets X-Forwarded-For.
+// Without this, express-rate-limit throws ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
+// and crashes the server on every request.
+app.set('trust proxy', 1);
+
 // ── Start listening IMMEDIATELY (Railway healthcheck needs this) ───────────
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Reel Engine API running on port ${PORT}`);
