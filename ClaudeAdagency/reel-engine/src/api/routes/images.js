@@ -3,13 +3,19 @@ import Anthropic from '@anthropic-ai/sdk';
 import { generateMarketingImage, IMAGE_POST_TYPES, getAutoSchedule } from '../../services/image/imageGenerator.js';
 import { getProductBrain } from '../../services/ai/productBrain.js';
 import { reviewContent } from '../../services/ai/contentReviewer.js';
-import { devAuth } from '../middleware/auth.js';
+import { devAuth, requireAuth } from '../middleware/auth.js';
 import { config } from '../../config/index.js';
 
 const anthropic = new Anthropic({ apiKey: config.anthropic.apiKey });
 
 const router = express.Router();
-router.use(devAuth);
+// Use requireAuth so we get the real user ID (needed for per-user Instagram tokens)
+// Falls back gracefully for dev tokens via devAuth on non-posting routes
+router.use((req, res, next) => {
+  // The /post route needs real user auth; other routes use devAuth for flexibility
+  if (req.path === '/post') return requireAuth(req, res, next);
+  return devAuth(req, res, next);
+});
 
 // GET /api/images/post-types
 router.get('/post-types', (req, res) => {
