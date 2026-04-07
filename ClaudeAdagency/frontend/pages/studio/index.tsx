@@ -546,10 +546,9 @@ export default function StudioPage() {
 
   // ── Post image to Instagram ──
   const handlePostImage = async (imageUrl: string) => {
-    // Don't block on frontend state — backend checks Redis for token
     setImgPosting(true);
+    setError(null);
     setImgPostResult(null);
-    setImgPostError('');
     try {
       const token = getAuthToken();
       const res = await fetch(`${REEL_ENGINE_URL}/api/images/post`, {
@@ -564,8 +563,11 @@ export default function StudioPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Post failed');
       setImgPostResult(data);
+      // Show success in the main error banner (reusing it as notification)
+      setError(null);
+      alert(`✅ Posted to Instagram! View at: ${data.permalink || 'your Instagram feed'}`);
     } catch (e: any) {
-      setImgPostError(e.message);
+      setError(`Instagram post failed: ${e.message}`);
     } finally {
       setImgPosting(false);
     }
