@@ -139,7 +139,8 @@ Return ONLY valid JSON: { "hashtags": ["#tag1", "#tag2", ...], "categories": { "
       }]
     });
 
-    const data = JSON.parse(response.content[0].text);
+    const raw = response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    const data = JSON.parse(raw);
     res.json({ success: true, ...data });
   } catch (err) {
     console.error('[images/hashtags]', err);

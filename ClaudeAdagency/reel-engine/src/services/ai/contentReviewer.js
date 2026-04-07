@@ -75,5 +75,5 @@ Return ONLY valid JSON:
     messages: [{ role: 'user', content: prompt }]
   });
 
-  return JSON.parse(response.content[0].text);
+  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
 }

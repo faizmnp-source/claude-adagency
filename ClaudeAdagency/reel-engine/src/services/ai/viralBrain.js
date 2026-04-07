@@ -91,7 +91,7 @@ Return ONLY valid JSON:
     }],
   });
 
-  return JSON.parse(response.content[0].text);
+  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
 }
 
 /**
@@ -138,7 +138,7 @@ Return ONLY valid JSON:
     }],
   });
 
-  return JSON.parse(response.content[0].text);
+  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
 }
 
 /**
@@ -179,5 +179,5 @@ Return ONLY valid JSON:
     }],
   });
 
-  return JSON.parse(response.content[0].text);
+  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
 }

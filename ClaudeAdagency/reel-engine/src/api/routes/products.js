@@ -72,7 +72,7 @@ Return ONLY valid JSON (no markdown) with this structure:
       }]
     });
 
-    const aiInsights = JSON.parse(aiResponse.content[0].text);
+    const aiInsights = JSON.parse(aiResponse.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
 
     const brain = {
       brandName,
