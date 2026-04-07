@@ -57,19 +57,26 @@ export async function generateMarketingImage({ postType, productDescription, bra
     }
   });
 
-  // flux-schnell returns array of URLs or ReadableStream objects
+  // Handle all SDK versions: string URL, FileOutput object, array of either
   const result = Array.isArray(output) ? output[0] : output;
-
-  // Convert to URL string
   let imageUrl;
-  if (typeof result === 'string') {
-    imageUrl = result;
-  } else if (result && typeof result.url === 'function') {
-    imageUrl = result.url().href;
-  } else if (result && result.href) {
-    imageUrl = result.href;
-  } else {
-    imageUrl = String(result);
+
+  try {
+    if (typeof result === 'string') {
+      imageUrl = result;
+    } else if (result && typeof result.url === 'function') {
+      const urlObj = result.url();
+      imageUrl = urlObj && urlObj.href ? urlObj.href : String(urlObj);
+    } else if (result && result.href) {
+      imageUrl = result.href;
+    } else if (result && result.toString && !result.toString().includes('[object')) {
+      imageUrl = result.toString();
+    } else {
+      throw new Error('Unexpected Replicate output format: ' + typeof result);
+    }
+  } catch (urlErr) {
+    console.error('[imageGenerator] URL extraction error:', urlErr.message, 'result type:', typeof result);
+    throw new Error('Failed to extract image URL from Replicate response');
   }
 
   return { imageUrl, prompt };
