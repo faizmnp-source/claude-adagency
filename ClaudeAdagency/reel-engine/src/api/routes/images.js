@@ -193,4 +193,82 @@ router.post('/review', async (req, res) => {
   }
 });
 
+// POST /api/images/post — Post image to Instagram
+// Uses per-user OAuth token (from Instagram Business Login) stored in Redis
+router.post('/post', async (req, res) => {
+  try {
+    const { imageUrl, caption = '', hashtags = [] } = req.body;
+    if (!imageUrl) return res.status(400).json({ error: 'imageUrl is required' });
+
+    const userId = req.user?.id;
+    const { redis } = await import('../../queue/index.js');
+
+    // Get per-user Instagram credentials (set during OAuth)
+    let accessToken = await redis.get(`instagram:token:${userId}`);
+    let igAccountId = await redis.get(`instagram:account:${userId}`);
+
+    // Fall back to env-level token (manual token for dev/testing)
+    if (!accessToken) accessToken = process.env.META_ACCESS_TOKEN;
+    if (!igAccountId) igAccountId = process.env.META_INSTAGRAM_ACCOUNT_ID;
+
+    if (!accessToken || !igAccountId) {
+      return res.status(400).json({ error: 'Instagram not connected. Please connect your Instagram account first.' });
+    }
+
+    const GRAPH = 'https://graph.instagram.com/v21.0';
+    const fullCaption = hashtags.length > 0
+      ? `${caption}\n\n${hashtags.map(h => h.startsWith('#') ? h : `#${h}`).join(' ')}`
+      : caption;
+
+    // Step 1: Create image media container
+    const containerRes = await fetch(`${GRAPH}/${igAccountId}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        image_url: imageUrl,
+        caption: fullCaption,
+        media_type: 'IMAGE',
+        access_token: accessToken,
+      }),
+    });
+
+    const containerData = await containerRes.json();
+    if (containerData.error) {
+      return res.status(400).json({ error: `Instagram container error: ${containerData.error.message}` });
+    }
+
+    const creationId = containerData.id;
+
+    // Step 2: Publish the container
+    const publishRes = await fetch(`${GRAPH}/${igAccountId}/media_publish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        creation_id: creationId,
+        access_token: accessToken,
+      }),
+    });
+
+    const publishData = await publishRes.json();
+    if (publishData.error) {
+      return res.status(400).json({ error: `Instagram publish error: ${publishData.error.message}` });
+    }
+
+    // Step 3: Get permalink
+    const mediaRes = await fetch(
+      `${GRAPH}/${publishData.id}?fields=permalink&access_token=${accessToken}`
+    );
+    const mediaData = await mediaRes.json();
+
+    res.json({
+      success: true,
+      mediaId: publishData.id,
+      permalink: mediaData.permalink,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

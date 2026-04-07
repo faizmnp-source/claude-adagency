@@ -121,6 +121,11 @@ export default function StudioPage() {
   const [voiceoverUrl, setVoiceoverUrl] = useState<string | null>(null);
   const [voiceoverLoading, setVoiceoverLoading] = useState(false);
 
+  // ── Image posting state ──
+  const [imgPosting, setImgPosting]           = useState(false);
+  const [imgPostResult, setImgPostResult]     = useState<{ permalink?: string } | null>(null);
+  const [imgPostError, setImgPostError]       = useState('');
+
   // ── Image state (shared) ──
   const [imgPostType, setImgPostType]         = useState('educational');
   const [imgMode, setImgMode]                 = useState<'express' | 'manual' | 'auto'>('express');
@@ -531,6 +536,33 @@ export default function StudioPage() {
       const data = await res.json();
       setViralFused(data);
     } catch { /* silent */ }
+  };
+
+  // ── Post image to Instagram ──
+  const handlePostImage = async (imageUrl: string) => {
+    if (!instagram.connected) { setError('Please connect your Instagram account first.'); return; }
+    setImgPosting(true);
+    setImgPostResult(null);
+    setImgPostError('');
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${REEL_ENGINE_URL}/api/images/post`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          imageUrl,
+          caption: manualCaption || productDescription || '',
+          hashtags: manualHashtags,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Post failed');
+      setImgPostResult(data);
+    } catch (e: any) {
+      setImgPostError(e.message);
+    } finally {
+      setImgPosting(false);
+    }
   };
 
   // ── Image Studio: AI review ──
@@ -1008,6 +1040,13 @@ export default function StudioPage() {
                               className="px-3 py-2 rounded-lg text-xs font-bold text-white" style={{ background: '#E50914' }}>
                               ⬇️ Download
                             </a>
+                            <button
+                              onClick={() => handlePostImage(url)}
+                              disabled={imgPosting}
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white disabled:opacity-50"
+                              style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)' }}>
+                              {imgPosting ? '⏳' : '📲 Post to IG'}
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -1409,6 +1448,13 @@ export default function StudioPage() {
                               className="px-3 py-2 rounded-lg text-xs font-bold text-white" style={{ background: '#E50914' }}>
                               ⬇️ Download
                             </a>
+                            <button
+                              onClick={() => handlePostImage(url)}
+                              disabled={imgPosting}
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white disabled:opacity-50"
+                              style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)' }}>
+                              {imgPosting ? '⏳' : '📲 Post to IG'}
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -1632,6 +1678,13 @@ export default function StudioPage() {
                               className="px-3 py-2 rounded-lg text-xs font-bold text-white" style={{ background: '#E50914' }}>
                               ⬇️ Download
                             </a>
+                            <button
+                              onClick={() => handlePostImage(url)}
+                              disabled={imgPosting}
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white disabled:opacity-50"
+                              style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)' }}>
+                              {imgPosting ? '⏳' : '📲 Post to IG'}
+                            </button>
                           </div>
                         </div>
                       ))}
