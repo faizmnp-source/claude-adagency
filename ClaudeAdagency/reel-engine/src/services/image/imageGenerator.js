@@ -1,7 +1,6 @@
-import Replicate from 'replicate';
 import { config } from '../../config/index.js';
 
-const replicate = new Replicate({ auth: config.replicate.apiToken });
+const REPLICATE_API = 'https://api.replicate.com/v1';
 
 export const IMAGE_POST_TYPES = {
   educational:  { label: 'Educational Post', prompt: 'Create an informative Instagram square post (1:1) that educates the audience about', style: 'clean infographic style, bold typography, high contrast' },
@@ -47,39 +46,53 @@ export function buildImagePrompt({ postType, productDescription, brandName, bran
 export async function generateMarketingImage({ postType, productDescription, brandName, brandVoice, features, offer, region, industry, designStyle, customPrompt }) {
   const prompt = customPrompt || buildImagePrompt({ postType, productDescription, brandName, brandVoice, features, offer, region, industry, designStyle });
 
-  const output = await replicate.run('black-forest-labs/flux-schnell', {
-    input: {
-      prompt,
-      aspect_ratio: '1:1',
-      output_format: 'webp',
-      output_quality: 90,
-      num_outputs: 1,
-    }
+  const headers = {
+    Authorization: `Bearer ${config.replicate.apiToken}`,
+    'Content-Type': 'application/json',
+  };
+
+  // Create prediction using flux-schnell (no version hash needed for official models)
+  const createRes = await fetch(`${REPLICATE_API}/models/black-forest-labs/flux-schnell/predictions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      input: {
+        prompt,
+        aspect_ratio: '1:1',
+        output_format: 'webp',
+        output_quality: 90,
+        num_outputs: 1,
+        go_fast: true,
+      }
+    })
   });
 
-  // Handle all SDK versions: string URL, FileOutput object, array of either
-  const result = Array.isArray(output) ? output[0] : output;
-  let imageUrl;
-
-  try {
-    if (typeof result === 'string') {
-      imageUrl = result;
-    } else if (result && typeof result.url === 'function') {
-      const urlObj = result.url();
-      imageUrl = urlObj && urlObj.href ? urlObj.href : String(urlObj);
-    } else if (result && result.href) {
-      imageUrl = result.href;
-    } else if (result && result.toString && !result.toString().includes('[object')) {
-      imageUrl = result.toString();
-    } else {
-      throw new Error('Unexpected Replicate output format: ' + typeof result);
-    }
-  } catch (urlErr) {
-    console.error('[imageGenerator] URL extraction error:', urlErr.message, 'result type:', typeof result);
-    throw new Error('Failed to extract image URL from Replicate response');
+  if (!createRes.ok) {
+    const err = await createRes.text();
+    throw new Error(`Replicate create failed (${createRes.status}): ${err}`);
   }
 
-  return { imageUrl, prompt };
+  let prediction = await createRes.json();
+
+  // Poll until complete (max 60s)
+  let attempts = 0;
+  while (!['succeeded', 'failed', 'canceled'].includes(prediction.status) && attempts < 30) {
+    await new Promise(r => setTimeout(r, 2000));
+    const pollRes = await fetch(`${REPLICATE_API}/predictions/${prediction.id}`, { headers });
+    prediction = await pollRes.json();
+    attempts++;
+  }
+
+  if (prediction.status !== 'succeeded') {
+    throw new Error(`Image generation failed: ${prediction.error || prediction.status}`);
+  }
+
+  const output = prediction.output;
+  const imageUrl = Array.isArray(output) ? output[0] : output;
+
+  if (!imageUrl) throw new Error('No image URL in Replicate response');
+
+  return { imageUrl: String(imageUrl), prompt };
 }
 
 /**
