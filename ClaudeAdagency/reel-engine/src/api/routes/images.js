@@ -1,8 +1,12 @@
 import express from 'express';
+import Anthropic from '@anthropic-ai/sdk';
 import { generateMarketingImage, IMAGE_POST_TYPES, getAutoSchedule } from '../../services/image/imageGenerator.js';
-import { getProductBrain, saveProductBrain } from '../../services/ai/productBrain.js';
+import { getProductBrain } from '../../services/ai/productBrain.js';
 import { reviewContent } from '../../services/ai/contentReviewer.js';
 import { devAuth } from '../middleware/auth.js';
+import { config } from '../../config/index.js';
+
+const anthropic = new Anthropic({ apiKey: config.anthropic.apiKey });
 
 const router = express.Router();
 router.use(devAuth);
@@ -95,6 +99,84 @@ router.post('/generate', async (req, res) => {
 
   } catch (err) {
     console.error('[images/generate]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/images/hashtags — Claude generates high-quality Instagram hashtags
+router.post('/hashtags', async (req, res) => {
+  try {
+    const { topic, region = 'india', industry = 'ecommerce', brandName, count = 30 } = req.body;
+    if (!topic) return res.status(400).json({ error: 'topic is required' });
+
+    const response = await anthropic.messages.create({
+      model: config.anthropic.model || 'claude-opus-4-5',
+      max_tokens: 800,
+      messages: [{
+        role: 'user',
+        content: `You are an Instagram growth expert for the ${region} market. Generate ${count} high-quality Instagram hashtags for this content.
+
+Topic/Product: ${topic}
+Brand: ${brandName || 'unspecified'}
+Industry: ${industry}
+Region: ${region}
+
+Generate a strategic mix:
+- 8 high-reach hashtags (1M+ posts) — broad discoverability
+- 10 medium-reach hashtags (100K–1M posts) — targeted reach
+- 8 niche hashtags (under 100K posts) — highly engaged audience
+- 4 trending/seasonal hashtags relevant to ${region} right now
+
+Rules:
+- All lowercase with # prefix
+- No spaces in hashtags
+- Include relevant ${region}-specific hashtags (e.g. #india, #mumbai, #madeinIndia etc. if relevant)
+- Make them genuinely relevant — not just generic #love #instagood spam
+- Include industry-specific professional hashtags
+- Mix English and relevant regional language hashtags if ${region} is India
+
+Return ONLY valid JSON: { "hashtags": ["#tag1", "#tag2", ...], "categories": { "highReach": ["#..."], "mediumReach": ["#..."], "niche": ["#..."], "trending": ["#..."] } }`
+      }]
+    });
+
+    const data = JSON.parse(response.content[0].text);
+    res.json({ success: true, ...data });
+  } catch (err) {
+    console.error('[images/hashtags]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/images/enhance-prompt — Claude enhances a raw user prompt into a high-quality image generation prompt
+router.post('/enhance-prompt', async (req, res) => {
+  try {
+    const { rawPrompt, style, region = 'india', industry = 'ecommerce' } = req.body;
+    if (!rawPrompt) return res.status(400).json({ error: 'rawPrompt is required' });
+
+    const response = await anthropic.messages.create({
+      model: config.anthropic.model || 'claude-opus-4-5',
+      max_tokens: 400,
+      messages: [{
+        role: 'user',
+        content: `Convert this rough image idea into a detailed, high-quality Stable Diffusion / FLUX image generation prompt for an Instagram marketing post.
+
+Raw idea: "${rawPrompt}"
+Style preference: ${style || 'professional product photography'}
+Market: ${region} ${industry}
+
+Rules:
+- Be very specific about lighting, composition, background, colors, mood
+- Include "Instagram post, square format, professional marketing photography"
+- Add technical quality tags: sharp focus, 8K, high detail, studio lighting
+- Keep it under 150 words
+- Return ONLY the enhanced prompt text, nothing else`
+      }]
+    });
+
+    const enhancedPrompt = response.content[0].text.trim();
+    res.json({ success: true, enhancedPrompt });
+  } catch (err) {
+    console.error('[images/enhance-prompt]', err);
     res.status(500).json({ error: err.message });
   }
 });

@@ -409,17 +409,27 @@ export default function StudioPage() {
     }
   };
 
-  // ── Manual mode: generate images from free-form prompt ──
+  // ── Manual mode: generate images — AI enhances prompt first, then Replicate generates ──
   const handleManualImageGenerate = async () => {
     setImgLoading(true);
     setImgError('');
     setGeneratedImages([]);
     try {
       const token = getAuthToken();
+      const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+      // Step 1: AI enhances the raw prompt into a high-quality image generation prompt
+      const enhanceRes = await fetch(`${REEL_ENGINE_URL}/api/images/enhance-prompt`, {
+        method: 'POST', headers,
+        body: JSON.stringify({ rawPrompt: manualPrompt, region, industry: industryCode }),
+      });
+      const enhanceData = await enhanceRes.json();
+      const finalPrompt = enhanceData.enhancedPrompt || manualPrompt;
+
+      // Step 2: Generate image with the enhanced prompt
       const res = await fetch(`${REEL_ENGINE_URL}/api/images/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ customPrompt: manualPrompt, mode: 'manual', count: imgCount }),
+        method: 'POST', headers,
+        body: JSON.stringify({ customPrompt: finalPrompt, mode: 'manual', count: imgCount }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Image generation failed');
@@ -431,40 +441,33 @@ export default function StudioPage() {
     }
   };
 
-  // ── Manual mode: hashtag assistant ──
+  // ── Manual mode: AI hashtag assistant ──
   const generateHashtags = async () => {
     setHashtagGenLoading(true);
     try {
       const token = getAuthToken();
-      const res = await fetch(`${REEL_ENGINE_URL}/api/images/generate`, {
+      const res = await fetch(`${REEL_ENGINE_URL}/api/images/hashtags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ customPrompt: manualPrompt, mode: 'hashtags_only', count: 1 }),
+        body: JSON.stringify({
+          topic: manualPrompt || productDescription,
+          region,
+          industry: industryCode,
+          brandName,
+          count: 30,
+        }),
       });
       const data = await res.json();
       if (data.hashtags && Array.isArray(data.hashtags)) {
         setManualHashtags(prev => {
           const existing = new Set(prev);
-          const newTags = (data.hashtags as string[]).filter(t => !existing.has(t));
-          return [...prev, ...newTags];
+          return [...prev, ...(data.hashtags as string[]).filter(t => !existing.has(t))];
         });
       } else {
-        // Fallback: generate some based on prompt words
-        const words = manualPrompt.split(/\s+/).filter(w => w.length > 3).slice(0, 5);
-        const generated = words.map(w => `#${w.replace(/[^a-zA-Z0-9]/g, '')}`).filter(t => t.length > 1);
-        setManualHashtags(prev => {
-          const existing = new Set(prev);
-          return [...prev, ...generated.filter(t => !existing.has(t))];
-        });
+        throw new Error(data.error || 'No hashtags returned');
       }
-    } catch {
-      // Fallback
-      const words = manualPrompt.split(/\s+/).filter(w => w.length > 3).slice(0, 5);
-      const generated = words.map(w => `#${w.replace(/[^a-zA-Z0-9]/g, '')}`).filter(t => t.length > 1);
-      setManualHashtags(prev => {
-        const existing = new Set(prev);
-        return [...prev, ...generated.filter(t => !existing.has(t))];
-      });
+    } catch (err: any) {
+      setImgError('Hashtag generation failed: ' + err.message);
     } finally {
       setHashtagGenLoading(false);
     }
