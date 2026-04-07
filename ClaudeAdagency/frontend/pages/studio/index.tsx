@@ -156,7 +156,13 @@ export default function StudioPage() {
     const urlError = params.get('error');
 
     if (urlToken) { localStorage.setItem('cs_token', urlToken); window.history.replaceState({}, '', '/studio'); }
-    if (igStatus === 'connected') window.history.replaceState({}, '', '/studio');
+    if (igStatus === 'connected') {
+      window.history.replaceState({}, '', '/studio');
+      // Re-fetch Instagram status so header shows connected immediately
+      const t = localStorage.getItem('cs_token');
+      if (t) fetch(`${REEL_ENGINE_URL}/api/auth/instagram/status`, { headers: { Authorization: `Bearer ${t}` } })
+        .then(r => r.json()).then(d => { if (d.connected) setInstagram(d); }).catch(() => {});
+    }
     if (urlError) {
       const msgs: Record<string, string> = {
         instagram_denied: 'Instagram connection was cancelled.',
@@ -540,7 +546,7 @@ export default function StudioPage() {
 
   // ── Post image to Instagram ──
   const handlePostImage = async (imageUrl: string) => {
-    if (!instagram.connected) { setError('Please connect your Instagram account first.'); return; }
+    // Don't block on frontend state — backend checks Redis for token
     setImgPosting(true);
     setImgPostResult(null);
     setImgPostError('');
