@@ -205,7 +205,7 @@ router.get('/instagram', async (req, res) => {
   const params = new URLSearchParams({
     client_id: META_APP_ID,
     redirect_uri: IG_REDIRECT_URI,
-    scope: 'instagram_business_basic,instagram_business_content_publish,instagram_business_manage_messages,instagram_business_manage_comments,pages_show_list,pages_read_engagement',
+    scope: 'pages_show_list,pages_read_engagement,pages_manage_posts,instagram_content_publish,instagram_manage_insights',
     response_type: 'code',
     state,
   });
