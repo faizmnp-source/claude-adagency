@@ -160,7 +160,9 @@ export default function StudioPage() {
         meta_not_configured: 'Instagram posting not yet configured.',
         instagram_server_error: 'Server error connecting Instagram.',
       };
-      if (msgs[urlError]) setError(msgs[urlError]);
+      const reason = params.get('reason');
+      const msg = msgs[urlError] || `Auth error: ${urlError}`;
+      setError(reason ? `${msg} (Reason: ${reason})` : msg);
       window.history.replaceState({}, '', '/studio');
     }
 

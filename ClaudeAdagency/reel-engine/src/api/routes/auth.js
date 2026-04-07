@@ -219,8 +219,9 @@ router.get('/callback/instagram', async (req, res) => {
   const { code, state, error } = req.query;
 
   if (error || !code) {
-    logger.error('Instagram OAuth denied', { error });
-    return res.redirect(`${FRONTEND_URL}/studio?error=instagram_denied`);
+    const reason = req.query.error_reason || req.query.error_description || error || 'no_code';
+    logger.error('Instagram OAuth denied', { error, reason, query: req.query });
+    return res.redirect(`${FRONTEND_URL}/studio?error=instagram_denied&reason=${encodeURIComponent(reason)}`);
   }
 
   try {
