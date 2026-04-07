@@ -212,16 +212,20 @@ router.post('/post', async (req, res) => {
     // Get per-user Instagram credentials (set during OAuth)
     let accessToken = await redis.get(`instagram:token:${userId}`);
     let igAccountId = await redis.get(`instagram:account:${userId}`);
+    // Per-user OAuth tokens use graph.instagram.com
+    let GRAPH = 'https://graph.instagram.com/v21.0';
 
-    // Fall back to env-level token (manual token for dev/testing)
-    if (!accessToken) accessToken = process.env.META_ACCESS_TOKEN;
-    if (!igAccountId) igAccountId = process.env.META_INSTAGRAM_ACCOUNT_ID;
+    // Fall back to env-level token (manually generated from Meta portal)
+    // These use graph.facebook.com (old API) with the Facebook-side account ID
+    if (!accessToken) {
+      accessToken = process.env.META_ACCESS_TOKEN;
+      igAccountId = process.env.META_INSTAGRAM_ACCOUNT_ID;
+      GRAPH = 'https://graph.facebook.com/v21.0';
+    }
 
     if (!accessToken || !igAccountId) {
       return res.status(400).json({ error: 'Instagram not connected. Please connect your Instagram account first.' });
     }
-
-    const GRAPH = 'https://graph.instagram.com/v21.0';
     const fullCaption = hashtags.length > 0
       ? `${caption}\n\n${hashtags.map(h => h.startsWith('#') ? h : `#${h}`).join(' ')}`
       : caption;
