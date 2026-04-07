@@ -249,7 +249,24 @@ router.post('/post', async (req, res) => {
 
     const creationId = containerData.id;
 
-    // Step 2: Publish the container
+    // Step 2: Wait for container to finish processing (Instagram needs time)
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    let status = 'IN_PROGRESS';
+    let attempts = 0;
+    while (status !== 'FINISHED' && attempts < 15) {
+      await sleep(2000);
+      const statusRes = await fetch(
+        `${GRAPH}/${creationId}?fields=status_code&access_token=${accessToken}`
+      );
+      const statusData = await statusRes.json();
+      status = statusData.status_code || 'IN_PROGRESS';
+      attempts++;
+      if (status === 'ERROR') {
+        return res.status(400).json({ error: `Instagram media processing failed: ${JSON.stringify(statusData)}` });
+      }
+    }
+
+    // Step 3: Publish the container
     const publishRes = await fetch(`${GRAPH}/${igAccountId}/media_publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
