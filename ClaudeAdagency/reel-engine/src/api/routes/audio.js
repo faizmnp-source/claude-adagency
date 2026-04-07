@@ -17,8 +17,8 @@ const router = Router();
 // Generates a voiceover MP3 from the reel script and streams it back
 router.post('/voiceover', authMiddleware, async (req, res) => {
   try {
-    if (!process.env.ELEVENLABS_API_KEY) {
-      return res.status(503).json({ error: 'ELEVENLABS_API_KEY not configured' });
+    if (!process.env.REPLICATE_API_TOKEN) {
+      return res.status(503).json({ error: 'REPLICATE_API_TOKEN not configured (ElevenLabs runs via Replicate)' });
     }
 
     const { reelId, script, voiceId, stability, similarityBoost } = req.body;
@@ -76,12 +76,8 @@ router.post('/voiceover', authMiddleware, async (req, res) => {
 // ── GET /api/audio/voices ─────────────────────────────────────────────────
 router.get('/voices', authMiddleware, async (req, res) => {
   try {
-    if (!process.env.ELEVENLABS_API_KEY) {
-      return res.status(503).json({ error: 'ELEVENLABS_API_KEY not configured' });
-    }
     const { listVoices } = await import('../../services/audio/elevenlabs.js');
-    const voices = await listVoices();
-    res.json({ voices });
+    res.json({ voices: listVoices(), provider: 'ElevenLabs via Replicate' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -90,12 +86,8 @@ router.get('/voices', authMiddleware, async (req, res) => {
 // ── GET /api/audio/quota ──────────────────────────────────────────────────
 router.get('/quota', authMiddleware, async (req, res) => {
   try {
-    if (!process.env.ELEVENLABS_API_KEY) {
-      return res.status(503).json({ error: 'ELEVENLABS_API_KEY not configured' });
-    }
     const { getUsageQuota } = await import('../../services/audio/elevenlabs.js');
-    const quota = await getUsageQuota();
-    res.json(quota);
+    res.json(getUsageQuota());
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

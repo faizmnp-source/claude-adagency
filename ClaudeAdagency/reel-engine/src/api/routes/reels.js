@@ -565,8 +565,8 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
 
     let currentVideoPath = tmpFile('merged-raw.mp4');
 
-    // ── Auto ElevenLabs Voiceover (Creator + Viral packages) ─────────────
-    if (wantVoice && process.env.ELEVENLABS_API_KEY) {
+    // ── Auto ElevenLabs Voiceover via Replicate (Creator + Viral packages) ─
+    if (wantVoice && process.env.REPLICATE_API_TOKEN) {
       try {
         logger.info('Auto-generating ElevenLabs voiceover', { reelId });
         const script = reel.content?.script || reel.content?.voiceover || '';
@@ -592,8 +592,8 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
         logger.warn('ElevenLabs voiceover failed (non-fatal)', { reelId, err: voiceErr.message });
         audioMessages.push(`⚠️ Voice skipped: ${voiceErr.message}`);
       }
-    } else if (wantVoice && !process.env.ELEVENLABS_API_KEY) {
-      audioMessages.push('⚠️ Voice skipped — ELEVENLABS_API_KEY not set');
+    } else if (wantVoice && !process.env.REPLICATE_API_TOKEN) {
+      audioMessages.push('⚠️ Voice skipped — REPLICATE_API_TOKEN not set');
     }
 
     // ── Auto Background Music (Viral package — MusicGen via Replicate) ───
