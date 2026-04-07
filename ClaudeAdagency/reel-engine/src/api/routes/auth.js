@@ -22,8 +22,10 @@ const META_APP_SECRET = process.env.META_APP_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://thecraftstudios.in';
 
 // Railway reel-engine public URL — used as OAuth redirect base
-// Normalize to avoid redirect_uri mismatches caused by trailing slashes.
-const API_URL = (process.env.REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app').replace(/\/$/, '');
+// Strip ALL quotes and trailing slashes to prevent redirect_uri mismatches
+const API_URL = (process.env.REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app')
+  .replace(/['"]/g, '')   // remove any stray quote characters
+  .replace(/\/+$/, '');   // remove trailing slashes
 const REDIRECT_URI = `${API_URL}/api/auth/callback/google`;
 const IG_REDIRECT_URI = `${API_URL}/api/auth/callback/instagram`;
 
