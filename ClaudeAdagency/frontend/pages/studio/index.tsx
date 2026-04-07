@@ -1234,7 +1234,7 @@ export default function StudioPage() {
                 <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
                   <h3 className="text-sm font-bold text-white">🗓️ Recommended Posting Schedule</h3>
                 </div>
-                <div className="divide-y" style={{ divideColor: 'rgba(255,255,255,0.06)' }}>
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                   {autoSchedule.map((slot, i) => (
                     <div key={i} className="px-4 py-3 flex items-start gap-3" style={{ background: 'rgba(13,22,40,0.4)' }}>
                       <div className="text-[#E50914] font-bold text-xs w-24 shrink-0">{slot.day} {slot.time}</div>
