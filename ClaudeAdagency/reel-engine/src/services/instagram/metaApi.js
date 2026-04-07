@@ -7,7 +7,8 @@ import { config } from '../../config/index.js';
 import { logger } from '../../utils/logger.js';
 import { sleep } from '../../utils/helpers.js';
 
-const GRAPH_API = 'https://graph.facebook.com/v21.0';
+// Instagram Business Login tokens use graph.instagram.com (not graph.facebook.com)
+const GRAPH_API = 'https://graph.instagram.com/v21.0';
 
 /**
  * Post a reel to Instagram via Meta Graph API
@@ -120,10 +121,11 @@ export async function getAccountInsights(accessToken, instagramAccountId) {
 
 /**
  * Refresh a long-lived access token (valid 60 days, refresh every 30)
+ * Uses Instagram Business Login refresh endpoint (ig_refresh_token)
  */
 export async function refreshAccessToken(longLivedToken) {
   const res = await fetch(
-    `${GRAPH_API}/oauth/access_token?grant_type=fb_exchange_token&client_id=${config.meta.appId}&client_secret=${config.meta.appSecret}&fb_exchange_token=${longLivedToken}`
+    `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${longLivedToken}`
   );
   const data = await res.json();
   if (data.error) throw new Error(`Token refresh failed: ${JSON.stringify(data.error)}`);

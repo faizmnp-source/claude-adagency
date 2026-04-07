@@ -166,7 +166,14 @@ export default function StudioPage() {
       window.history.replaceState({}, '', '/studio');
     }
 
-    const token = localStorage.getItem('cs_token') || 'dev-token';
+    const token = localStorage.getItem('cs_token');
+
+    // Auth gate — no token means not logged in; redirect to login
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+
     fetch(`${REEL_ENGINE_URL}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(d => {
@@ -174,9 +181,14 @@ export default function StudioPage() {
           setUser({ name: d.name, email: d.email, picture: d.picture });
           if (d.credits !== undefined) setCredits(d.credits);
           if (d.instagram) setInstagram(d.instagram);
+        } else {
+          // Token is invalid/expired — send to login
+          localStorage.removeItem('cs_token');
+          router.replace('/login');
         }
       })
       .catch(() => {
+        // Network error — still try credits endpoint as fallback
         fetch(`${REEL_ENGINE_URL}/api/reels/me/credits`, { headers: { Authorization: `Bearer ${token}` } })
           .then(r => r.json()).then(d => { if (d.balance !== undefined) setCredits(d.balance); }).catch(() => {});
       });

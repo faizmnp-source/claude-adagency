@@ -188,7 +188,8 @@ router.get('/me', requireAuth, async (req, res) => {
 });
 
 // ── GET /api/auth/instagram ───────────────────────────────────────────────
-// Redirects user to Meta/Facebook OAuth to connect their Instagram account
+// Redirects user to Instagram Business OAuth to connect their Instagram account
+// Uses Instagram Business Login (api.instagram.com) — required for instagram_business_* scopes
 // Pass ?token=JWT as query param since this is a browser redirect (no Auth header)
 router.get('/instagram', async (req, res) => {
   const { token } = req.query;
@@ -202,15 +203,17 @@ router.get('/instagram', async (req, res) => {
   // Encode the JWT as state so we can associate the Instagram token with the user
   const state = Buffer.from(token).toString('base64url');
 
+  // instagram_business_* scopes ONLY work with Instagram Business Login endpoint
+  // NOT with facebook.com/dialog/oauth (that uses instagram_basic which is deprecated)
   const params = new URLSearchParams({
     client_id: META_APP_ID,
     redirect_uri: IG_REDIRECT_URI,
-    scope: 'instagram_business_basic,instagram_business_content_publish,pages_show_list,pages_read_engagement',
+    scope: 'instagram_business_basic,instagram_business_content_publish',
     response_type: 'code',
     state,
   });
 
-  res.redirect(`https://www.facebook.com/dialog/oauth?${params}`);
+  res.redirect(`https://api.instagram.com/oauth/authorize?${params}`);
 });
 
 // ── GET /api/auth/callback/instagram ─────────────────────────────────────
@@ -248,8 +251,9 @@ router.get('/callback/instagram', async (req, res) => {
 
     const userId = decoded.sub;
 
-    // Exchange code for short-lived token
-    const tokenRes = await fetch('https://graph.facebook.com/v21.0/oauth/access_token', {
+    // Step 1: Exchange code for short-lived token via Instagram Business Login
+    // Uses api.instagram.com (NOT graph.facebook.com) for instagram_business_* scopes
+    const tokenRes = await fetch('https://api.instagram.com/oauth/access_token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -257,56 +261,47 @@ router.get('/callback/instagram', async (req, res) => {
         client_secret: META_APP_SECRET,
         redirect_uri: IG_REDIRECT_URI,
         code,
+        grant_type: 'authorization_code',
       }),
     });
 
     if (!tokenRes.ok) {
       const err = await tokenRes.text();
-      logger.error('Meta token exchange failed', { err });
-      return res.redirect(`${FRONTEND_URL}/studio?error=instagram_token_failed`);
+      logger.error('Instagram token exchange failed', { err });
+      return res.redirect(`${FRONTEND_URL}/studio?error=instagram_token_failed&detail=${encodeURIComponent(err)}`);
     }
 
-    const { access_token: shortToken } = await tokenRes.json();
+    const shortTokenData = await tokenRes.json();
+    if (shortTokenData.error) {
+      logger.error('Instagram token error', { shortTokenData });
+      return res.redirect(`${FRONTEND_URL}/studio?error=instagram_token_failed&detail=${encodeURIComponent(shortTokenData.error_message || shortTokenData.error)}`);
+    }
+    const shortToken = shortTokenData.access_token;
+    // instagram_business_basic returns user_id directly (the Instagram Business Account ID)
+    const igAccountId = String(shortTokenData.user_id);
 
-    // Exchange short-lived for long-lived token (60 days)
+    // Step 2: Exchange short-lived for long-lived token (60 days) via Graph Instagram API
     const longTokenRes = await fetch(
-      `https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${META_APP_ID}&client_secret=${META_APP_SECRET}&fb_exchange_token=${shortToken}`
+      `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_id=${META_APP_ID}&client_secret=${META_APP_SECRET}&access_token=${shortToken}`
     );
     const longTokenData = await longTokenRes.json();
+    if (longTokenData.error) {
+      logger.warn('Long-lived token exchange failed, using short token', { err: longTokenData.error });
+    }
     const longToken = longTokenData.access_token || shortToken;
 
-    // Get user's Pages → find connected Instagram Business Account
-    const pagesRes = await fetch(
-      `https://graph.facebook.com/v21.0/me/accounts?access_token=${longToken}`
+    // Step 3: Fetch Instagram profile info
+    const profileRes = await fetch(
+      `https://graph.instagram.com/v21.0/me?fields=user_id,username,name&access_token=${longToken}`
     );
-    const pagesData = await pagesRes.json();
-    const pages = pagesData.data || [];
+    const profileData = await profileRes.json();
+    const igUsername = profileData.username || null;
+    const igName = profileData.name || null;
 
-    let igAccountId = null;
-    let igUsername = null;
-    let igName = null;
-
-    // Check each page for connected Instagram account
-    for (const page of pages) {
-      const igRes = await fetch(
-        `https://graph.facebook.com/v21.0/${page.id}?fields=instagram_business_account&access_token=${page.access_token || longToken}`
-      );
-      const igData = await igRes.json();
-      if (igData.instagram_business_account?.id) {
-        igAccountId = igData.instagram_business_account.id;
-        // Get IG profile info
-        const profileRes = await fetch(
-          `https://graph.facebook.com/v21.0/${igAccountId}?fields=username,name&access_token=${longToken}`
-        );
-        const profileData = await profileRes.json();
-        igUsername = profileData.username;
-        igName = profileData.name;
-        break;
-      }
-    }
+    logger.info('Instagram Business Login success', { userId, igAccountId, igUsername });
 
     if (!igAccountId) {
-      logger.warn('No Instagram Business Account found for user', { userId });
+      logger.warn('No Instagram account ID from token response', { userId });
       return res.redirect(`${FRONTEND_URL}/studio?error=no_ig_business_account`);
     }
 
