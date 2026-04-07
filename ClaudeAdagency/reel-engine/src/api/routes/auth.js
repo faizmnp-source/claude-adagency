@@ -215,7 +215,9 @@ router.get('/instagram', async (req, res) => {
     state,
   });
 
-  res.redirect(`https://api.instagram.com/oauth/authorize?${params}`);
+  const igAuthUrl = `https://api.instagram.com/oauth/authorize?${params}`;
+  logger.info('Instagram OAuth redirect', { igAuthUrl, META_APP_ID, IG_REDIRECT_URI });
+  res.redirect(igAuthUrl);
 });
 
 // ── GET /api/auth/callback/instagram ─────────────────────────────────────
