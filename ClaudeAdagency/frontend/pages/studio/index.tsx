@@ -18,7 +18,8 @@ const BellIcon = () => (
 type Step = 'upload' | 'settings' | 'generating' | 'done';
 type Duration = 5 | 15 | 30 | 50;
 type PipelineStage = 'script' | 'clips' | 'stitching' | 'ready';
-type Mode = 'express' | 'auto' | 'manual';
+type Mode = 'express' | 'auto' | 'manual' | 'notebook';
+type ContentType = 'video' | 'image';
 
 interface ReelResult {
   reelId: string;
@@ -74,6 +75,7 @@ export default function StudioPage() {
   const [productDescription, setProductDescription] = useState('');
   const [vision, setVision] = useState('');
   const [mode, setMode] = useState<Mode>('express');
+  const [contentType, setContentType] = useState<ContentType>('video');
 
   // ── Advanced Settings ──
   const [customCta, setCustomCta]               = useState('');
@@ -84,6 +86,24 @@ export default function StudioPage() {
   const [videoStyle, setVideoStyle]             = useState('');
   const [seriesContext, setSeriesContext]        = useState('');
   const [showAdvanced, setShowAdvanced]         = useState(false);
+
+  // ── Manual mode ──
+  const [manualPrompt, setManualPrompt] = useState('');
+  const [manualCaption, setManualCaption] = useState('');
+  const [manualHashtags, setManualHashtags] = useState<string[]>([]);
+  const [manualHashtagInput, setManualHashtagInput] = useState('');
+  const [hashtagGenLoading, setHashtagGenLoading] = useState(false);
+
+  // ── Notebook mode ──
+  const [notebookTopic, setNotebookTopic] = useState('');
+  const [notebookAudience, setNotebookAudience] = useState('');
+  const [notebookFormat, setNotebookFormat] = useState('Key Concepts');
+
+  // ── Viral trend panel (auto mode) ──
+  const [viralTrends, setViralTrends]       = useState<any[]>([]);
+  const [viralLoading, setViralLoading]     = useState(false);
+  const [viralFused, setViralFused]         = useState<any>(null);
+  const [showViralPanel, setShowViralPanel] = useState(false);
 
   // ── Pipeline ──
   const [pipelineStage, setPipelineStage] = useState<PipelineStage>('script');
@@ -101,8 +121,7 @@ export default function StudioPage() {
   const [voiceoverUrl, setVoiceoverUrl] = useState<string | null>(null);
   const [voiceoverLoading, setVoiceoverLoading] = useState(false);
 
-  // ── Image Studio state ──
-  const [studioTab, setStudioTab]             = useState<'reel' | 'image'>('reel');
+  // ── Image state (shared) ──
   const [imgPostType, setImgPostType]         = useState('educational');
   const [imgMode, setImgMode]                 = useState<'express' | 'manual' | 'auto'>('express');
   const [imgFeatures, setImgFeatures]         = useState('');
@@ -390,6 +409,113 @@ export default function StudioPage() {
     }
   };
 
+  // ── Manual mode: generate images from free-form prompt ──
+  const handleManualImageGenerate = async () => {
+    setImgLoading(true);
+    setImgError('');
+    setGeneratedImages([]);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${REEL_ENGINE_URL}/api/images/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ customPrompt: manualPrompt, mode: 'manual', count: imgCount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Image generation failed');
+      setGeneratedImages(data.images.map((img: any) => img.imageUrl));
+    } catch (err: any) {
+      setImgError(err.message);
+    } finally {
+      setImgLoading(false);
+    }
+  };
+
+  // ── Manual mode: hashtag assistant ──
+  const generateHashtags = async () => {
+    setHashtagGenLoading(true);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${REEL_ENGINE_URL}/api/images/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ customPrompt: manualPrompt, mode: 'hashtags_only', count: 1 }),
+      });
+      const data = await res.json();
+      if (data.hashtags && Array.isArray(data.hashtags)) {
+        setManualHashtags(prev => {
+          const existing = new Set(prev);
+          const newTags = (data.hashtags as string[]).filter(t => !existing.has(t));
+          return [...prev, ...newTags];
+        });
+      } else {
+        // Fallback: generate some based on prompt words
+        const words = manualPrompt.split(/\s+/).filter(w => w.length > 3).slice(0, 5);
+        const generated = words.map(w => `#${w.replace(/[^a-zA-Z0-9]/g, '')}`).filter(t => t.length > 1);
+        setManualHashtags(prev => {
+          const existing = new Set(prev);
+          return [...prev, ...generated.filter(t => !existing.has(t))];
+        });
+      }
+    } catch {
+      // Fallback
+      const words = manualPrompt.split(/\s+/).filter(w => w.length > 3).slice(0, 5);
+      const generated = words.map(w => `#${w.replace(/[^a-zA-Z0-9]/g, '')}`).filter(t => t.length > 1);
+      setManualHashtags(prev => {
+        const existing = new Set(prev);
+        return [...prev, ...generated.filter(t => !existing.has(t))];
+      });
+    } finally {
+      setHashtagGenLoading(false);
+    }
+  };
+
+  const addManualHashtag = () => {
+    const tag = manualHashtagInput.trim().replace(/^#*/, '#');
+    if (tag.length > 1 && !manualHashtags.includes(tag)) {
+      setManualHashtags(prev => [...prev, tag]);
+    }
+    setManualHashtagInput('');
+  };
+
+  const removeManualHashtag = (tag: string) => {
+    setManualHashtags(prev => prev.filter(t => t !== tag));
+  };
+
+  // ── Viral trend panel ──
+  const fetchViralTrends = async () => {
+    setViralLoading(true);
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${REEL_ENGINE_URL}/api/viral/trends?region=${region}&industry=${industryCode}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setViralTrends(data.trends?.slice(0, 3) || []);
+    } catch { /* silent */ } finally { setViralLoading(false); }
+  };
+
+  const applyViralTrend = async (trend: any) => {
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`${REEL_ENGINE_URL}/api/viral/fuse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          productDescription,
+          brandName,
+          trendTopic: trend.topic,
+          trendAngle: trend.exampleHook,
+          duration,
+          region,
+          industryCode,
+        }),
+      });
+      const data = await res.json();
+      setViralFused(data);
+    } catch { /* silent */ }
+  };
+
   // ── Image Studio: AI review ──
   const handleImageReview = async () => {
     if (!generatedImages.length) return;
@@ -471,29 +597,9 @@ export default function StudioPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
 
-        {/* ── Studio Tab Switcher ── */}
-        <div className="flex justify-center mb-6">
-          <div className="flex gap-2 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <button
-              onClick={() => setStudioTab('reel')}
-              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${studioTab === 'reel' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
-              style={studioTab === 'reel' ? { background: '#E50914' } : {}}
-            >
-              🎬 Reel Studio
-            </button>
-            <button
-              onClick={() => setStudioTab('image')}
-              className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${studioTab === 'image' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
-              style={studioTab === 'image' ? { background: '#E50914' } : {}}
-            >
-              🖼️ Image Studio
-            </button>
-          </div>
-        </div>
-
         {/* Error */}
         {error && (
-          <div className="mb-5 rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <div className="mb-5 rounded-xl p-4 flex items-start gap-3 max-w-lg mx-auto" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
             <span className="text-red-400 text-xl">⚠️</span>
             <div className="flex-1">
               <p className="text-red-400 font-semibold text-sm">Error</p>
@@ -505,282 +611,1038 @@ export default function StudioPage() {
 
         {/* ═══════════════════════════════════
             STEP: UPLOAD / SETTINGS
-            Matches Figma "Create Viral Reel"
             ═══════════════════════════════════ */}
-        {studioTab === 'reel' && (step === 'upload' || step === 'settings') && (
+        {(step === 'upload' || step === 'settings') && (
           <div className="max-w-lg mx-auto">
 
             {/* Title */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">AI Reel Studio</h1>
-              <p className="text-[#94A3B8] text-sm">Turn your product into scroll-stopping content — in minutes.</p>
+            <div className="text-center mb-6">
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Content Studio</h1>
+              <p className="text-[#94A3B8] text-sm">Create scroll-stopping videos &amp; images — powered by AI.</p>
             </div>
 
-            {/* Product input */}
-            <div className="mb-4">
-              <label className="dark-input-label">Product</label>
-              <input
-                type="text"
-                value={productDescription}
-                onChange={(e) => setProductDescription(e.target.value)}
-                placeholder="Enter the product details..."
-                className="dark-input"
-              />
-            </div>
-
-            {/* Vision input */}
-            <div className="mb-6">
-              <label className="dark-input-label">Vision</label>
-              <input
-                type="text"
-                value={vision}
-                onChange={(e) => setVision(e.target.value)}
-                placeholder="Describe the vision for your reel..."
-                className="dark-input"
-              />
-            </div>
-
-            {/* Image upload — compact */}
-            <div className="mb-6">
-              <div
-                ref={dropRef}
-                onDrop={handleDrop}
-                onDragOver={(e) => e.preventDefault()}
-                className="rounded-xl p-5 text-center cursor-pointer transition-all hover:border-[rgba(123,46,255,0.4)]"
-                style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
-                onClick={() => document.getElementById('file-input')?.click()}
-              >
-                {images.length === 0 ? (
-                  <>
-                    <div className="text-2xl mb-2">🖼️</div>
-                    <p className="text-white text-sm font-semibold">Upload product images</p>
-                    <p className="text-[#94A3B8] text-xs">Up to 10 images (JPG, PNG, WEBP)</p>
-                  </>
-                ) : (
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {images.map((img, idx) => (
-                      <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <img src={img.preview} alt="" className="w-full h-full object-cover" />
-                        <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
-                          className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
-                      </div>
-                    ))}
-                    <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(255,255,255,0.15)' }}>+</div>
-                  </div>
-                )}
-                <input id="file-input" type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => addImages(Array.from(e.target.files || []))} />
+            {/* ── Content Type Selector (Video / Image) ── */}
+            <div className="flex justify-center mb-6">
+              <div className="flex gap-2 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <button
+                  onClick={() => setContentType('video')}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${contentType === 'video' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
+                  style={contentType === 'video' ? { background: '#E50914' } : {}}
+                >
+                  🎬 Video Reel
+                </button>
+                <button
+                  onClick={() => setContentType('image')}
+                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${contentType === 'image' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
+                  style={contentType === 'image' ? { background: '#E50914' } : {}}
+                >
+                  🖼️ Image Post
+                </button>
               </div>
             </div>
 
-            {/* Mode selector — matches Figma */}
+            {/* ── Mode selector ── */}
             <div className="mb-6">
               <label className="text-sm text-[#94A3B8] mb-3 block">Mode</label>
-              <div className="flex gap-3">
+              <div className="flex gap-2 flex-wrap">
                 {([
-                  { key: 'express' as Mode, icon: '⚡', label: 'Express', emoji2: '🖊️' },
-                  { key: 'auto' as Mode,    icon: '🎬', label: 'Auto Reels', emoji2: '' },
-                  { key: 'manual' as Mode,  icon: '🚀', label: 'Manual', emoji2: '✏️' },
+                  { key: 'express'  as Mode, icon: '⚡',  label: 'Express'  },
+                  { key: 'manual'   as Mode, icon: '✏️',  label: 'Manual'   },
+                  { key: 'auto'     as Mode, icon: '🎬',  label: 'Auto'     },
+                  { key: 'notebook' as Mode, icon: '📚',  label: 'Notebook' },
                 ]).map(m => (
                   <button
                     key={m.key}
                     onClick={() => setMode(m.key)}
                     className={`mode-pill flex-1 justify-center ${mode === m.key ? 'mode-pill-active' : ''}`}
+                    style={{ minWidth: '70px' }}
                   >
-                    {m.icon} {m.label} {m.emoji2}
+                    {m.icon} {m.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Duration — compact chips */}
-            <div className="mb-6">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Duration</label>
-              <div className="flex gap-3">
-                {([5, 15, 30, 50] as Duration[]).map((d) => (
-                  <button key={d} onClick={() => setDuration(d)}
-                    className={`mode-pill flex-1 justify-center ${duration === d ? 'mode-pill-active' : ''}`}>
-                    {d === 5 ? '5s ⚡' : `${d}s`} <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* ═══════════════
+                MANUAL MODE
+                ═══════════════ */}
+            {mode === 'manual' && (
+              <div className="space-y-5">
 
-            {/* Tone — compact */}
-            <div className="mb-8">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Tone</label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { value: 'energetic', label: '⚡' },
-                  { value: 'professional', label: '💼' },
-                  { value: 'emotional', label: '❤️' },
-                  { value: 'comedic', label: '😄' },
-                ].map((t) => (
-                  <button key={t.value} onClick={() => setTone(t.value)}
-                    className={`mode-pill justify-center text-lg py-3 ${tone === t.value ? 'mode-pill-active' : ''}`}
-                    title={t.value}>
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Advanced Settings ── */}
-            <div className="mb-8">
-              <button
-                onClick={() => setShowAdvanced(v => !v)}
-                className="flex items-center gap-2 text-sm font-semibold w-full mb-3"
-                style={{ color: showAdvanced ? '#E50914' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#E50914' }}>
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-                Advanced Settings
-              </button>
-
-              {showAdvanced && (
-                <div className="space-y-5" style={{ animation: 'fadeIn 0.2s ease' }}>
-
-                  {/* Video Style */}
+                {/* Free-form prompt */}
+                {contentType === 'video' ? (
                   <div>
-                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Video Style</label>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { value: 'cinematic',     label: 'Cinematic'    },
-                        { value: 'fast-cut',      label: 'Fast-Cut'     },
-                        { value: 'documentary',   label: 'Documentary'  },
-                        { value: 'minimalist',    label: 'Minimalist'   },
-                        { value: 'ugc',           label: 'UGC'          },
-                        { value: 'talking-head',  label: 'Talking Head' },
-                      ].map(s => (
-                        <button
-                          key={s.value}
-                          onClick={() => setVideoStyle(videoStyle === s.value ? '' : s.value)}
-                          className={`mode-pill ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
-                        >{s.label}</button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Seasonal Event */}
-                  <div>
-                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Seasonal Event</label>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { value: 'diwali',        label: '🪔 Diwali'         },
-                        { value: 'holi',          label: '🎨 Holi'           },
-                        { value: 'eid',           label: '🌙 Eid'            },
-                        { value: 'christmas',     label: '🎄 Christmas'      },
-                        { value: 'newyear',       label: '🎆 New Year'       },
-                        { value: 'blackfriday',   label: '🛍️ Black Friday'   },
-                        { value: 'valentines',    label: '💝 Valentine\'s'   },
-                        { value: 'productlaunch', label: '🚀 Product Launch' },
-                        { value: 'sale',          label: '💸 Sale'           },
-                      ].map(e => (
-                        <button
-                          key={e.value}
-                          onClick={() => setSeasonalEvent(seasonalEvent === e.value ? '' : e.value)}
-                          className={`mode-pill ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
-                        >{e.label}</button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Custom CTA */}
-                  <div>
-                    <label className="dark-input-label">Custom CTA</label>
-                    <input
-                      type="text"
-                      value={customCta}
-                      onChange={e => setCustomCta(e.target.value)}
-                      placeholder="e.g. Shop now at link in bio →"
-                      className="dark-input"
-                    />
-                  </div>
-
-                  {/* Brand Voice */}
-                  <div>
-                    <label className="dark-input-label">Brand Voice</label>
+                    <label className="dark-input-label">Describe your video...</label>
                     <textarea
-                      value={brandVoice}
-                      onChange={e => setBrandVoice(e.target.value)}
-                      placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate. Think Zomato's Twitter tone."
+                      value={manualPrompt}
+                      onChange={e => setManualPrompt(e.target.value)}
+                      placeholder="Describe exactly what you want — scene by scene, mood, style, dialogue. The AI will generate it exactly as you envision."
                       className="dark-input"
-                      rows={3}
+                      rows={6}
                       style={{ resize: 'vertical' }}
                     />
                   </div>
-
-                  {/* Hashtag Whitelist */}
+                ) : (
                   <div>
-                    <label className="dark-input-label">Hashtag Whitelist</label>
-                    <input
-                      type="text"
-                      value={hashtagWhitelist}
-                      onChange={e => setHashtagWhitelist(e.target.value)}
-                      placeholder="#YourBrand, #YourCampaign (always included)"
-                      className="dark-input"
-                    />
-                  </div>
-
-                  {/* Hashtag Blacklist */}
-                  <div>
-                    <label className="dark-input-label">Hashtag Blacklist</label>
-                    <input
-                      type="text"
-                      value={hashtagBlacklist}
-                      onChange={e => setHashtagBlacklist(e.target.value)}
-                      placeholder="#competitors, #avoid (never used)"
-                      className="dark-input"
-                    />
-                  </div>
-
-                  {/* Series / Campaign Context */}
-                  <div>
-                    <label className="dark-input-label">Series / Campaign Context</label>
+                    <label className="dark-input-label">Describe your image...</label>
                     <textarea
-                      value={seriesContext}
-                      onChange={e => setSeriesContext(e.target.value)}
-                      placeholder="e.g. Post 3 of 5 in Diwali sale series. Previous posts covered discounts and new arrivals."
+                      value={manualPrompt}
+                      onChange={e => setManualPrompt(e.target.value)}
+                      placeholder="Describe the image you want — subject, style, mood, colors, composition. Complete creative control."
                       className="dark-input"
-                      rows={3}
+                      rows={6}
                       style={{ resize: 'vertical' }}
                     />
                   </div>
+                )}
 
-                </div>
-              )}
-            </div>
+                {/* Duration (video) or image count (image) */}
+                {contentType === 'video' ? (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Duration</label>
+                    <div className="flex gap-3">
+                      {([5, 15, 30, 50] as Duration[]).map((d) => (
+                        <button key={d} onClick={() => setDuration(d)}
+                          className={`mode-pill flex-1 justify-center ${duration === d ? 'mode-pill-active' : ''}`}>
+                          {d === 5 ? '5s ⚡' : `${d}s`} <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Number of Images</label>
+                    <div className="flex gap-3">
+                      {([1, 2, 4] as number[]).map(n => (
+                        <button key={n} onClick={() => setImgCount(n)}
+                          className={`mode-pill flex-1 justify-center ${imgCount === n ? 'mode-pill-active' : ''}`}>
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {/* Start Creating — neon button */}
-            {credits < creditCost ? (
-              <div className="text-center space-y-3 mb-6">
-                <div className="text-sm text-red-400 bg-red-500/10 rounded-lg p-3" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>
-                  Need {creditCost - credits} more credits
+                {/* AI Hashtag Assistant */}
+                <div className="rounded-xl p-4" style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.15)' }}>
+                  <p className="text-sm font-bold text-white mb-3">✨ AI Hashtag Assistant</p>
+                  <button
+                    onClick={generateHashtags}
+                    disabled={hashtagGenLoading || !manualPrompt.trim()}
+                    className="w-full py-2 rounded-lg text-sm font-bold mb-3 transition-all disabled:opacity-50"
+                    style={{ background: 'rgba(229,9,20,0.12)', border: '1px solid rgba(229,9,20,0.3)', color: '#E50914' }}
+                  >
+                    {hashtagGenLoading ? '⏳ Generating...' : '✨ Generate Hashtags'}
+                  </button>
+
+                  {/* Generated hashtags as chips */}
+                  {manualHashtags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {manualHashtags.map(tag => (
+                        <span key={tag} className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
+                          style={{ background: 'rgba(123,46,255,0.1)', border: '1px solid rgba(123,46,255,0.25)', color: '#C084FC' }}>
+                          {tag}
+                          <button onClick={() => removeManualHashtag(tag)} className="ml-1 text-[#94A3B8] hover:text-red-400">✕</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Custom hashtag input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={manualHashtagInput}
+                      onChange={e => setManualHashtagInput(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && addManualHashtag()}
+                      placeholder="Add your own hashtag"
+                      className="dark-input flex-1"
+                      style={{ marginBottom: 0 }}
+                    />
+                    <button
+                      onClick={addManualHashtag}
+                      className="px-4 py-2 rounded-lg text-sm font-bold"
+                      style={{ background: '#E50914', color: '#fff', whiteSpace: 'nowrap' }}
+                    >+</button>
+                  </div>
                 </div>
-                <Link href="/studio/credits" className="neon-btn w-full">Buy Credits</Link>
+
+                {/* Optional caption */}
+                <div>
+                  <label className="dark-input-label">Caption (optional)</label>
+                  <textarea
+                    value={manualCaption}
+                    onChange={e => setManualCaption(e.target.value)}
+                    placeholder="Write your caption, or leave blank for AI-generated"
+                    className="dark-input"
+                    rows={3}
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+
+                {/* Generate & Preview button */}
+                <button
+                  onClick={contentType === 'image' ? handleManualImageGenerate : startGeneration}
+                  disabled={!manualPrompt.trim() || (contentType === 'video' && images.length === 0) || imgLoading}
+                  className="neon-btn w-full disabled:opacity-50"
+                >
+                  {imgLoading ? '⏳ Generating...' : 'Generate & Preview'}
+                </button>
+
+                {/* Video needs images */}
+                {contentType === 'video' && (
+                  <div className="mb-2">
+                    <label className="dark-input-label">Product Images</label>
+                    <div
+                      ref={dropRef}
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                      className="rounded-xl p-5 text-center cursor-pointer transition-all hover:border-[rgba(123,46,255,0.4)]"
+                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      onClick={() => document.getElementById('file-input-manual')?.click()}
+                    >
+                      {images.length === 0 ? (
+                        <>
+                          <div className="text-2xl mb-2">🖼️</div>
+                          <p className="text-white text-sm font-semibold">Upload product images</p>
+                          <p className="text-[#94A3B8] text-xs">Up to 10 images (JPG, PNG, WEBP)</p>
+                        </>
+                      ) : (
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {images.map((img, idx) => (
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                              <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                              <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                                className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
+                            </div>
+                          ))}
+                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(255,255,255,0.15)' }}>+</div>
+                        </div>
+                      )}
+                      <input id="file-input-manual" type="file" accept="image/*" multiple className="hidden"
+                        onChange={(e) => addImages(Array.from(e.target.files || []))} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Generated image results */}
+                {contentType === 'image' && generatedImages.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
+                    <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                      {generatedImages.map((url, i) => (
+                        <div key={i} className="relative rounded-xl overflow-hidden group"
+                          style={{ aspectRatio: '1/1', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <img src={url} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <a href={url} download={`image-${i + 1}.webp`} target="_blank" rel="noopener noreferrer"
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white"
+                              style={{ background: '#E50914' }}>
+                              ⬇️ Download
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={connectInstagram}
+                      className="neon-btn w-full mt-4"
+                    >
+                      📸 Post to Instagram
+                    </button>
+                  </div>
+                )}
+
+                {imgError && (
+                  <div className="rounded-xl p-3 text-xs text-red-400" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    {imgError}
+                  </div>
+                )}
               </div>
-            ) : (
-              <button
-                onClick={startGeneration}
-                disabled={images.length === 0}
-                className="neon-btn w-full mb-5"
-              >
-                Start Creating
-              </button>
+            )}
+
+            {/* ═══════════════
+                EXPRESS MODE
+                ═══════════════ */}
+            {mode === 'express' && (
+              <div className="space-y-5">
+                {/* Product input */}
+                <div>
+                  <label className="dark-input-label">Product</label>
+                  <input
+                    type="text"
+                    value={productDescription}
+                    onChange={(e) => setProductDescription(e.target.value)}
+                    placeholder="Enter the product details..."
+                    className="dark-input"
+                  />
+                </div>
+
+                {/* Brand Name */}
+                <div>
+                  <label className="dark-input-label">Brand Name</label>
+                  <input
+                    type="text"
+                    value={brandName}
+                    onChange={e => setBrandName(e.target.value)}
+                    placeholder="e.g. MyBrand"
+                    className="dark-input"
+                  />
+                </div>
+
+                {/* Image upload */}
+                {contentType === 'video' && (
+                  <div>
+                    <div
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                      className="rounded-xl p-5 text-center cursor-pointer transition-all hover:border-[rgba(123,46,255,0.4)]"
+                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      onClick={() => document.getElementById('file-input-express')?.click()}
+                    >
+                      {images.length === 0 ? (
+                        <>
+                          <div className="text-2xl mb-2">🖼️</div>
+                          <p className="text-white text-sm font-semibold">Upload product images</p>
+                          <p className="text-[#94A3B8] text-xs">Up to 10 images (JPG, PNG, WEBP)</p>
+                        </>
+                      ) : (
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {images.map((img, idx) => (
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                              <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                              <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                                className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
+                            </div>
+                          ))}
+                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(255,255,255,0.15)' }}>+</div>
+                        </div>
+                      )}
+                      <input id="file-input-express" type="file" accept="image/*" multiple className="hidden"
+                        onChange={(e) => addImages(Array.from(e.target.files || []))} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Duration (video) or image count (image) */}
+                {contentType === 'video' ? (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Duration</label>
+                    <div className="flex gap-3">
+                      {([5, 15, 30, 50] as Duration[]).map((d) => (
+                        <button key={d} onClick={() => setDuration(d)}
+                          className={`mode-pill flex-1 justify-center ${duration === d ? 'mode-pill-active' : ''}`}>
+                          {d === 5 ? '5s ⚡' : `${d}s`} <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Number of Images</label>
+                    <div className="flex gap-3">
+                      {([1, 2, 4] as number[]).map(n => (
+                        <button key={n} onClick={() => setImgCount(n)}
+                          className={`mode-pill flex-1 justify-center ${imgCount === n ? 'mode-pill-active' : ''}`}>
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Generate button */}
+                {contentType === 'video' ? (
+                  credits < creditCost ? (
+                    <div className="space-y-3">
+                      <div className="text-sm text-red-400 bg-red-500/10 rounded-lg p-3" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>
+                        Need {creditCost - credits} more credits
+                      </div>
+                      <Link href="/studio/credits" className="neon-btn w-full">Buy Credits</Link>
+                    </div>
+                  ) : (
+                    <button onClick={startGeneration} disabled={images.length === 0} className="neon-btn w-full disabled:opacity-50">
+                      Start Creating
+                    </button>
+                  )
+                ) : (
+                  <button onClick={handleGenerateImages} disabled={imgLoading || !productDescription} className="neon-btn w-full disabled:opacity-50">
+                    {imgLoading ? '⏳ Generating...' : 'Generate Images ✨'}
+                  </button>
+                )}
+
+                {imgError && (
+                  <div className="rounded-xl p-3 text-xs text-red-400" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    {imgError}
+                  </div>
+                )}
+
+                {/* Generated images (express image mode) */}
+                {contentType === 'image' && generatedImages.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
+                    <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                      {generatedImages.map((url, i) => (
+                        <div key={i} className="relative rounded-xl overflow-hidden group"
+                          style={{ aspectRatio: '1/1', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <img src={url} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <a href={url} download={`image-${i + 1}.webp`} target="_blank" rel="noopener noreferrer"
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white" style={{ background: '#E50914' }}>
+                              ⬇️ Download
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ═══════════════
+                AUTO MODE
+                ═══════════════ */}
+            {mode === 'auto' && (
+              <div className="space-y-5">
+                {/* Product input */}
+                <div>
+                  <label className="dark-input-label">Product</label>
+                  <input
+                    type="text"
+                    value={productDescription}
+                    onChange={(e) => setProductDescription(e.target.value)}
+                    placeholder="Enter the product details..."
+                    className="dark-input"
+                  />
+                </div>
+
+                {/* Vision input */}
+                <div>
+                  <label className="dark-input-label">Vision</label>
+                  <input
+                    type="text"
+                    value={vision}
+                    onChange={(e) => setVision(e.target.value)}
+                    placeholder="Describe the vision for your reel..."
+                    className="dark-input"
+                  />
+                </div>
+
+                {/* Brand Name */}
+                <div>
+                  <label className="dark-input-label">Brand Name</label>
+                  <input
+                    type="text"
+                    value={brandName}
+                    onChange={e => setBrandName(e.target.value)}
+                    placeholder="e.g. MyBrand"
+                    className="dark-input"
+                  />
+                </div>
+
+                {/* Image upload (video) */}
+                {contentType === 'video' && (
+                  <div>
+                    <div
+                      ref={dropRef}
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                      className="rounded-xl p-5 text-center cursor-pointer transition-all hover:border-[rgba(123,46,255,0.4)]"
+                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      onClick={() => document.getElementById('file-input-auto')?.click()}
+                    >
+                      {images.length === 0 ? (
+                        <>
+                          <div className="text-2xl mb-2">🖼️</div>
+                          <p className="text-white text-sm font-semibold">Upload product images</p>
+                          <p className="text-[#94A3B8] text-xs">Up to 10 images (JPG, PNG, WEBP)</p>
+                        </>
+                      ) : (
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {images.map((img, idx) => (
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                              <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                              <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                                className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
+                            </div>
+                          ))}
+                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(255,255,255,0.15)' }}>+</div>
+                        </div>
+                      )}
+                      <input id="file-input-auto" type="file" accept="image/*" multiple className="hidden"
+                        onChange={(e) => addImages(Array.from(e.target.files || []))} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Duration (video) or image count (image) */}
+                {contentType === 'video' ? (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Duration</label>
+                    <div className="flex gap-3">
+                      {([5, 15, 30, 50] as Duration[]).map((d) => (
+                        <button key={d} onClick={() => setDuration(d)}
+                          className={`mode-pill flex-1 justify-center ${duration === d ? 'mode-pill-active' : ''}`}>
+                          {d === 5 ? '5s ⚡' : `${d}s`} <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Number of Images</label>
+                    <div className="flex gap-3">
+                      {([1, 2, 4] as number[]).map(n => (
+                        <button key={n} onClick={() => setImgCount(n)}
+                          className={`mode-pill flex-1 justify-center ${imgCount === n ? 'mode-pill-active' : ''}`}>
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tone */}
+                <div>
+                  <label className="text-sm text-[#94A3B8] mb-3 block">Tone</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { value: 'energetic', label: '⚡' },
+                      { value: 'professional', label: '💼' },
+                      { value: 'emotional', label: '❤️' },
+                      { value: 'comedic', label: '😄' },
+                    ].map((t) => (
+                      <button key={t.value} onClick={() => setTone(t.value)}
+                        className={`mode-pill justify-center text-lg py-3 ${tone === t.value ? 'mode-pill-active' : ''}`}
+                        title={t.value}>
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Region */}
+                <div>
+                  <label className="dark-input-label">Region</label>
+                  <select value={region} onChange={e => setRegion(e.target.value)} className="dark-input">
+                    <option value="india">India</option>
+                    <option value="mumbai">Mumbai</option>
+                    <option value="delhi">Delhi</option>
+                    <option value="bangalore">Bangalore</option>
+                    <option value="global">Global</option>
+                  </select>
+                </div>
+
+                {/* Industry */}
+                <div>
+                  <label className="dark-input-label">Industry</label>
+                  <select value={industryCode} onChange={e => setIndustryCode(e.target.value)} className="dark-input">
+                    <option value="ecommerce">E-Commerce</option>
+                    <option value="food">Food &amp; Beverage</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="beauty">Beauty &amp; Wellness</option>
+                    <option value="tech">Technology</option>
+                    <option value="education">Education</option>
+                    <option value="fitness">Fitness</option>
+                    <option value="realestate">Real Estate</option>
+                    <option value="finance">Finance</option>
+                    <option value="travel">Travel</option>
+                  </select>
+                </div>
+
+                {/* ── Advanced Settings ── */}
+                <div>
+                  <button
+                    onClick={() => setShowAdvanced(v => !v)}
+                    className="flex items-center gap-2 text-sm font-semibold w-full mb-3"
+                    style={{ color: showAdvanced ? '#E50914' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#E50914' }}>
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                    Advanced Settings
+                  </button>
+
+                  {showAdvanced && (
+                    <div className="space-y-5" style={{ animation: 'fadeIn 0.2s ease' }}>
+
+                      {/* Video Style */}
+                      <div>
+                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Video Style</label>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { value: 'cinematic',     label: 'Cinematic'    },
+                            { value: 'fast-cut',      label: 'Fast-Cut'     },
+                            { value: 'documentary',   label: 'Documentary'  },
+                            { value: 'minimalist',    label: 'Minimalist'   },
+                            { value: 'ugc',           label: 'UGC'          },
+                            { value: 'talking-head',  label: 'Talking Head' },
+                          ].map(s => (
+                            <button
+                              key={s.value}
+                              onClick={() => setVideoStyle(videoStyle === s.value ? '' : s.value)}
+                              className={`mode-pill ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
+                            >{s.label}</button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Seasonal Event */}
+                      <div>
+                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Seasonal Event</label>
+                        <div className="flex flex-wrap gap-2">
+                          {[
+                            { value: 'diwali',        label: '🪔 Diwali'         },
+                            { value: 'holi',          label: '🎨 Holi'           },
+                            { value: 'eid',           label: '🌙 Eid'            },
+                            { value: 'christmas',     label: '🎄 Christmas'      },
+                            { value: 'newyear',       label: '🎆 New Year'       },
+                            { value: 'blackfriday',   label: '🛍️ Black Friday'   },
+                            { value: 'valentines',    label: '💝 Valentine\'s'   },
+                            { value: 'productlaunch', label: '🚀 Product Launch' },
+                            { value: 'sale',          label: '💸 Sale'           },
+                          ].map(e => (
+                            <button
+                              key={e.value}
+                              onClick={() => setSeasonalEvent(seasonalEvent === e.value ? '' : e.value)}
+                              className={`mode-pill ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
+                            >{e.label}</button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Custom CTA */}
+                      <div>
+                        <label className="dark-input-label">Custom CTA</label>
+                        <input
+                          type="text"
+                          value={customCta}
+                          onChange={e => setCustomCta(e.target.value)}
+                          placeholder="e.g. Shop now at link in bio →"
+                          className="dark-input"
+                        />
+                      </div>
+
+                      {/* Brand Voice */}
+                      <div>
+                        <label className="dark-input-label">Brand Voice</label>
+                        <textarea
+                          value={brandVoice}
+                          onChange={e => setBrandVoice(e.target.value)}
+                          placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate. Think Zomato's Twitter tone."
+                          className="dark-input"
+                          rows={3}
+                          style={{ resize: 'vertical' }}
+                        />
+                      </div>
+
+                      {/* Hashtag Whitelist */}
+                      <div>
+                        <label className="dark-input-label">Hashtag Whitelist</label>
+                        <input
+                          type="text"
+                          value={hashtagWhitelist}
+                          onChange={e => setHashtagWhitelist(e.target.value)}
+                          placeholder="#YourBrand, #YourCampaign (always included)"
+                          className="dark-input"
+                        />
+                      </div>
+
+                      {/* Hashtag Blacklist */}
+                      <div>
+                        <label className="dark-input-label">Hashtag Blacklist</label>
+                        <input
+                          type="text"
+                          value={hashtagBlacklist}
+                          onChange={e => setHashtagBlacklist(e.target.value)}
+                          placeholder="#competitors, #avoid (never used)"
+                          className="dark-input"
+                        />
+                      </div>
+
+                      {/* Series / Campaign Context */}
+                      <div>
+                        <label className="dark-input-label">Series / Campaign Context</label>
+                        <textarea
+                          value={seriesContext}
+                          onChange={e => setSeriesContext(e.target.value)}
+                          placeholder="e.g. Post 3 of 5 in Diwali sale series. Previous posts covered discounts and new arrivals."
+                          className="dark-input"
+                          rows={3}
+                          style={{ resize: 'vertical' }}
+                        />
+                      </div>
+
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Viral Trend Panel (Auto mode only) ── */}
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)' }}>
+                  <button
+                    onClick={() => setShowViralPanel(v => !v)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold"
+                    style={{ background: 'rgba(229,9,20,0.06)', color: '#fff', border: 'none', cursor: 'pointer' }}
+                  >
+                    <span>🔥 Ride the Wave — Viral Trend Suggestions</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transform: showViralPanel ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+
+                  {showViralPanel && (
+                    <div className="p-4 space-y-3" style={{ background: 'rgba(13,22,40,0.4)' }}>
+                      {viralFused && (
+                        <div className="rounded-lg p-3 text-xs text-green-400 font-semibold"
+                          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                          ✓ Viral angle applied — enriched prompt ready
+                        </div>
+                      )}
+
+                      <button
+                        onClick={fetchViralTrends}
+                        disabled={viralLoading}
+                        className="w-full py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-50"
+                        style={{ background: 'rgba(229,9,20,0.12)', border: '1px solid rgba(229,9,20,0.3)', color: '#E50914' }}
+                      >
+                        {viralLoading ? '⏳ Fetching...' : '🔥 Fetch Trends'}
+                      </button>
+
+                      {viralTrends.map((trend, i) => (
+                        <div key={i} className="rounded-xl p-4" style={{ background: 'rgba(13,22,40,0.6)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div>
+                              <p className="text-white text-sm font-bold">{trend.topic}</p>
+                              {trend.category && (
+                                <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                  style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.25)', color: '#E50914' }}>
+                                  {trend.category}
+                                </span>
+                              )}
+                            </div>
+                            {trend.fitScore !== undefined && (
+                              <div className="text-right shrink-0">
+                                <p className="text-xs text-[#94A3B8]">Fit</p>
+                                <p className="font-bold text-sm" style={{ color: trend.fitScore >= 70 ? '#22c55e' : trend.fitScore >= 40 ? '#f59e0b' : '#ef4444' }}>
+                                  {trend.fitScore}%
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                          {trend.exampleHook && (
+                            <p className="text-xs text-[#94A3B8] mb-3 italic">"{trend.exampleHook}"</p>
+                          )}
+                          <button
+                            onClick={() => applyViralTrend(trend)}
+                            className="w-full py-2 rounded-lg text-xs font-bold transition-all"
+                            style={{ background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.25)', color: '#E50914' }}
+                          >
+                            Use This Trend →
+                          </button>
+                        </div>
+                      ))}
+
+                      {viralTrends.length === 0 && !viralLoading && (
+                        <p className="text-xs text-[#94A3B8] text-center py-2">Click "Fetch Trends" to load viral content angles for your region and industry.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Generate button */}
+                {contentType === 'video' ? (
+                  credits < creditCost ? (
+                    <div className="space-y-3">
+                      <div className="text-sm text-red-400 bg-red-500/10 rounded-lg p-3" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>
+                        Need {creditCost - credits} more credits
+                      </div>
+                      <Link href="/studio/credits" className="neon-btn w-full">Buy Credits</Link>
+                    </div>
+                  ) : (
+                    <button onClick={startGeneration} disabled={images.length === 0} className="neon-btn w-full disabled:opacity-50">
+                      Start Creating
+                    </button>
+                  )
+                ) : (
+                  <button onClick={handleGenerateImages} disabled={imgLoading || !productDescription} className="neon-btn w-full disabled:opacity-50">
+                    {imgLoading ? '⏳ Generating...' : 'Generate Images ✨'}
+                  </button>
+                )}
+
+                {imgError && (
+                  <div className="rounded-xl p-3 text-xs text-red-400" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    {imgError}
+                  </div>
+                )}
+
+                {/* Generated images (auto image mode) */}
+                {contentType === 'image' && generatedImages.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
+                    <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                      {generatedImages.map((url, i) => (
+                        <div key={i} className="relative rounded-xl overflow-hidden group"
+                          style={{ aspectRatio: '1/1', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <img src={url} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <a href={url} download={`image-${i + 1}.webp`} target="_blank" rel="noopener noreferrer"
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white" style={{ background: '#E50914' }}>
+                              ⬇️ Download
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* AI Review */}
+                    <button
+                      onClick={handleImageReview}
+                      disabled={reviewLoading}
+                      className="w-full mt-4 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8' }}
+                    >
+                      {reviewLoading ? '⏳ Reviewing...' : '🔍 AI Review'}
+                    </button>
+
+                    {/* Auto Schedule */}
+                    {autoSchedule.length > 0 && (
+                      <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)' }}>
+                        <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
+                          <h3 className="text-sm font-bold text-white">🗓️ Recommended Posting Schedule</h3>
+                        </div>
+                        {autoSchedule.map((slot, i) => (
+                          <div key={i} className="px-4 py-3 flex items-start gap-3" style={{ background: 'rgba(13,22,40,0.4)' }}>
+                            <div className="text-[#E50914] font-bold text-xs w-24 shrink-0">{slot.day} {slot.time}</div>
+                            <div className="text-[#94A3B8] text-xs">{slot.rationale}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* AI Review Results */}
+                    {aiReview && (
+                      <div className="mt-4 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)', background: 'rgba(13,22,40,0.5)' }}>
+                        <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-white">🔍 AI Content Review</h3>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-[#94A3B8]">Score:</span>
+                              <span className="font-bold text-sm" style={{ color: aiReview.overallScore >= 80 ? '#22c55e' : aiReview.overallScore >= 60 ? '#f59e0b' : '#ef4444' }}>
+                                {aiReview.overallScore}/100
+                              </span>
+                              {aiReview.viralPotential && (
+                                <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                                  style={{
+                                    background: aiReview.viralPotential === 'high' ? 'rgba(34,197,94,0.1)' : aiReview.viralPotential === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+                                    color: aiReview.viralPotential === 'high' ? '#22c55e' : aiReview.viralPotential === 'medium' ? '#f59e0b' : '#ef4444',
+                                    border: `1px solid ${aiReview.viralPotential === 'high' ? 'rgba(34,197,94,0.3)' : aiReview.viralPotential === 'medium' ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                                  }}>
+                                  {aiReview.viralPotential} viral
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="p-4 space-y-4">
+                          {aiReview.strengths?.length > 0 && (
+                            <div>
+                              <p className="text-xs font-bold text-green-400 mb-2">✅ Strengths</p>
+                              <ul className="space-y-1">
+                                {aiReview.strengths.map((s: string, i: number) => (
+                                  <li key={i} className="text-xs text-[#94A3B8]">• {s}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {aiReview.improvements?.length > 0 && (
+                            <div>
+                              <p className="text-xs font-bold text-[#E50914] mb-2">💡 Improvements</p>
+                              <div className="space-y-2">
+                                {aiReview.improvements.map((imp: any, i: number) => (
+                                  <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.12)' }}>
+                                    <p className="text-xs font-semibold text-white mb-1 capitalize">{imp.field}</p>
+                                    <p className="text-xs text-[#94A3B8] mb-1">{imp.issue}</p>
+                                    <p className="text-xs text-[#C084FC]">→ {imp.suggestion}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {aiReview.engagementPrediction && (
+                            <div>
+                              <p className="text-xs font-bold text-[#94A3B8] mb-1">📊 Engagement Prediction</p>
+                              <p className="text-xs text-[#94A3B8]">{aiReview.engagementPrediction}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ═══════════════
+                NOTEBOOK MODE
+                ═══════════════ */}
+            {mode === 'notebook' && (
+              <div className="space-y-5">
+                {/* Topic */}
+                <div>
+                  <label className="dark-input-label">What do you want to teach?</label>
+                  <textarea
+                    value={notebookTopic}
+                    onChange={e => setNotebookTopic(e.target.value)}
+                    placeholder="e.g. How to save tax as a freelancer, 5 yoga poses for back pain, How to start investing in stocks"
+                    className="dark-input"
+                    rows={3}
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+
+                {/* Target audience */}
+                <div>
+                  <label className="dark-input-label">Who is your audience?</label>
+                  <input
+                    type="text"
+                    value={notebookAudience}
+                    onChange={e => setNotebookAudience(e.target.value)}
+                    placeholder="e.g. Coaching center students, Working professionals, Fitness beginners"
+                    className="dark-input"
+                  />
+                </div>
+
+                {/* Content format pills */}
+                <div>
+                  <label className="text-sm text-[#94A3B8] mb-3 block">Content Format</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Key Concepts', 'Step by Step', 'Did You Know', 'Myth vs Fact', 'Quick Tips'].map(f => (
+                      <button key={f} onClick={() => setNotebookFormat(f)}
+                        className={`mode-pill ${notebookFormat === f ? 'mode-pill-active' : ''}`}>
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Duration (video) or image count (image) */}
+                {contentType === 'video' ? (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Duration</label>
+                    <div className="flex gap-3">
+                      {([5, 15, 30, 50] as Duration[]).map((d) => (
+                        <button key={d} onClick={() => setDuration(d)}
+                          className={`mode-pill flex-1 justify-center ${duration === d ? 'mode-pill-active' : ''}`}>
+                          {d === 5 ? '5s ⚡' : `${d}s`} <span className="text-xs text-[#94A3B8] ml-1">({d * 2}cr)</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Number of Images</label>
+                    <div className="flex gap-3">
+                      {([1, 2, 4] as number[]).map(n => (
+                        <button key={n} onClick={() => setImgCount(n)}
+                          className={`mode-pill flex-1 justify-center ${imgCount === n ? 'mode-pill-active' : ''}`}>
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Generate button */}
+                <button
+                  onClick={() => {
+                    setManualPrompt(`${notebookFormat}: ${notebookTopic}. Target audience: ${notebookAudience}.`);
+                    if (contentType === 'image') {
+                      handleManualImageGenerate();
+                    } else {
+                      startGeneration();
+                    }
+                  }}
+                  disabled={!notebookTopic.trim() || imgLoading}
+                  className="neon-btn w-full disabled:opacity-50"
+                >
+                  {imgLoading ? '⏳ Generating...' : 'Generate Educational Content'}
+                </button>
+
+                {/* Video needs images */}
+                {contentType === 'video' && (
+                  <div>
+                    <label className="dark-input-label">Supporting Images (optional)</label>
+                    <div
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                      className="rounded-xl p-5 text-center cursor-pointer"
+                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      onClick={() => document.getElementById('file-input-notebook')?.click()}
+                    >
+                      {images.length === 0 ? (
+                        <p className="text-[#94A3B8] text-xs">Drop images here or click to upload</p>
+                      ) : (
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {images.map((img, idx) => (
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                              <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                              <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
+                                className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <input id="file-input-notebook" type="file" accept="image/*" multiple className="hidden"
+                        onChange={(e) => addImages(Array.from(e.target.files || []))} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Generated images (notebook image mode) */}
+                {contentType === 'image' && generatedImages.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
+                    <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                      {generatedImages.map((url, i) => (
+                        <div key={i} className="relative rounded-xl overflow-hidden group"
+                          style={{ aspectRatio: '1/1', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <img src={url} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <a href={url} download={`image-${i + 1}.webp`} target="_blank" rel="noopener noreferrer"
+                              className="px-3 py-2 rounded-lg text-xs font-bold text-white" style={{ background: '#E50914' }}>
+                              ⬇️ Download
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={connectInstagram} className="neon-btn w-full mt-4">
+                      📸 Post to Instagram
+                    </button>
+                  </div>
+                )}
+
+                {imgError && (
+                  <div className="rounded-xl p-3 text-xs text-red-400" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    {imgError}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Login link */}
             {!user && (
-              <div className="text-center">
+              <div className="text-center mt-6">
                 <Link href="/login" className="text-[#94A3B8] text-sm hover:text-white transition-colors">Login</Link>
               </div>
             )}
 
             {/* Sign out */}
             {user && (
-              <div className="text-center mt-2">
+              <div className="text-center mt-4">
                 <button
                   onClick={() => { localStorage.removeItem('cs_token'); window.location.href = '/login'; }}
                   className="text-[#94A3B8] text-xs hover:text-white transition-colors"
@@ -793,7 +1655,7 @@ export default function StudioPage() {
         {/* ═══════════════════════════════════
             STEP: GENERATING (pipeline)
             ═══════════════════════════════════ */}
-        {studioTab === 'reel' && step === 'generating' && (
+        {step === 'generating' && (
           <div className="max-w-lg mx-auto mt-8">
             <div className="rounded-2xl p-10 text-center relative overflow-hidden" style={{ background: 'rgba(13,22,40,0.5)', border: '1px solid rgba(123,46,255,0.15)' }}>
               <div className="purple-orb w-64 h-64 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40" style={{ position: 'absolute' }}></div>
@@ -850,7 +1712,7 @@ export default function StudioPage() {
         {/* ═══════════════════════════════════
             STEP: DONE — Approve / Reject / Download
             ═══════════════════════════════════ */}
-        {studioTab === 'reel' && step === 'done' && result && (
+        {step === 'done' && result && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             {/* Left: Video + Actions */}
@@ -1039,271 +1901,6 @@ export default function StudioPage() {
                 </div>
               )}
             </div>
-          </div>
-        )}
-        {/* ═══════════════════════════════════
-            IMAGE STUDIO
-            ═══════════════════════════════════ */}
-        {studioTab === 'image' && (
-          <div className="max-w-lg mx-auto">
-
-            {/* Title */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Image Studio</h1>
-              <p className="text-[#94A3B8] text-sm">Generate scroll-stopping marketing images for Instagram — in seconds.</p>
-            </div>
-
-            {/* Error */}
-            {imgError && (
-              <div className="mb-5 rounded-xl p-4 flex items-start gap-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                <span className="text-red-400 text-xl">⚠️</span>
-                <div className="flex-1">
-                  <p className="text-red-400 font-semibold text-sm">Error</p>
-                  <p className="text-[#94A3B8] text-xs">{imgError}</p>
-                </div>
-                <button onClick={() => setImgError('')} className="text-[#94A3B8] hover:text-white">✕</button>
-              </div>
-            )}
-
-            {/* Mode selector */}
-            <div className="mb-6">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Mode</label>
-              <div className="flex gap-3">
-                {([
-                  { key: 'express' as const, label: '⚡ Express' },
-                  { key: 'manual'  as const, label: '✏️ Manual'  },
-                  { key: 'auto'    as const, label: '🤖 Auto'    },
-                ]).map(m => (
-                  <button key={m.key} onClick={() => setImgMode(m.key)}
-                    className={`mode-pill flex-1 justify-center ${imgMode === m.key ? 'mode-pill-active' : ''}`}>
-                    {m.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Post Type */}
-            <div className="mb-6">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Post Type</label>
-              <div className="flex flex-wrap gap-2">
-                {([
-                  { key: 'educational', label: '📚 Educational' },
-                  { key: 'offer',       label: '🎁 Offer'       },
-                  { key: 'highlight',   label: '✨ Highlight'   },
-                  { key: 'awareness',   label: '📢 Awareness'   },
-                  { key: 'testimonial', label: '💬 Testimonial' },
-                  { key: 'tips',        label: '💡 Tips'        },
-                ]).map(p => (
-                  <button key={p.key} onClick={() => setImgPostType(p.key)}
-                    className={`mode-pill ${imgPostType === p.key ? 'mode-pill-active' : ''}`}>
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Design Style */}
-            <div className="mb-6">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Design Style</label>
-              <div className="flex flex-wrap gap-2">
-                {(['bold', 'minimal', 'cinematic', 'playful', 'corporate']).map(s => (
-                  <button key={s} onClick={() => setImgDesignStyle(s)}
-                    className={`mode-pill capitalize ${imgDesignStyle === s ? 'mode-pill-active' : ''}`}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Number of images */}
-            <div className="mb-6">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Number of Images</label>
-              <div className="flex gap-3">
-                {([1, 2, 3, 4]).map(n => (
-                  <button key={n} onClick={() => setImgCount(n)}
-                    className={`mode-pill flex-1 justify-center ${imgCount === n ? 'mode-pill-active' : ''}`}>
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Product Description */}
-            <div className="mb-4">
-              <label className="dark-input-label">Product Description</label>
-              <input type="text" value={productDescription} onChange={e => setProductDescription(e.target.value)}
-                placeholder="Describe your product..." className="dark-input" />
-            </div>
-
-            {/* Brand Name */}
-            <div className="mb-4">
-              <label className="dark-input-label">Brand Name</label>
-              <input type="text" value={brandName} onChange={e => setBrandName(e.target.value)}
-                placeholder="e.g. MyBrand" className="dark-input" />
-            </div>
-
-            {/* Features */}
-            <div className="mb-4">
-              <label className="dark-input-label">Key Features</label>
-              <input type="text" value={imgFeatures} onChange={e => setImgFeatures(e.target.value)}
-                placeholder="Key features, comma separated" className="dark-input" />
-            </div>
-
-            {/* Offer — shown for offer post type */}
-            {imgPostType === 'offer' && (
-              <div className="mb-4">
-                <label className="dark-input-label">Offer</label>
-                <input type="text" value={imgOffer} onChange={e => setImgOffer(e.target.value)}
-                  placeholder="e.g. 50% off this weekend only" className="dark-input" />
-              </div>
-            )}
-
-            {/* Manual schedule */}
-            {imgMode === 'manual' && (
-              <div className="mb-4 grid grid-cols-2 gap-3">
-                <div>
-                  <label className="dark-input-label">Schedule Day</label>
-                  <select value={imgScheduleDay} onChange={e => setImgScheduleDay(e.target.value)}
-                    className="dark-input">
-                    <option value="">Select day</option>
-                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="dark-input-label">Time</label>
-                  <input type="time" value={imgScheduleTime} onChange={e => setImgScheduleTime(e.target.value)}
-                    className="dark-input" />
-                </div>
-              </div>
-            )}
-
-            {/* Auto mode message */}
-            {imgMode === 'auto' && (
-              <div className="mb-4 rounded-xl p-3 text-sm text-[#94A3B8]"
-                style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.15)' }}>
-                🤖 AI will suggest the best posting times for your industry and region.
-              </div>
-            )}
-
-            {/* Generate Button */}
-            <button
-              onClick={handleGenerateImages}
-              disabled={imgLoading || !productDescription}
-              className="neon-btn w-full mb-6 disabled:opacity-50"
-            >
-              {imgLoading ? '⏳ Generating...' : 'Generate Images ✨'}
-            </button>
-
-            {/* Generated Images Grid */}
-            {generatedImages.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
-                <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                  {generatedImages.map((url, i) => (
-                    <div key={i} className="relative rounded-xl overflow-hidden group"
-                      style={{ aspectRatio: '1/1', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <img src={url} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <a href={url} download={`image-${i + 1}.webp`} target="_blank" rel="noopener noreferrer"
-                          className="px-3 py-2 rounded-lg text-xs font-bold text-white"
-                          style={{ background: '#E50914' }}>
-                          ⬇️ Download
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* AI Review button */}
-                <button
-                  onClick={handleImageReview}
-                  disabled={reviewLoading}
-                  className="w-full mt-4 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8' }}
-                >
-                  {reviewLoading ? '⏳ Reviewing...' : '🔍 AI Review'}
-                </button>
-              </div>
-            )}
-
-            {/* Auto Schedule */}
-            {autoSchedule.length > 0 && (
-              <div className="mb-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)' }}>
-                <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
-                  <h3 className="text-sm font-bold text-white">🗓️ Recommended Posting Schedule</h3>
-                </div>
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                  {autoSchedule.map((slot, i) => (
-                    <div key={i} className="px-4 py-3 flex items-start gap-3" style={{ background: 'rgba(13,22,40,0.4)' }}>
-                      <div className="text-[#E50914] font-bold text-xs w-24 shrink-0">{slot.day} {slot.time}</div>
-                      <div className="text-[#94A3B8] text-xs">{slot.rationale}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* AI Review Results */}
-            {aiReview && (
-              <div className="mb-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)', background: 'rgba(13,22,40,0.5)' }}>
-                <div className="px-4 py-3" style={{ background: 'rgba(229,9,20,0.08)', borderBottom: '1px solid rgba(229,9,20,0.2)' }}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-white">🔍 AI Content Review</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#94A3B8]">Score:</span>
-                      <span className="font-bold text-sm" style={{ color: aiReview.overallScore >= 80 ? '#22c55e' : aiReview.overallScore >= 60 ? '#f59e0b' : '#ef4444' }}>
-                        {aiReview.overallScore}/100
-                      </span>
-                      {aiReview.viralPotential && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-                          style={{
-                            background: aiReview.viralPotential === 'high' ? 'rgba(34,197,94,0.1)' : aiReview.viralPotential === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
-                            color: aiReview.viralPotential === 'high' ? '#22c55e' : aiReview.viralPotential === 'medium' ? '#f59e0b' : '#ef4444',
-                            border: `1px solid ${aiReview.viralPotential === 'high' ? 'rgba(34,197,94,0.3)' : aiReview.viralPotential === 'medium' ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)'}`,
-                          }}>
-                          {aiReview.viralPotential} viral
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 space-y-4">
-                  {aiReview.strengths?.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold text-green-400 mb-2">✅ Strengths</p>
-                      <ul className="space-y-1">
-                        {aiReview.strengths.map((s: string, i: number) => (
-                          <li key={i} className="text-xs text-[#94A3B8]">• {s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {aiReview.improvements?.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold text-[#E50914] mb-2">💡 Improvements</p>
-                      <div className="space-y-2">
-                        {aiReview.improvements.map((imp: any, i: number) => (
-                          <div key={i} className="rounded-lg p-3" style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.12)' }}>
-                            <p className="text-xs font-semibold text-white mb-1 capitalize">{imp.field}</p>
-                            <p className="text-xs text-[#94A3B8] mb-1">{imp.issue}</p>
-                            <p className="text-xs text-[#C084FC]">→ {imp.suggestion}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {aiReview.engagementPrediction && (
-                    <div>
-                      <p className="text-xs font-bold text-[#94A3B8] mb-1">📊 Engagement Prediction</p>
-                      <p className="text-xs text-[#94A3B8]">{aiReview.engagementPrediction}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
           </div>
         )}
 
