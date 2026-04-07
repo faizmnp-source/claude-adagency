@@ -129,6 +129,15 @@ app.use('/api/products', async (req, res, next) => {
   }
 });
 
+app.use('/api/viral', async (req, res, next) => {
+  try {
+    const { default: viralRouter } = await import('./routes/viral.js');
+    viralRouter(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ── SSE: Real-time job progress ────────────────────────────────────────────
 app.get('/api/reels/:id/progress', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
