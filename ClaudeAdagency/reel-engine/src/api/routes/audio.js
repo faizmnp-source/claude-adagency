@@ -101,4 +101,48 @@ router.get('/quota', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/audio/music ─────────────────────────────────────────────────
+// Generate background music using Meta MusicGen on Replicate
+// This is the engine behind the Viral package's music feature
+// (Suno AI has no public API — MusicGen is used instead)
+router.post('/music', authMiddleware, async (req, res) => {
+  try {
+    if (!process.env.REPLICATE_API_TOKEN) {
+      return res.status(503).json({ error: 'REPLICATE_API_TOKEN not configured' });
+    }
+
+    const { prompt, duration = 20, tone = 'energetic', industry = 'ecommerce', reelId } = req.body;
+
+    const { generateBackgroundMusic, buildMusicPrompt } = await import('../../services/audio/musicGenerator.js');
+
+    const finalPrompt = prompt || buildMusicPrompt(null, { tone, industry });
+
+    logger.info('Generating background music on-demand', { prompt: finalPrompt.substring(0, 80), duration });
+
+    const tempPath = await generateBackgroundMusic({
+      prompt: finalPrompt,
+      duration: Math.min(parseInt(duration) || 20, 30),
+      reelId: reelId || `manual-${Date.now()}`,
+    });
+
+    // Stream MP3 back
+    const stat = await import('fs/promises').then(m => m.stat(tempPath));
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-Disposition', `attachment; filename="music-${reelId || 'bg'}.mp3"`);
+
+    const { createReadStream } = await import('fs');
+    const stream = createReadStream(tempPath);
+    stream.pipe(res);
+    stream.on('end', () => {
+      import('fs/promises').then(m => m.unlink(tempPath).catch(() => {}));
+    });
+
+    logger.info('Background music streamed to client', { size: stat.size });
+  } catch (err) {
+    logger.error('Music generation error', { err: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

@@ -517,7 +517,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
 
 // ── POST /api/reels/:id/stitch ────────────────────────────────────────────
 // Downloads Replicate clips + stitches with FFmpeg into one final MP4
-// Saves to disk and returns JSON { videoUrl } — does NOT stream bytes
+// Auto-adds ElevenLabs voice + MusicGen music based on package selection
 router.post('/:id/stitch', authMiddleware, async (req, res) => {
   const { id: reelId } = req.params;
   const tempFiles = [];
@@ -533,12 +533,19 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'No video clips found. Run generate-video first.' });
     }
 
-    logger.info('Stitching clips', { reelId, clipCount: clips.length });
+    // Determine audio features from package selection
+    const { VIDEO_PACKAGES } = await import('../../services/video/replicateGenerator.js');
+    const pkg = reel.package ? VIDEO_PACKAGES[reel.package] : null;
+    const wantVoice = pkg?.voice ?? false;
+    const wantMusic = pkg?.music ?? false;
+
+    logger.info('Stitching clips', { reelId, clipCount: clips.length, package: reel.package, wantVoice, wantMusic });
 
     const { downloadFile, tmpFile } = await import('../../utils/helpers.js');
-    const { mergeSceneClips, finalExport } = await import('../../services/video/ffmpegProcessor.js');
+    const { mergeSceneClips, addVoiceover, addBackgroundMusic, finalExport } = await import('../../services/video/ffmpegProcessor.js');
 
     const totalDuration = reel.totalDuration || reel.duration || null;
+    const audioMessages = [];
 
     // Download all clips to temp files
     const sceneClips = [];
@@ -551,34 +558,100 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
       sceneClips.push({ localPath, duration: clip.duration || 5 });
     }
 
-    // Stitch clips together
+    // Stitch clips together (silent video)
     await mergeSceneClips(sceneClips);
     tempFiles.push(tmpFile('merged-raw.mp4'));
     tempFiles.push(tmpFile('concat-list.txt'));
 
+    let currentVideoPath = tmpFile('merged-raw.mp4');
+
+    // ── Auto ElevenLabs Voiceover (Creator + Viral packages) ─────────────
+    if (wantVoice && process.env.ELEVENLABS_API_KEY) {
+      try {
+        logger.info('Auto-generating ElevenLabs voiceover', { reelId });
+        const script = reel.content?.script || reel.content?.voiceover || '';
+        if (script) {
+          const { generateVoiceover } = await import('../../services/audio/elevenlabs.js');
+          const voicePath = await generateVoiceover(script, reelId, {
+            stability: 0.45,
+            similarityBoost: 0.8,
+            style: 0.4,
+          });
+          tempFiles.push(voicePath);
+
+          const withVoicePath = await addVoiceover(currentVideoPath, voicePath);
+          tempFiles.push(withVoicePath);
+          currentVideoPath = withVoicePath;
+          audioMessages.push('✅ ElevenLabs AI voice added');
+          logger.info('Voiceover added to video', { reelId });
+        } else {
+          audioMessages.push('⚠️ Voice skipped — no script text found');
+        }
+      } catch (voiceErr) {
+        // Non-fatal — continue without voice
+        logger.warn('ElevenLabs voiceover failed (non-fatal)', { reelId, err: voiceErr.message });
+        audioMessages.push(`⚠️ Voice skipped: ${voiceErr.message}`);
+      }
+    } else if (wantVoice && !process.env.ELEVENLABS_API_KEY) {
+      audioMessages.push('⚠️ Voice skipped — ELEVENLABS_API_KEY not set');
+    }
+
+    // ── Auto Background Music (Viral package — MusicGen via Replicate) ───
+    if (wantMusic && process.env.REPLICATE_API_TOKEN) {
+      try {
+        logger.info('Auto-generating background music via MusicGen', { reelId });
+        const { generateBackgroundMusic, buildMusicPrompt } = await import('../../services/audio/musicGenerator.js');
+
+        const musicPrompt = buildMusicPrompt(reel.content, {
+          tone: reel.tone || 'energetic',
+          industry: reel.industryCode || 'ecommerce',
+        });
+
+        const musicDuration = Math.min(totalDuration || 30, 30); // MusicGen max 30s
+        const musicPath = await generateBackgroundMusic({
+          prompt: musicPrompt,
+          duration: musicDuration,
+          reelId,
+        });
+        tempFiles.push(musicPath);
+
+        // Duck music under voice (15% volume if voice present, 30% if music only)
+        const musicVolume = wantVoice ? 0.15 : 0.30;
+        const withMusicPath = await addBackgroundMusic(currentVideoPath, musicPath, musicVolume);
+        tempFiles.push(withMusicPath);
+        currentVideoPath = withMusicPath;
+        audioMessages.push('✅ AI background music added (MusicGen)');
+        logger.info('Background music added to video', { reelId });
+      } catch (musicErr) {
+        // Non-fatal — continue without music
+        logger.warn('MusicGen failed (non-fatal)', { reelId, err: musicErr.message });
+        audioMessages.push(`⚠️ Music skipped: ${musicErr.message}`);
+      }
+    } else if (wantMusic && !process.env.REPLICATE_API_TOKEN) {
+      audioMessages.push('⚠️ Music skipped — REPLICATE_API_TOKEN not set');
+    }
+
     // Final export — trim to exact reel duration + watermark + Instagram encoding
     const finalPath = await finalExport(
-      tmpFile('merged-raw.mp4'),
+      currentVideoPath,
       reelId,
       { watermarkText: 'thecraftstudios.in', trimTo: totalDuration }
     );
-    // Keep finalPath on disk — it's served via GET /:id/video
 
-    logger.info('Stitch complete, saving for playback', { reelId, finalPath });
+    logger.info('Stitch complete', { reelId, finalPath, audioMessages });
 
-    // Store final video path in Redis (48h TTL — long enough for client review)
+    // Store final video path in Redis (48h TTL)
     await redis.set(`reel:final:${reelId}`, finalPath, 'EX', 172800);
 
     // Update reel result with final ready flag
-    const updated = { ...reel, finalVideoReady: true, videoStatus: 'final_ready' };
+    const updated = { ...reel, finalVideoReady: true, videoStatus: 'final_ready', audioMessages };
     await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
 
-    // Clean up only intermediate temp files (not the final MP4)
+    // Clean up intermediate temp files (not the final MP4)
     for (const f of tempFiles) {
       await import('fs/promises').then(m => m.unlink(f).catch(() => {}));
     }
 
-    // Build the serve URL using the public API host
     const host = process.env.REEL_ENGINE_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
     const videoUrl = `${host}/api/reels/${reelId}/video`;
 
@@ -586,6 +659,7 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
       reelId,
       videoUrl,
       totalDuration,
+      audioMessages,
       message: 'Reel ready for review!',
     });
 

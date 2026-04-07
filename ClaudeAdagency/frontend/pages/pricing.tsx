@@ -58,7 +58,7 @@ const VIDEO_PACKAGES = [
     color: '#F59E0B',
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.35)',
-    features: ['Luma Dream Machine 1080p', 'ElevenLabs AI voice', 'Background music', 'Premium cinematic motion'],
+    features: ['Luma Dream Machine 1080p', 'ElevenLabs AI voice', 'MusicGen background music', 'Premium cinematic motion'],
     pricing: {
       duration15: { credits: 30 + 150,  inr: 360  },
       duration30: { credits: 60 + 300,  inr: 720  },
@@ -168,7 +168,7 @@ export default function PricingPage() {
                   </span>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${pkg.music ? 'text-green-400' : 'text-[#94A3B8]'}`}
                     style={{ background: pkg.music ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${pkg.music ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.1)'}` }}>
-                    {pkg.music ? '🎵 Music' : '🔕 No Music'}
+                    {pkg.music ? '🎵 MusicGen AI' : '🔕 No Music'}
                   </span>
                 </div>
 
@@ -252,6 +252,10 @@ export default function PricingPage() {
               {
                 q: 'Why is Luma cheaper than Wan 720p?',
                 a: 'Luma Dream Machine uses an efficient model architecture that produces 1080p output at a lower per-clip cost than Wan 720p. Quality isn\'t always correlated with price on Replicate.',
+              },
+              {
+                q: 'Is background music from Suno AI?',
+                a: 'Suno AI does not have a public API. Background music in the Viral package is generated using Meta\'s MusicGen model on Replicate — it produces high-quality, royalty-free instrumental tracks from a text prompt (e.g. "upbeat commercial product music").',
               },
               {
                 q: 'Can I test before committing to a package?',
