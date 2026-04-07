@@ -214,6 +214,31 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
   }
 });
 
+// ── GET /api/reels/packages — Video package info + pricing ───────────────
+// NOTE: Must be declared BEFORE /:id wildcard routes
+router.get('/packages', async (req, res) => {
+  try {
+    const { VIDEO_PACKAGES, MANUAL_MODELS, calcVideoCost } = await import('../../services/video/replicateGenerator.js');
+    const { duration = 30 } = req.query;
+    const dur = parseInt(duration) || 30;
+
+    const packages = Object.values(VIDEO_PACKAGES).map(pkg => ({
+      ...pkg,
+      pricing: calcVideoCost(pkg.id, null, dur),
+    }));
+
+    const manualModels = Object.entries(MANUAL_MODELS).map(([key, m]) => ({
+      key,
+      ...m,
+      pricing: calcVideoCost(null, key, dur),
+    }));
+
+    res.json({ packages, manualModels, duration: dur });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/reels/:id/status ─────────────────────────────────────────────
 router.get('/:id/status', authMiddleware, async (req, res) => {
   try {
@@ -390,7 +415,12 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     }
 
     const { id: reelId } = req.params;
-    const { quality } = req.body; // quality: 'budget' | 'default' | 'premium'
+    // package: 'starter' | 'creator' | 'viral'
+    // modelKey: manual model selection ('wan480p' | 'wan720p' | 'luma' | 'kling' | 'minimax')
+    // quality: legacy alias for modelKey
+    const { packageId, modelKey, quality } = req.body;
+
+    const { generateSceneClip, VIDEO_PACKAGES, calcVideoCost } = await import('../../services/video/replicateGenerator.js');
 
     // Build public URLs for saved temp images so Replicate can fetch them
     const savedPaths = await redis.get(`reel:images:${reelId}`);
@@ -408,44 +438,77 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     if (!stored) return res.status(404).json({ error: 'Reel not found — call /generate first' });
 
     const reel = JSON.parse(stored);
-    const totalDuration = reel.duration || 15; // stored reel duration in seconds
+    const totalDuration = reel.duration || 15;
+    const userId = req.user.id;
 
-    // Plan clips — Wan 2.1 generates 5s clips only
-    // 15s → [5,5,5]   30s → [5,5,5,5,5,5]   50s → 10×5s
-    const clipCount = Math.ceil(totalDuration / 5);
-    const clipPlan = Array(clipCount).fill(5);
+    // Resolve clip duration based on model (Minimax uses 6s, others 5s)
+    const pkg = packageId ? VIDEO_PACKAGES[packageId] : null;
+    const clipSec = pkg?.clipDurationSec || (modelKey === 'minimax' ? 6 : 5);
+    const clipCount = Math.ceil(totalDuration / clipSec);
+    const clipPlan = Array(clipCount).fill(clipSec);
 
-    logger.info('Clip plan', { reelId, totalDuration, clipPlan });
+    // Calculate video generation credit cost and check balance
+    const videoCost = calcVideoCost(packageId || null, modelKey || quality || 'wan720p', totalDuration);
 
-    const { generateSceneClip } = await import('../../services/video/replicateGenerator.js');
+    const { getUserCredits, deductCredits } = await import('../../services/credits/creditService.js');
+    const balance = await getUserCredits(userId);
+    if (balance < videoCost.credits) {
+      return res.status(402).json({
+        error: 'Insufficient credits for video generation',
+        required: videoCost.credits,
+        balance,
+        hint: `You need ${videoCost.credits} more credits. Buy more at /studio/credits`,
+      });
+    }
+
+    // Deduct video generation credits
+    await deductCredits(userId, videoCost.credits, `video-gen-${reelId}-${packageId || modelKey || 'default'}`);
+
+    logger.info('Clip plan', { reelId, totalDuration, clipPlan, packageId, modelKey, videoCost });
+
     const scenes = reel.content?.scenes || [];
 
     // Generate clips sequentially to respect Replicate rate limits
     const clips = [];
     for (let i = 0; i < clipPlan.length; i++) {
-      // Cycle through images for variety
       const imageUrl = imageUrls[i % imageUrls.length];
-      // Use matching scene prompt if available
       const scene = scenes[i] || scenes[scenes.length - 1];
       const prompt = scene?.replicatePrompt || scene?.description || reel.content?.script || 'product showcase, cinematic motion';
 
-      logger.info(`Generating clip ${i + 1}/${clipPlan.length} (${clipPlan[i]}s)`, { reelId });
+      logger.info(`Generating clip ${i + 1}/${clipPlan.length} (${clipPlan[i]}s)`, { reelId, packageId, modelKey });
       const clip = await generateSceneClip({
         imageUrl,
         prompt,
         durationSeconds: clipPlan[i],
         sceneNumber: i,
         reelId,
+        packageId,
+        modelKey,
         quality,
       });
       clips.push(clip);
     }
 
-    const updated = { ...reel, videoClips: clips, videoStatus: 'clips_ready', totalDuration };
+    const updated = {
+      ...reel,
+      videoClips: clips,
+      videoStatus: 'clips_ready',
+      totalDuration,
+      package: packageId,
+      modelKey: modelKey || quality,
+      videoCost,
+    };
     await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
 
-    logger.info('All video clips generated', { reelId, count: clips.length, totalDuration });
-    res.json({ reelId, videoClips: clips, totalDuration, message: `${clips.length} clips generated (${clipPlan.join('+')}s = ${totalDuration}s total)` });
+    logger.info('All video clips generated', { reelId, count: clips.length, totalDuration, packageId });
+    res.json({
+      reelId,
+      videoClips: clips,
+      totalDuration,
+      package: packageId,
+      videoCost,
+      message: `${clips.length} clips generated (${clipPlan.join('+')}s = ${totalDuration}s total)`,
+    });
   } catch (err) {
     logger.error('Video generation error', { err: err.message });
     res.status(500).json({ error: err.message });

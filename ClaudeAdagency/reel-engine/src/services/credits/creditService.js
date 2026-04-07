@@ -104,6 +104,20 @@ export async function initializeUserCredits(userId) {
 }
 
 /**
+ * Deduct a specific number of credits (for video generation, etc.)
+ * @param {string} userId
+ * @param {number} amount
+ * @param {string} reason
+ * @returns {Promise<number>} new balance
+ */
+export async function deductCredits(userId, amount, reason = 'debit') {
+  const newBalance = await redis.decrby(keys.userCredits(userId), amount);
+  await logTransaction(userId, 'debit', amount, { reason });
+  logger.info('Credits deducted', { userId, amount, newBalance, reason });
+  return newBalance;
+}
+
+/**
  * Refund credits (e.g., if generation failed)
  */
 export async function refundCredits(userId, amount, reelId) {

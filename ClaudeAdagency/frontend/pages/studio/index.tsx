@@ -99,6 +99,11 @@ export default function StudioPage() {
   const [notebookAudience, setNotebookAudience] = useState('');
   const [notebookFormat, setNotebookFormat] = useState('Key Concepts');
 
+  // ── Video quality / package selection ──
+  const [videoPackage, setVideoPackage]     = useState<string>('creator'); // starter|creator|viral
+  const [manualModelKey, setManualModelKey] = useState<string>('wan720p'); // manual model override
+  const [videoCostPreview, setVideoCostPreview] = useState<any>(null);
+
   // ── Viral trend panel (auto mode) ──
   const [viralTrends, setViralTrends]       = useState<any[]>([]);
   const [viralLoading, setViralLoading]     = useState(false);
@@ -147,6 +152,56 @@ export default function StudioPage() {
 
   const dropRef = useRef<HTMLDivElement>(null);
   const creditCost = duration * 2;
+
+  // ── Video package definitions (mirrors backend VIDEO_PACKAGES) ──────────
+  const VIDEO_PACKAGES_FRONTEND = {
+    starter: {
+      id: 'starter', name: '💰 Starter', tagline: 'Fast & Budget-Friendly',
+      resolution: '480p', voice: false, music: false,
+      color: '#10B981',
+      features: ['Wan 2.1 480p', 'Fast (~3 min)', 'No voice/music'],
+      creditsPerSecond: 4,
+    },
+    creator: {
+      id: 'creator', name: '⚡ Creator', tagline: 'Professional Quality',
+      resolution: '720p', voice: true, music: false,
+      color: '#4A6CF7',
+      features: ['Wan 2.1 720p', 'ElevenLabs Voice', '~5 min'],
+      creditsPerSecond: 8,
+    },
+    viral: {
+      id: 'viral', name: '🚀 Viral', tagline: 'Maximum Impact',
+      resolution: '1080p', voice: true, music: true,
+      color: '#F59E0B',
+      features: ['Luma Dream Machine', 'Voice + Music', '~7 min'],
+      creditsPerSecond: 10,
+    },
+  } as const;
+
+  const MANUAL_MODELS_FRONTEND = [
+    { key: 'wan480p', label: '💰 Wan 480p',         usdPerClip: 0.22, res: '480p' },
+    { key: 'wan720p', label: '⚡ Wan 720p',         usdPerClip: 0.45, res: '720p' },
+    { key: 'luma',    label: '🚀 Luma Dream Machine', usdPerClip: 0.19, res: '1080p' },
+    { key: 'kling',   label: '🎬 Kling v2.5 Pro',   usdPerClip: 0.35, res: '1080p' },
+    { key: 'minimax', label: '✨ Minimax Hailuo',    usdPerClip: 0.28, res: '720p' },
+  ];
+
+  /** Calculate video credit cost for selected package / model */
+  const calcVideoCredits = (pkgId: string | null, mKey: string | null, dur: number) => {
+    const USD_TO_INR = 85;
+    const CREDIT_TO_INR = 2;
+    if (pkgId && VIDEO_PACKAGES_FRONTEND[pkgId as keyof typeof VIDEO_PACKAGES_FRONTEND]) {
+      const pkg = VIDEO_PACKAGES_FRONTEND[pkgId as keyof typeof VIDEO_PACKAGES_FRONTEND];
+      return {
+        credits: pkg.creditsPerSecond * dur,
+        inr: pkg.creditsPerSecond * dur * CREDIT_TO_INR,
+      };
+    }
+    const model = MANUAL_MODELS_FRONTEND.find(m => m.key === mKey) || MANUAL_MODELS_FRONTEND[1];
+    const clips = Math.ceil(dur / 5);
+    const inr = Math.round(clips * model.usdPerClip * USD_TO_INR);
+    return { credits: Math.ceil(inr / CREDIT_TO_INR), inr };
+  };
 
   // ── On load ──
   useEffect(() => {
@@ -289,7 +344,11 @@ export default function StudioPage() {
       const videoRes = await fetch(`${REEL_ENGINE_URL}/api/reels/${reelId}/generate-video`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
-        body: JSON.stringify({ quality: 'default' }),
+        body: JSON.stringify(
+          mode === 'manual'
+            ? { modelKey: manualModelKey }
+            : { packageId: videoPackage }
+        ),
       });
 
       if (!videoRes.ok) {
@@ -614,7 +673,12 @@ export default function StudioPage() {
               style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
               onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
-            >Social Media Services →</Link>
+            >Services →</Link>
+            <Link href="/pricing"
+              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+            >Pricing →</Link>
           </div>
 
           <div className="flex items-center gap-3">
@@ -777,6 +841,42 @@ export default function StudioPage() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Manual Video Model Selector */}
+                {contentType === 'video' && (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-2 block">🎬 Video Model</label>
+                    <div className="space-y-2">
+                      {MANUAL_MODELS_FRONTEND.map(m => {
+                        const cost = calcVideoCredits(null, m.key, duration);
+                        const isSelected = manualModelKey === m.key;
+                        return (
+                          <button
+                            key={m.key}
+                            onClick={() => setManualModelKey(m.key)}
+                            className="w-full rounded-xl p-3 text-left flex items-center justify-between transition-all"
+                            style={{
+                              background: isSelected ? 'rgba(229,9,20,0.08)' : 'rgba(255,255,255,0.03)',
+                              border: `1px solid ${isSelected ? 'rgba(229,9,20,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                            }}
+                          >
+                            <div>
+                              <span className="font-bold text-white text-sm">{m.label}</span>
+                              <span className="text-xs text-[#94A3B8] ml-2">{m.res}</span>
+                            </div>
+                            <div className="text-right text-xs">
+                              <div className="font-bold text-white">+{cost.credits} cr</div>
+                              <div className="text-[#94A3B8]">≈₹{cost.inr}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-[#94A3B8] mt-2">
+                      Script: {creditCost} cr + Video: {calcVideoCredits(null, manualModelKey, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(null, manualModelKey, duration).credits} total</strong>
+                    </p>
                   </div>
                 )}
 
@@ -1006,6 +1106,49 @@ export default function StudioPage() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* ── Video Package Selector (express video mode) ── */}
+                {contentType === 'video' && (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">Video Quality Package</label>
+                    <div className="space-y-2">
+                      {Object.values(VIDEO_PACKAGES_FRONTEND).map(pkg => {
+                        const cost = calcVideoCredits(pkg.id, null, duration);
+                        const isSelected = videoPackage === pkg.id;
+                        return (
+                          <button
+                            key={pkg.id}
+                            onClick={() => setVideoPackage(pkg.id)}
+                            className="w-full rounded-xl p-3 text-left transition-all"
+                            style={{
+                              background: isSelected ? `${pkg.color}15` : 'rgba(255,255,255,0.03)',
+                              border: `1px solid ${isSelected ? pkg.color : 'rgba(255,255,255,0.08)'}`,
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="font-bold text-white text-sm">{pkg.name}</span>
+                                <span className="text-xs ml-2" style={{ color: pkg.color }}>{pkg.tagline}</span>
+                              </div>
+                              <div className="text-right text-xs">
+                                <div className="font-bold text-white">+{cost.credits} cr</div>
+                                <div className="text-[#94A3B8]">≈₹{cost.inr}</div>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {pkg.features.map(f => (
+                                <span key={f} className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: `${pkg.color}20`, color: pkg.color }}>{f}</span>
+                              ))}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-[#94A3B8] mt-2">
+                      Script: {creditCost} cr + Video: {calcVideoCredits(videoPackage, null, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(videoPackage, null, duration).credits} total credits</strong>
+                    </p>
                   </div>
                 )}
 
@@ -1416,6 +1559,49 @@ export default function StudioPage() {
                     </div>
                   )}
                 </div>
+
+                {/* ── Video Package Selector (auto video mode) ── */}
+                {contentType === 'video' && (
+                  <div>
+                    <label className="text-sm text-[#94A3B8] mb-3 block">🎬 Select Video Package</label>
+                    <div className="space-y-2">
+                      {Object.values(VIDEO_PACKAGES_FRONTEND).map(pkg => {
+                        const cost = calcVideoCredits(pkg.id, null, duration);
+                        const isSelected = videoPackage === pkg.id;
+                        return (
+                          <button
+                            key={pkg.id}
+                            onClick={() => setVideoPackage(pkg.id)}
+                            className="w-full rounded-xl p-3 text-left transition-all"
+                            style={{
+                              background: isSelected ? `${pkg.color}15` : 'rgba(255,255,255,0.03)',
+                              border: `1px solid ${isSelected ? pkg.color : 'rgba(255,255,255,0.08)'}`,
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="font-bold text-white text-sm">{pkg.name}</span>
+                                <span className="text-xs ml-2" style={{ color: pkg.color }}>{pkg.tagline}</span>
+                              </div>
+                              <div className="text-right text-xs">
+                                <div className="font-bold text-white">+{cost.credits} cr</div>
+                                <div className="text-[#94A3B8]">≈₹{cost.inr}</div>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {pkg.features.map(f => (
+                                <span key={f} className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: `${pkg.color}20`, color: pkg.color }}>{f}</span>
+                              ))}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-[#94A3B8] mt-2">
+                      Script: {creditCost} cr + Video: {calcVideoCredits(videoPackage, null, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(videoPackage, null, duration).credits} total credits</strong>
+                    </p>
+                  </div>
+                )}
 
                 {/* Generate button */}
                 {contentType === 'video' ? (
