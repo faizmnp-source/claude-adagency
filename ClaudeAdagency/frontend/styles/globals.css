@@ -40,8 +40,8 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Space Grotesk', sans-serif;
-  background: #F9F7F3;
-  color: #0A0A0A;
+  background: #050B18;
+  color: #FFFFFF;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;

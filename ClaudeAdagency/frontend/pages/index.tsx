@@ -1,14 +1,7 @@
 /**
- * TheCraftStudios — Cinematic Homepage
- *
- * Skills applied:
- *   • landing-page-generator  → Section patterns (Hero, Feature Grid, CTA, Footer)
- *   • viral-reel-director     → Attention-grabbing H1, pain-point hooks, CTA copy
- *   • scroll-experience       → Parallax hero, animated counters, staggered reveals
- *   • frontend-design         → Red/black cinematic aesthetic, Bebas Neue display
- *
+ * TheCraftStudios — Homepage (Dark Space Theme)
  * Pages Router → pages/index.tsx
- * Colors: bg #0A0A0A | accent #E50914 (Netflix red) | text #FFFFFF / #E8E8E8
+ * Colors: bg #050B18 (deep space) | accent #E50914 (brand red) | text #FFFFFF
  */
 
 import Head from 'next/head';
@@ -19,15 +12,15 @@ import { ScrollReveal } from '../components/ScrollReveal';
 import { AnimatedCounter } from '../components/AnimatedCounter';
 
 /* ─── Palette ────────────────────────────────── */
-const R = '#E50914';           // Netflix red — flat, no shine
-const R_GLOW = 'rgba(229,9,20,0.18)';      // very subtle, only for borders
-const R_GLOW_SOFT = 'rgba(229,9,20,0.08)'; // near invisible glow
-const BG = '#F9F7F3';
-const BG2 = '#F0EDE6';
-const BG3 = '#FFFFFF';
-const TEXT = '#0A0A0A';
-const TEXT2 = '#1A1A1A';
-const MUTED = '#64748B';
+const R      = '#E50914';                      // brand red
+const R_DIM  = 'rgba(229,9,20,0.15)';
+const R_SOFT = 'rgba(229,9,20,0.08)';
+const BG     = '#050B18';                      // deep space
+const BG2    = '#0A0F1E';                      // slightly lighter dark
+const BG3    = '#0D1628';                      // card bg
+const TEXT   = '#FFFFFF';
+const TEXT2  = '#E2E8F0';
+const MUTED  = '#94A3B8';
 
 /* ─── Inline SVG icons ───────────────────────── */
 const Ic = {
@@ -80,15 +73,16 @@ const Ic = {
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   ),
-  linkedin: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>,
+  linkedin:  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>,
   instagram: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>,
-  twitter: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>,
+  twitter:   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>,
 };
 
 /* ─── Nav links ──────────────────────────────── */
 const NAV = [
   { href: '/', label: 'Home' },
   { href: '/services', label: 'Services' },
+  { href: '/pricing', label: 'Pricing' },
   { href: '/studio', label: 'AI Studio' },
   { href: '/contact', label: 'Contact' },
 ];
@@ -99,21 +93,18 @@ const NAV = [
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [hovCard, setHovCard] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  /* Scroll-based nav glass */
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', fn);
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  /* Parallax hero bg */
   useEffect(() => {
     const onScroll = () => {
       if (heroRef.current) {
-        heroRef.current.style.backgroundPositionY = `${window.scrollY * 0.4}px`;
+        heroRef.current.style.backgroundPositionY = `${window.scrollY * 0.3}px`;
       }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -123,17 +114,17 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>The Craft Studio | Your Complete Digital Platform</title>
-        <meta name="description" content="Build websites, apps, SaaS, social media & more in one place. India's #1 cinematic digital agency." />
+        <title>TheCraftStudios | AI Reels & Digital Platform — India</title>
+        <meta name="description" content="AI-powered Instagram Reels, web development, branding & SaaS for Indian businesses. Build your entire digital presence in one place." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href="https://thecraftstudios.in" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="The Craft Studio | Your Complete Digital Platform" />
-        <meta property="og:description" content="Build websites, apps, SaaS, social media & more in one place." />
+        <meta property="og:title" content="TheCraftStudios | AI Reels & Digital Platform" />
+        <meta property="og:description" content="AI-powered Instagram Reels, web development, branding & SaaS for Indian businesses." />
         <meta property="og:image" content="https://thecraftstudios.in/homepage.png" />
         <meta property="og:url" content="https://thecraftstudios.in" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="The Craft Studio | Complete Digital Platform" />
+        <meta name="twitter:title" content="TheCraftStudios | Complete Digital Platform" />
         <meta name="twitter:image" content="https://thecraftstudios.in/homepage.png" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           '@context': 'https://schema.org', '@type': 'Organization',
@@ -142,39 +133,34 @@ export default function HomePage() {
           address: { '@type': 'PostalAddress', addressCountry: 'IN' },
           contactPoint: { '@type': 'ContactPoint', email: 'info@thecraftstudios.in' },
         })}} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
 
       <div style={{ background: BG, color: TEXT, fontFamily: "'Inter', sans-serif", minHeight: '100vh', overflowX: 'hidden' }}>
 
-        {/* ══════════════════════════════
-            NAV
-        ══════════════════════════════ */}
+        {/* ══ NAV ══ */}
         <header style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: scrolled ? 'rgba(249,247,243,0.97)' : 'rgba(249,247,243,0.85)',
-          borderBottom: scrolled ? `1px solid rgba(229,9,20,0.18)` : '1px solid rgba(0,0,0,0.06)',
-          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          background: scrolled ? 'rgba(5,11,24,0.97)' : 'rgba(5,11,24,0.80)',
+          borderBottom: scrolled ? '1px solid rgba(229,9,20,0.25)' : '1px solid rgba(255,255,255,0.04)',
+          backdropFilter: scrolled ? 'blur(20px)' : 'blur(8px)',
           transition: 'all 0.3s',
         }}>
-          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '0 24px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
               <Logo variant="horizontal" size="medium" color="color" />
             </Link>
 
-            <nav className="cs-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
+            <nav className="cs-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
               {NAV.map(({ href, label }) => (
-                <Link key={href} href={href} style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(15,15,15,0.6)', textDecoration: 'none', transition: 'color 0.2s', letterSpacing: '0.04em' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = R)}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(15,15,15,0.6)')}
+                <Link key={href} href={href} style={{ fontSize: '14px', fontWeight: 500, color: MUTED, textDecoration: 'none', transition: 'color 0.2s', letterSpacing: '0.04em' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = TEXT)}
+                  onMouseLeave={e => (e.currentTarget.style.color = MUTED)}
                 >{label}</Link>
               ))}
-              <Link href="/services" style={{ padding: '10px 24px', borderRadius: '4px', background: R, color: TEXT, fontSize: '13px', fontWeight: 700, textDecoration: 'none', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', transition: 'all 0.2s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-              >GET STARTED</Link>
+              <Link href="/studio" style={{ padding: '10px 22px', borderRadius: '6px', background: R, color: '#fff', fontSize: '13px', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.06em', transition: 'all 0.2s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+              >Try for Free</Link>
             </nav>
 
             <button onClick={() => setMobileOpen(!mobileOpen)} className="cs-burger" style={{ background: 'none', border: 'none', color: TEXT, cursor: 'pointer', padding: '4px' }}>
@@ -185,48 +171,41 @@ export default function HomePage() {
           </div>
 
           {mobileOpen && (
-            <div style={{ background: 'rgba(249,247,243,0.99)', borderTop: `1px solid rgba(229,9,20,0.12)`, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ background: 'rgba(5,11,24,0.98)', borderTop: '1px solid rgba(229,9,20,0.15)', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {NAV.map(({ href, label }) => (
-                <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{ fontSize: '16px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none' }}>{label}</Link>
+                <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{ fontSize: '16px', fontWeight: 500, color: TEXT2, textDecoration: 'none' }}>{label}</Link>
               ))}
-              <Link href="/services" onClick={() => setMobileOpen(false)} style={{ marginTop: '8px', padding: '14px 24px', background: R, color: TEXT, fontSize: '15px', fontWeight: 700, textDecoration: 'none', textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
-                GET STARTED
+              <Link href="/studio" onClick={() => setMobileOpen(false)} style={{ marginTop: '8px', padding: '14px 24px', background: R, color: '#fff', fontSize: '15px', fontWeight: 700, textDecoration: 'none', textAlign: 'center', borderRadius: '6px', letterSpacing: '0.06em' }}>
+                Try for Free
               </Link>
             </div>
           )}
         </header>
 
-        {/* ══════════════════════════════
-            HERO — Cinematic full-viewport
-            skill: landing-page-generator (hero centered)
-            skill: viral-reel-director (headline hooks)
-            skill: scroll-experience (parallax)
-        ══════════════════════════════ */}
+        {/* ══ HERO ══ */}
         <section ref={heroRef} style={{
           position: 'relative', minHeight: '100vh',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          overflow: 'hidden', paddingTop: '72px',
-          background: `radial-gradient(ellipse at 50% 40%, #EDEBE5 0%, ${BG} 65%)`,
+          overflow: 'hidden', paddingTop: '80px',
+          background: `radial-gradient(ellipse at 50% 40%, #0D1A3A 0%, ${BG} 70%)`,
         }}>
-          {/* Dramatic red radial glow — center BG */}
-          <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%)', width: '900px', height: '700px', background: `radial-gradient(ellipse, rgba(229,9,20,0.14) 0%, transparent 65%)`, pointerEvents: 'none' }} />
+          {/* Red center glow */}
+          <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%)', width: '900px', height: '600px', background: `radial-gradient(ellipse, rgba(229,9,20,0.10) 0%, transparent 65%)`, pointerEvents: 'none' }} />
           {/* Top vignette */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '200px', background: `linear-gradient(to bottom, ${BG}, transparent)`, pointerEvents: 'none' }} />
           {/* Bottom fade */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '200px', background: `linear-gradient(to bottom, transparent, ${BG})`, pointerEvents: 'none' }} />
-          {/* Red particles (CSS only) */}
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(1.5px 1.5px at 12% 18%, rgba(229,9,20,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 88% 22%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(2px 2px at 50% 70%, rgba(229,9,20,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 75% 60%, rgba(229,9,20,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 40% 40%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 65% 10%, rgba(229,9,20,0.4) 0%, transparent 100%)`, pointerEvents: 'none' }} />
+          {/* Star particles */}
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(1.5px 1.5px at 12% 18%, rgba(229,9,20,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 88% 22%, rgba(255,255,255,0.4) 0%, transparent 100%), radial-gradient(2px 2px at 50% 70%, rgba(229,9,20,0.4) 0%, transparent 100%), radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.3) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 75% 60%, rgba(229,9,20,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 40% 40%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 65% 10%, rgba(229,9,20,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 20% 55%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 92% 80%, rgba(255,255,255,0.3) 0%, transparent 100%)`, pointerEvents: 'none' }} />
 
-          {/* Content */}
           <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 24px', maxWidth: '960px', margin: '0 auto' }}>
 
-            {/* Eyebrow */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 20px', border: `1px solid rgba(229,9,20,0.45)`, background: 'rgba(229,9,20,0.06)', borderRadius: '2px', marginBottom: '36px' }}>
+            {/* Eyebrow badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 20px', border: `1px solid rgba(229,9,20,0.45)`, background: 'rgba(229,9,20,0.08)', borderRadius: '4px', marginBottom: '36px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: R, display: 'inline-block', animation: 'redPulse 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: R }}>India's Premier Digital Agency</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: R }}>India's Premier AI Creative Studio</span>
             </div>
 
-            {/* H1 — viral-reel-director: massive impact opener */}
             <h1 style={{
               fontFamily: "'Bebas Neue', sans-serif",
               fontSize: 'clamp(64px, 10vw, 108px)',
@@ -239,71 +218,62 @@ export default function HomePage() {
               <span style={{ color: R }}>DIGITAL PLATFORM</span>
             </h1>
 
-            {/* Subheading — Bebas Neue, red accent */}
-            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(18px, 3vw, 26px)', letterSpacing: '4px', color: 'rgba(15,15,15,0.55)', marginBottom: '24px' }}>
-              WEBSITE &nbsp;•&nbsp; APP &nbsp;•&nbsp; SAAS &nbsp;•&nbsp; SOCIAL &nbsp;•&nbsp; EVERYTHING
+            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(16px, 3vw, 24px)', letterSpacing: '4px', color: 'rgba(255,255,255,0.45)', marginBottom: '24px' }}>
+              REELS &nbsp;•&nbsp; WEBSITES &nbsp;•&nbsp; APPS &nbsp;•&nbsp; BRANDING &nbsp;•&nbsp; AI AUTOMATION
             </p>
 
-            {/* Hook — viral-reel-director: pain-point awareness */}
-            <p style={{ fontSize: 'clamp(16px, 2vw, 19px)', color: TEXT2, lineHeight: 1.65, maxWidth: '600px', margin: '0 auto 48px', fontWeight: 400 }}>
+            <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: TEXT2, lineHeight: 1.65, maxWidth: '580px', margin: '0 auto 48px', fontWeight: 400, opacity: 0.85 }}>
               Stop juggling 10 different tools.{' '}
               <strong style={{ color: TEXT, fontWeight: 600 }}>Build your entire digital ecosystem in one place.</strong>
             </p>
 
-            {/* CTAs */}
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/services" style={{
+              <Link href="/studio" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '10px',
-                padding: '18px 48px',
-                background: R, color: TEXT,
-                fontSize: '16px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
-                textDecoration: 'none',
-                transition: 'all 0.25s',
-                borderRadius: '2px',
+                padding: '16px 44px',
+                background: R, color: '#fff',
+                fontSize: '15px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
+                textDecoration: 'none', transition: 'all 0.25s', borderRadius: '4px',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 30px rgba(229,9,20,0.4)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
               >
-                START BUILDING NOW
+                START CREATING NOW
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
 
               <Link href="/contact" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '10px',
-                padding: '18px 40px',
+                padding: '16px 40px',
                 background: 'transparent', color: R,
-                fontSize: '16px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
+                fontSize: '15px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
                 textDecoration: 'none',
                 border: `2px solid ${R}`,
-                borderRadius: '2px',
+                borderRadius: '4px',
                 transition: 'all 0.25s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.08)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = R_SOFT; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
               >
                 SCHEDULE DEMO
               </Link>
             </div>
 
             {/* Scroll nudge */}
-            <div style={{ marginTop: '64px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', opacity: 0.4 }}>
+            <div style={{ marginTop: '72px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', opacity: 0.35 }}>
               <div style={{ width: '1px', height: '40px', background: `linear-gradient(to bottom, transparent, ${R})` }} />
               <span style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: R }}>Scroll</span>
             </div>
           </div>
         </section>
 
-        {/* ══════════════════════════════
-            TRUST SIGNALS
-            skill: scroll-experience (animated counters)
-            skill: landing-page-generator (grid pattern)
-        ══════════════════════════════ */}
-        <section style={{ background: '#FFFFFF', boxShadow: '0 2px 30px rgba(0,0,0,0.06)', borderTop: `1px solid rgba(229,9,20,0.12)`, borderBottom: `1px solid rgba(229,9,20,0.12)`, padding: '64px 24px' }}>
+        {/* ══ TRUST SIGNALS ══ */}
+        <section style={{ background: BG3, borderTop: `1px solid rgba(229,9,20,0.15)`, borderBottom: `1px solid rgba(229,9,20,0.15)`, padding: '64px 24px' }}>
           <div style={{ maxWidth: '960px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', textAlign: 'center' }}>
             {[
               { icon: Ic.briefcase, target: 500, suffix: '+', label: 'Digital Platforms Built' },
-              { icon: Ic.zap, target: 10000, suffix: '+', label: 'Content Pieces Created' },
-              { icon: Ic.trending, target: 50, prefix: '₹', suffix: 'M+', label: 'Client Revenue Generated' },
+              { icon: Ic.zap,       target: 10000, suffix: '+', label: 'Content Pieces Created' },
+              { icon: Ic.trending,  target: 50, prefix: '₹', suffix: 'M+', label: 'Client Revenue Generated' },
             ].map((s, i) => (
               <ScrollReveal key={i} delay={i * 120} direction="up">
                 <div style={{ color: R, display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
@@ -318,16 +288,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ══════════════════════════════
-            SERVICES — 3 Cards
-            skill: landing-page-generator (feature grid)
-            skill: scroll-experience (staggered reveal)
-        ══════════════════════════════ */}
+        {/* ══ SERVICES ══ */}
         <section style={{ padding: '100px 24px', background: BG }}>
           <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
 
             <ScrollReveal direction="up" style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', border: `1px solid rgba(229,9,20,0.35)`, background: 'rgba(229,9,20,0.05)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: R, marginBottom: '20px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 18px', border: `1px solid rgba(229,9,20,0.35)`, background: R_SOFT, fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: R, marginBottom: '20px', borderRadius: '4px' }}>
                 <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: R, display: 'inline-block' }} />
                 What We Build
               </div>
@@ -336,7 +302,6 @@ export default function HomePage() {
               </h2>
             </ScrollReveal>
 
-            {/* 3-card grid */}
             <div className="cs-services-grid">
               {[
                 {
@@ -347,8 +312,8 @@ export default function HomePage() {
                 },
                 {
                   icon: Ic.trending, title: 'SOCIAL MEDIA\n& DIGITAL',
-                  desc: 'Instagram Reels, campaigns, and content that drives real engagement',
-                  features: ['Instagram Reels & Auto-Post', 'Paid Campaign Strategy', 'Real-Time Analytics'],
+                  desc: 'Instagram Reels, campaigns, and AI-generated content that drives real engagement',
+                  features: ['AI Instagram Reels & Auto-Post', 'Paid Campaign Strategy', 'Real-Time Analytics'],
                   link: '/services/instagram-reels', featured: true,
                 },
                 {
@@ -362,94 +327,64 @@ export default function HomePage() {
                   <Link href={svc.link} style={{ display: 'block', textDecoration: 'none', height: '100%' }}>
                     <div style={{
                       padding: svc.featured ? '44px 36px' : '36px 30px',
-                      background: BG,
-                      border: svc.featured ? `2px solid ${R}` : `1px solid rgba(0,0,0,0.08)`,
+                      background: svc.featured ? 'rgba(229,9,20,0.05)' : BG3,
+                      border: svc.featured ? `2px solid ${R}` : `1px solid rgba(255,255,255,0.06)`,
                       borderLeft: !svc.featured ? `4px solid ${R}` : undefined,
-                      borderRadius: '0',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
+                      borderRadius: '4px',
+                      position: 'relative', overflow: 'hidden', cursor: 'pointer',
                       transform: svc.featured ? 'translateY(-16px)' : 'none',
-                      boxShadow: svc.featured ? `0 0 40px rgba(229,9,20,0.25), 0 0 80px rgba(229,9,20,0.08)` : '0 2px 16px rgba(0,0,0,0.06)',
+                      boxShadow: svc.featured ? `0 0 40px rgba(229,9,20,0.20), 0 0 80px rgba(229,9,20,0.06)` : 'none',
                       transition: 'all 0.3s ease',
                       height: '100%',
                     }}
                       onMouseEnter={e => {
                         const el = e.currentTarget as HTMLElement;
-                        el.style.boxShadow = svc.featured
-                          ? `0 0 60px rgba(229,9,20,0.5), 0 0 120px rgba(229,9,20,0.15)`
-                          : `0 0 35px rgba(229,9,20,0.2)`;
-                        el.style.transform = svc.featured ? 'translateY(-20px) scale(1.02)' : 'scale(1.05) translateY(-4px)';
-                        el.style.border = `${svc.featured ? '2px' : '1px'} solid ${R}`;
+                        el.style.boxShadow = svc.featured ? `0 0 60px rgba(229,9,20,0.4)` : `0 0 30px rgba(229,9,20,0.15)`;
+                        el.style.transform = svc.featured ? 'translateY(-20px) scale(1.02)' : 'scale(1.03) translateY(-4px)';
+                        el.style.borderColor = R;
                       }}
                       onMouseLeave={e => {
                         const el = e.currentTarget as HTMLElement;
-                        el.style.boxShadow = svc.featured ? `0 0 40px rgba(229,9,20,0.25)` : 'none';
+                        el.style.boxShadow = svc.featured ? `0 0 40px rgba(229,9,20,0.20)` : 'none';
                         el.style.transform = svc.featured ? 'translateY(-16px)' : 'none';
-                        el.style.border = svc.featured ? `2px solid ${R}` : `1px solid rgba(0,0,0,0.08)`;
+                        el.style.borderColor = svc.featured ? R : 'rgba(255,255,255,0.06)';
                         if (!svc.featured) el.style.borderLeft = `4px solid ${R}`;
                       }}
                     >
-                      {/* Inner glow for featured */}
                       {svc.featured && (
-                        <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '280px', height: '160px', background: `radial-gradient(ellipse, rgba(229,9,20,0.1) 0%, transparent 70%)`, pointerEvents: 'none' }} />
+                        <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '280px', height: '160px', background: `radial-gradient(ellipse, rgba(229,9,20,0.08) 0%, transparent 70%)`, pointerEvents: 'none' }} />
                       )}
-
-                      {/* Core badge */}
                       {svc.featured && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid rgba(229,9,20,0.5)`, background: 'rgba(229,9,20,0.08)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: R, marginBottom: '20px' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid rgba(229,9,20,0.5)`, background: R_SOFT, fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: R, marginBottom: '20px', borderRadius: '4px' }}>
                           ⭐ Core Service
                         </div>
                       )}
-
-                      {/* Icon */}
-                      <div style={{
-                        width: svc.featured ? '64px' : '56px',
-                        height: svc.featured ? '64px' : '56px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.25)`,
-                        color: R, marginBottom: '24px',
-                        boxShadow: svc.featured ? `0 0 20px ${R_GLOW_SOFT}` : 'none',
-                      }}>
+                      <div style={{ width: svc.featured ? '64px' : '56px', height: svc.featured ? '64px' : '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: R_SOFT, border: `1px solid rgba(229,9,20,0.25)`, color: R, marginBottom: '24px', borderRadius: '4px' }}>
                         {svc.icon}
                       </div>
-
-                      {/* Title */}
-                      <h3 style={{
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: svc.featured ? '30px' : '26px',
-                        letterSpacing: '3px',
-                        color: TEXT,
-                        marginBottom: '14px',
-                        lineHeight: 1.15,
-                        whiteSpace: 'pre-line',
-                      }}>
+                      <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: svc.featured ? '30px' : '26px', letterSpacing: '3px', color: TEXT, marginBottom: '14px', lineHeight: 1.15, whiteSpace: 'pre-line' }}>
                         {svc.featured
                           ? svc.title.split('\n').map((line, li) => (
                             <span key={li} style={{ display: 'block', color: li === 1 ? R : TEXT }}>{line}</span>
                           ))
                           : svc.title.replace('\n', ' ')}
                       </h3>
-
                       <p style={{ fontSize: '14px', color: MUTED, lineHeight: 1.7, marginBottom: '20px' }}>{svc.desc}</p>
-
                       <ul style={{ listStyle: 'none', marginBottom: '28px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {svc.features.map((f, fi) => (
-                          <li key={fi} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: svc.featured ? TEXT2 : MUTED }}>
+                          <li key={fi} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: TEXT2 }}>
                             <span style={{ color: R, flexShrink: 0 }}>{Ic.check}</span>{f}
                           </li>
                         ))}
                       </ul>
-
                       <div style={{
                         display: 'inline-flex', alignItems: 'center', gap: '8px',
                         padding: svc.featured ? '13px 28px' : '11px 22px',
-                        background: svc.featured ? R : 'rgba(229,9,20,0.06)',
-                        color: svc.featured ? TEXT : R,
+                        background: svc.featured ? R : R_SOFT,
+                        color: svc.featured ? '#fff' : R,
                         fontSize: '13px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em',
                         border: svc.featured ? 'none' : `1px solid rgba(229,9,20,0.3)`,
-                        transition: 'all 0.2s',
-                        boxShadow: svc.featured ? `0 0 20px ${R_GLOW}` : 'none',
+                        borderRadius: '4px', transition: 'all 0.2s',
                       }}>
                         {svc.featured ? 'GET STARTED' : 'EXPLORE SERVICE'}
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -462,14 +397,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ══════════════════════════════
-            BENEFITS — 4 Cards
-            skill: landing-page-generator (feature grid)
-            skill: scroll-experience (staggered scale+fade)
-        ══════════════════════════════ */}
+        {/* ══ WHY US ══ */}
         <section style={{ padding: '100px 24px', background: BG2 }}>
           <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
-
             <ScrollReveal direction="up" style={{ textAlign: 'center', marginBottom: '64px' }}>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 6vw, 72px)', letterSpacing: '4px', color: TEXT, marginBottom: '16px' }}>
                 WHY <span style={{ color: R }}>CRAFT STUDIO</span>
@@ -481,32 +411,34 @@ export default function HomePage() {
 
             <div className="cs-benefits-grid">
               {[
-                { icon: Ic.palette, title: 'DONE-FOR-YOU DESIGN', body: 'Premium designs that convert, without the premium price tag' },
-                { icon: Ic.sparkles, title: 'AI-POWERED CREATION', body: 'Let AI accelerate your content pipeline, stay human in your messaging' },
-                { icon: Ic.dashboard, title: 'ONE DASHBOARD', body: 'Manage websites, apps, campaigns, and analytics in one place' },
-                { icon: Ic.zap, title: 'LIGHTNING DEPLOYMENT', body: 'From concept to live in 24 hours, not months' },
+                { icon: Ic.palette,   title: 'DONE-FOR-YOU DESIGN',    body: 'Premium designs that convert, without the premium price tag' },
+                { icon: Ic.sparkles,  title: 'AI-POWERED CREATION',    body: 'Let AI accelerate your content pipeline, stay human in your messaging' },
+                { icon: Ic.dashboard, title: 'ONE DASHBOARD',          body: 'Manage websites, apps, campaigns, and analytics in one place' },
+                { icon: Ic.zap,       title: 'LIGHTNING DEPLOYMENT',   body: 'From concept to live in 24 hours, not months' },
               ].map((b, i) => (
                 <ScrollReveal key={i} delay={i * 80} direction="up">
                   <div style={{
                     padding: '36px 28px',
                     background: BG3,
                     borderTop: `3px solid ${R}`,
+                    borderRadius: '0 0 4px 4px',
                     position: 'relative',
                     transition: 'all 0.3s ease',
                     cursor: 'default',
+                    border: `1px solid rgba(255,255,255,0.05)`,
                   }}
                     onMouseEnter={e => {
                       const el = e.currentTarget as HTMLElement;
-                      el.style.boxShadow = "none";
-                      el.style.transform = 'scale(1.02) translateY(-3px)';
+                      el.style.boxShadow = '0 8px 40px rgba(229,9,20,0.12)';
+                      el.style.transform = 'translateY(-4px)';
                     }}
                     onMouseLeave={e => {
                       const el = e.currentTarget as HTMLElement;
                       el.style.boxShadow = 'none';
-                      el.style.transform = 'scale(1) translateY(0)';
+                      el.style.transform = 'translateY(0)';
                     }}
                   >
-                    <div style={{ width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.2)`, color: R, marginBottom: '20px', }}>
+                    <div style={{ width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: R_SOFT, border: `1px solid rgba(229,9,20,0.2)`, color: R, marginBottom: '20px', borderRadius: '4px' }}>
                       {b.icon}
                     </div>
                     <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '22px', letterSpacing: '2px', color: TEXT, marginBottom: '12px' }}>
@@ -520,69 +452,52 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ══════════════════════════════
-            CTA — Cinematic red section
-            skill: landing-page-generator (CTA banner)
-            skill: viral-reel-director (empire copy)
-        ══════════════════════════════ */}
+        {/* ══ CTA BANNER ══ */}
         <section style={{ position: 'relative', overflow: 'hidden', padding: '120px 24px' }}>
-          {/* Full red gradient background */}
-          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, #E50914 0%, #B0060F 60%, #8B0000 100%)` }} />
-          {/* Dark overlay for contrast */}
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.42)' }} />
-          {/* Radial center glow */}
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(255,80,80,0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, #E50914 0%, #B0060F 60%, #7A0000 100%)` }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(255,80,80,0.2) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
           <ScrollReveal direction="none" style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
-            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(44px, 7vw, 84px)', letterSpacing: '5px', color: TEXT, lineHeight: 0.92, marginBottom: '20px', textShadow: '0 2px 20px rgba(0,0,0,0.4)' }}>
+            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(44px, 7vw, 84px)', letterSpacing: '5px', color: '#fff', lineHeight: 0.92, marginBottom: '20px', textShadow: '0 2px 20px rgba(0,0,0,0.4)' }}>
               READY TO BUILD<br />YOUR EMPIRE?
             </h2>
-            <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.65, marginBottom: '48px' }}>
+            <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.82)', lineHeight: 1.65, marginBottom: '48px' }}>
               Join 500+ brands already using The Craft Studio
             </p>
 
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/studio" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '18px 48px',
-                background: TEXT, color: R,
+                padding: '18px 48px', background: '#fff', color: R,
                 fontSize: '17px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
-                textDecoration: 'none', borderRadius: '2px',
-                transition: 'all 0.25s',
+                textDecoration: 'none', borderRadius: '4px', transition: 'all 0.25s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F0F0F0'; (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = TEXT; (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F0F0F0'; (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#fff'; (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
               >
                 GET STARTED NOW
               </Link>
               <Link href="/contact" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '18px 40px',
-                background: 'transparent', color: TEXT,
+                padding: '18px 40px', background: 'transparent', color: '#fff',
                 fontSize: '17px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
-                textDecoration: 'none',
-                border: '2px solid rgba(255,255,255,0.7)',
-                borderRadius: '2px',
-                transition: 'all 0.25s',
+                textDecoration: 'none', border: '2px solid rgba(255,255,255,0.65)', borderRadius: '4px', transition: 'all 0.25s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; (e.currentTarget as HTMLElement).style.borderColor = TEXT; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.7)'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.12)'; (e.currentTarget as HTMLElement).style.borderColor = '#fff'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.65)'; }}
               >
-                WATCH DEMO
+                SCHEDULE DEMO
               </Link>
             </div>
           </ScrollReveal>
         </section>
 
-        {/* ══════════════════════════════
-            FOOTER
-            skill: landing-page-generator (footer pattern)
-        ══════════════════════════════ */}
+        {/* ══ FOOTER ══ */}
         <footer style={{ background: '#000', borderTop: `1px solid ${R}`, padding: '72px 24px 32px' }}>
           <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
             <div className="cs-footer-grid" style={{ marginBottom: '56px' }}>
 
-              {/* Brand */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
                   <Logo variant="horizontal" size="medium" color="color" />
@@ -592,33 +507,30 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Product */}
               <div>
                 <h4 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '14px', letterSpacing: '0.15em', color: R, marginBottom: '16px' }}>PRODUCT</h4>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[{ href: '/', label: 'Home' }, { href: '/services', label: 'Services' }, { href: '/studio', label: 'AI Studio' }, { href: '/services/instagram-reels', label: 'Pricing' }].map(({ href, label }) => (
-                    <li key={href}><Link href={href} style={{ fontSize: '14px', color: TEXT2, textDecoration: 'none', transition: 'color 0.2s' }}
+                  {[{ href: '/', label: 'Home' }, { href: '/services', label: 'Services' }, { href: '/pricing', label: 'Pricing' }, { href: '/studio', label: 'AI Studio' }].map(({ href, label }) => (
+                    <li key={href}><Link href={href} style={{ fontSize: '14px', color: MUTED, textDecoration: 'none', transition: 'color 0.2s' }}
                       onMouseEnter={e => (e.currentTarget.style.color = R)}
-                      onMouseLeave={e => (e.currentTarget.style.color = TEXT2)}
+                      onMouseLeave={e => (e.currentTarget.style.color = MUTED)}
                     >{label}</Link></li>
                   ))}
                 </ul>
               </div>
 
-              {/* Company */}
               <div>
                 <h4 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '14px', letterSpacing: '0.15em', color: R, marginBottom: '16px' }}>COMPANY</h4>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[{ href: '/contact', label: 'Contact' }, { href: '/studio', label: 'Studio' }, { href: '/contact', label: 'Support' }, { href: '/contact', label: 'Careers' }].map(({ href, label }) => (
-                    <li key={label}><Link href={href} style={{ fontSize: '14px', color: TEXT2, textDecoration: 'none', transition: 'color 0.2s' }}
+                  {[{ href: '/contact', label: 'Contact' }, { href: '/studio', label: 'Studio' }, { href: '/contact', label: 'Support' }].map(({ href, label }) => (
+                    <li key={label}><Link href={href} style={{ fontSize: '14px', color: MUTED, textDecoration: 'none', transition: 'color 0.2s' }}
                       onMouseEnter={e => (e.currentTarget.style.color = R)}
-                      onMouseLeave={e => (e.currentTarget.style.color = TEXT2)}
+                      onMouseLeave={e => (e.currentTarget.style.color = MUTED)}
                     >{label}</Link></li>
                   ))}
                 </ul>
               </div>
 
-              {/* Connect */}
               <div>
                 <h4 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '14px', letterSpacing: '0.15em', color: R, marginBottom: '16px' }}>CONNECT</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
@@ -627,27 +539,27 @@ export default function HomePage() {
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   {[
-                    { icon: Ic.linkedin, label: 'LinkedIn' },
-                    { icon: Ic.instagram, label: 'Instagram' },
-                    { icon: Ic.twitter, label: 'Twitter' },
-                  ].map(({ icon, label }) => (
-                    <a key={label} href="#" aria-label={label} style={{ width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid rgba(229,9,20,0.3)`, color: R, textDecoration: 'none', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = "none"; (e.currentTarget as HTMLElement).style.borderColor = R; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(229,9,20,0.3)'; }}
+                    { icon: Ic.linkedin, label: 'LinkedIn', href: '#' },
+                    { icon: Ic.instagram, label: 'Instagram', href: '#' },
+                    { icon: Ic.twitter, label: 'Twitter', href: '#' },
+                  ].map(({ icon, label, href }) => (
+                    <a key={label} href={href} aria-label={label} style={{ width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid rgba(229,9,20,0.3)`, color: R, textDecoration: 'none', borderRadius: '4px', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = R_SOFT; (e.currentTarget as HTMLElement).style.borderColor = R; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(229,9,20,0.3)'; }}
                     >{icon}</a>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Bottom bar */}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
               <p style={{ fontSize: '13px', color: MUTED }}>
                 © {new Date().getFullYear()} TheCraftStudios. All rights reserved.
               </p>
-              <p style={{ fontSize: '13px', color: MUTED }}>
-                Built with ❤️ in India
-              </p>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <Link href="/privacy" style={{ fontSize: '13px', color: MUTED, textDecoration: 'none' }}>Privacy Policy</Link>
+                <Link href="/terms" style={{ fontSize: '13px', color: MUTED, textDecoration: 'none' }}>Terms of Service</Link>
+              </div>
             </div>
           </div>
         </footer>
@@ -656,7 +568,6 @@ export default function HomePage() {
 
       {/* ── Global styles ── */}
       <style suppressHydrationWarning>{`
-        /* Services grid: 1-col → 3-col, center elevated */
         .cs-services-grid {
           display: grid;
           grid-template-columns: 1fr;
@@ -669,32 +580,22 @@ export default function HomePage() {
             align-items: center;
           }
         }
-
-        /* Benefits: 2-col mobile → 4-col desktop */
         .cs-benefits-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 20px;
         }
         @media (min-width: 900px) {
-          .cs-benefits-grid {
-            grid-template-columns: repeat(4, 1fr);
-          }
+          .cs-benefits-grid { grid-template-columns: repeat(4, 1fr); }
         }
-
-        /* Footer: 1-col → 4-col */
         .cs-footer-grid {
           display: grid;
           grid-template-columns: 1fr;
           gap: 40px;
         }
         @media (min-width: 768px) {
-          .cs-footer-grid {
-            grid-template-columns: repeat(4, 1fr);
-          }
+          .cs-footer-grid { grid-template-columns: repeat(4, 1fr); }
         }
-
-        /* Nav responsive */
         @media (max-width: 768px) {
           .cs-desktop-nav { display: none !important; }
           .cs-burger { display: block !important; }
@@ -702,14 +603,10 @@ export default function HomePage() {
         @media (min-width: 769px) {
           .cs-burger { display: none !important; }
         }
-
-        /* Red pulse dot */
         @keyframes redPulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.45; }
+          50% { opacity: 0.4; }
         }
-
-        /* Smooth scroll */
         html { scroll-behavior: smooth; }
         *, *::before, *::after { box-sizing: border-box; }
       `}</style>

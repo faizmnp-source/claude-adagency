@@ -1,6 +1,6 @@
 /**
- * NavBar.tsx — Shared navigation bar
- * Light glass nav with Services dropdown, Pricing link, and Studio CTA
+ * NavBar.tsx — Shared navigation bar (Dark Space Theme)
+ * Dark glass nav with Services dropdown, Pricing link, and Studio CTA
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -9,8 +9,8 @@ import { useRouter } from 'next/router';
 import Logo from './Logo';
 
 const R     = '#E50914';
-const MUTED = 'rgba(15,15,15,0.55)';
-const DARK  = '#0A0A0A';
+const MUTED = 'rgba(255,255,255,0.55)';
+const TEXT  = '#FFFFFF';
 
 const SERVICES = [
   { href: '/services/instagram-reels', icon: '📸', label: 'Instagram Reels',      desc: 'AI-generated reels & auto-posting' },
@@ -32,13 +32,11 @@ export const NavBar: React.FC = () => {
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  // Close mobile + dropdown on route change
   useEffect(() => {
     setMobileOpen(false);
     setServicesOpen(false);
   }, [router.pathname]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -55,8 +53,8 @@ export const NavBar: React.FC = () => {
   return (
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: scrolled ? 'rgba(249,247,243,0.97)' : 'rgba(249,247,243,0.88)',
-      borderBottom: scrolled ? `1px solid rgba(229,9,20,0.18)` : '1px solid rgba(0,0,0,0.06)',
+      background: scrolled ? 'rgba(5,11,24,0.97)' : 'rgba(5,11,24,0.80)',
+      borderBottom: scrolled ? '1px solid rgba(229,9,20,0.25)' : '1px solid rgba(255,255,255,0.04)',
       backdropFilter: 'blur(20px)',
       transition: 'all 0.3s',
     }}>
@@ -84,7 +82,7 @@ export const NavBar: React.FC = () => {
                 display: 'flex', alignItems: 'center', gap: '4px',
                 padding: 0, transition: 'color 0.2s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.color = R)}
+              onMouseEnter={e => (e.currentTarget.style.color = TEXT)}
               onMouseLeave={e => (e.currentTarget.style.color = isActive('/services') ? R : MUTED)}
             >
               Services
@@ -98,8 +96,11 @@ export const NavBar: React.FC = () => {
             {servicesOpen && (
               <div style={{
                 position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)',
-                background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '16px',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.12)', padding: '8px', width: '320px', zIndex: 200,
+                background: '#0D1628',
+                border: '1px solid rgba(229,9,20,0.2)',
+                borderRadius: '16px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                padding: '8px', width: '320px', zIndex: 200,
               }}>
                 {SERVICES.map(s => (
                   <Link key={s.href} href={s.href} style={{ textDecoration: 'none' }}>
@@ -107,13 +108,13 @@ export const NavBar: React.FC = () => {
                       display: 'flex', alignItems: 'center', gap: '14px',
                       padding: '12px 14px', borderRadius: '10px', transition: 'background 0.15s',
                     }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.04)')}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.08)')}
                       onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
                     >
                       <span style={{ fontSize: '22px', flexShrink: 0 }}>{s.icon}</span>
                       <div>
-                        <div style={{ fontSize: '14px', fontWeight: 600, color: DARK }}>{s.label}</div>
-                        <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>{s.desc}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: TEXT }}>{s.label}</div>
+                        <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', marginTop: '2px' }}>{s.desc}</div>
                       </div>
                     </div>
                   </Link>
@@ -129,7 +130,7 @@ export const NavBar: React.FC = () => {
               color: isActive('/pricing') ? R : MUTED,
               textDecoration: 'none', transition: 'color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = R)}
+            onMouseEnter={e => (e.currentTarget.style.color = TEXT)}
             onMouseLeave={e => (e.currentTarget.style.color = isActive('/pricing') ? R : MUTED)}
           >Pricing</Link>
 
@@ -140,7 +141,7 @@ export const NavBar: React.FC = () => {
               color: isActive('/studio') ? R : MUTED,
               textDecoration: 'none', transition: 'color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = R)}
+            onMouseEnter={e => (e.currentTarget.style.color = TEXT)}
             onMouseLeave={e => (e.currentTarget.style.color = isActive('/studio') ? R : MUTED)}
           >AI Studio</Link>
 
@@ -151,11 +152,11 @@ export const NavBar: React.FC = () => {
               color: isActive('/contact') ? R : MUTED,
               textDecoration: 'none', transition: 'color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = R)}
+            onMouseEnter={e => (e.currentTarget.style.color = TEXT)}
             onMouseLeave={e => (e.currentTarget.style.color = isActive('/contact') ? R : MUTED)}
           >Contact</Link>
 
-          {/* CTA — goes to Studio, not Services */}
+          {/* CTA */}
           <Link href="/studio"
             style={{
               padding: '10px 24px', background: R, color: '#fff',
@@ -163,8 +164,8 @@ export const NavBar: React.FC = () => {
               fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em',
               borderRadius: '6px', transition: 'all 0.2s', display: 'inline-block',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(229,9,20,0.35)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
           >TRY FOR FREE</Link>
         </nav>
 
@@ -173,7 +174,7 @@ export const NavBar: React.FC = () => {
           onClick={() => setMobileOpen(!mobileOpen)}
           className="cs-nav-burger"
           aria-label="Toggle menu"
-          style={{ background: 'none', border: 'none', color: DARK, cursor: 'pointer', padding: '4px' }}
+          style={{ background: 'none', border: 'none', color: TEXT, cursor: 'pointer', padding: '4px' }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             {mobileOpen
@@ -186,29 +187,27 @@ export const NavBar: React.FC = () => {
       {/* Mobile dropdown */}
       {mobileOpen && (
         <div style={{
-          background: 'rgba(249,247,243,0.99)',
-          borderTop: `1px solid rgba(229,9,20,0.1)`,
+          background: 'rgba(5,11,24,0.98)',
+          borderTop: '1px solid rgba(229,9,20,0.15)',
           padding: '16px 24px 24px',
           display: 'flex', flexDirection: 'column', gap: '4px',
         }}>
-          {/* Services section */}
-          <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#aaa', textTransform: 'uppercase', margin: '8px 0 4px' }}>Services</p>
+          <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: '8px 0 4px' }}>Services</p>
           {SERVICES.map(s => (
             <Link key={s.href} href={s.href}
-              style={{ fontSize: '15px', fontWeight: 500, color: DARK, textDecoration: 'none', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              style={{ fontSize: '15px', fontWeight: 500, color: TEXT, textDecoration: 'none', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span>{s.icon}</span>{s.label}
             </Link>
           ))}
 
-          {/* Other links */}
-          <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#aaa', textTransform: 'uppercase', margin: '12px 0 4px' }}>Pages</p>
+          <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: '12px 0 4px' }}>Pages</p>
           {[
             { href: '/pricing', label: 'Pricing' },
             { href: '/studio',  label: 'AI Studio' },
             { href: '/contact', label: 'Contact' },
           ].map(({ href, label }) => (
             <Link key={href} href={href}
-              style={{ fontSize: '15px', fontWeight: 500, color: DARK, textDecoration: 'none', padding: '8px 0' }}>
+              style={{ fontSize: '15px', fontWeight: 500, color: MUTED, textDecoration: 'none', padding: '8px 0' }}>
               {label}
             </Link>
           ))}
