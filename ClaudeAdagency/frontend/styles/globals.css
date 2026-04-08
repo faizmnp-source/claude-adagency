@@ -202,8 +202,8 @@ body {
   justify-content: center;
   padding: 18px 48px;
   border-radius: 16px;
-  background: #FFFFFF;
-  color: #0A0A0A;
+  background: #E50914;
+  color: #FFFFFF;
   font-size: 18px;
   font-weight: 700;
   font-family: 'Space Grotesk', sans-serif;
@@ -275,18 +275,19 @@ body {
   gap: 6px;
   padding: 8px 20px;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.1);
-  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(13,22,40,0.6);
   font-size: 14px;
   font-weight: 600;
-  color: rgba(15,15,15,0.7);
+  color: rgba(255,255,255,0.55);
   cursor: pointer;
   transition: all 0.2s;
   font-family: 'Space Grotesk', sans-serif;
 }
 .mode-pill:hover {
   border-color: rgba(229,9,20,0.4);
-  background: rgba(229,9,20,0.04);
+  background: rgba(229,9,20,0.06);
+  color: #fff;
 }
 .mode-pill-active {
   border-color: rgba(229,9,20,0.5);
@@ -347,30 +348,32 @@ body {
    ══════════════════════════════════════════ */
 .dark-input {
   width: 100%;
-  padding: 16px 20px;
-  border-radius: 14px;
-  background: #FFFFFF;
-  border: 1px solid rgba(0,0,0,0.12);
-  color: #0A0A0A;
-  font-size: 15px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(13,22,40,0.8);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #FFFFFF;
+  font-size: 14px;
   font-family: 'Space Grotesk', sans-serif;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .dark-input::placeholder {
-  color: rgba(148,163,184,0.5);
+  color: rgba(148,163,184,0.45);
 }
 .dark-input:focus {
-  border-color: rgba(229,9,20,0.4);
-  box-shadow: 0 0 0 3px rgba(229,9,20,0.06);
+  border-color: rgba(229,9,20,0.5);
+  box-shadow: 0 0 0 3px rgba(229,9,20,0.08);
 }
 
 .dark-input-label {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
-  color: rgba(15,15,15,0.7);
+  color: #94A3B8;
   margin-bottom: 6px;
   display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* ══════════════════════════════════════════

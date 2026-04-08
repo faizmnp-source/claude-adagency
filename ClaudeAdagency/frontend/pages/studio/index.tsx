@@ -1196,6 +1196,20 @@ export default function StudioPage() {
                 AUTO MODE
                 ═══════════════ */}
             {mode === 'auto' && (
+              <AutoCalendarMode
+                REEL_ENGINE_URL={REEL_ENGINE_URL}
+                onSelectPost={(post: any) => {
+                  // Pre-fill studio fields from calendar post and switch to express mode
+                  setProductDescription(post.script || post.angle || '');
+                  setBrandName(post.brandName || brandName);
+                  setVision(post.angle || '');
+                  setMode('express');
+                }}
+              />
+            )}
+
+            {/* ── Hidden: auto mode used to have these fields, now replaced by calendar ── */}
+            {mode === 'DISABLED_auto_old' && (
               <div className="space-y-5">
                 {/* Product input */}
                 <div>
@@ -1707,6 +1721,7 @@ export default function StudioPage() {
                 )}
               </div>
             )}
+            {/* end DISABLED_auto_old */}
 
             {/* ═══════════════
                 NOTEBOOK MODE
@@ -2135,6 +2150,259 @@ export default function StudioPage() {
         )}
 
       </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUTO CALENDAR MODE COMPONENT
+   Shows the monthly content plan inside the studio.
+   User can browse posts, edit script/caption, then hit Generate.
+═══════════════════════════════════════════════════════════ */
+const TYPE_COLORS: Record<string, { color: string; bg: string; icon: string; label: string }> = {
+  viral_reel:        { color: '#E50914', bg: 'rgba(229,9,20,0.12)',   icon: '🔥', label: 'Viral Reel'        },
+  top_reel:          { color: '#A855F7', bg: 'rgba(168,85,247,0.12)', icon: '⭐', label: 'Top Reel'          },
+  educational_reel:  { color: '#3B82F6', bg: 'rgba(59,130,246,0.12)', icon: '📚', label: 'Educational Reel'  },
+  product_photo:     { color: '#10B981', bg: 'rgba(16,185,129,0.12)', icon: '📸', label: 'Product Photo'     },
+  educational_image: { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', icon: '💡', label: 'Educational Image' },
+};
+
+function AutoCalendarMode({ REEL_ENGINE_URL, onSelectPost }: {
+  REEL_ENGINE_URL: string;
+  onSelectPost: (post: any) => void;
+}) {
+  const [plan, setPlan]             = useState<any>(null);
+  const [loading, setLoading]       = useState(true);
+  const [expanded, setExpanded]     = useState<string | null>(null);
+  const [editScript, setEditScript] = useState<Record<string, string>>({});
+  const [editCaption, setEditCaption] = useState<Record<string, string>>({});
+  const [genLoading, setGenLoading] = useState(false);
+  const [form, setForm]             = useState({ brandName: '', productDescription: '', industry: 'ecommerce', region: 'india', language: 'hinglish', targetAudience: '' });
+  const [showForm, setShowForm]     = useState(false);
+  const [error, setError]           = useState('');
+
+  function getToken() {
+    if (typeof window === 'undefined') return 'dev-token';
+    return localStorage.getItem('cs_token') || 'dev-token';
+  }
+
+  useEffect(() => {
+    fetch(`${REEL_ENGINE_URL}/api/auto/plan`, { headers: { Authorization: `Bearer ${getToken()}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.contentPlan) setPlan(d); else setShowForm(true); })
+      .catch(() => setShowForm(true))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function generatePlan() {
+    if (!form.brandName || !form.productDescription) { setError('Brand name and product description required'); return; }
+    setGenLoading(true); setError('');
+    try {
+      const r = await fetch(`${REEL_ENGINE_URL}/api/auto/plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify(form),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Failed');
+      setPlan(d); setShowForm(false);
+    } catch (e: any) { setError(e.message); }
+    finally { setGenLoading(false); }
+  }
+
+  const sorted = plan?.contentPlan?.slice().sort((a: any, b: any) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()) || [];
+
+  if (loading) return (
+    <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+      <div style={{ fontSize: '32px', marginBottom: '12px' }}>📅</div>
+      <p style={{ fontSize: '14px' }}>Loading your content plan...</p>
+    </div>
+  );
+
+  if (showForm) return (
+    <div style={{ background: 'rgba(13,22,40,0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '24px' }}>
+      <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>🤖 Generate Monthly Content Plan</h3>
+      <p style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '20px' }}>AI will plan 16 posts across the month — scripts, captions & scheduling included.</p>
+
+      {error && <p style={{ color: '#f87171', fontSize: '12px', marginBottom: '12px' }}>⚠️ {error}</p>}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {[
+          { key: 'brandName',          label: 'Brand Name *',    placeholder: 'e.g. My Startup', type: 'input' },
+          { key: 'productDescription', label: 'Product / Service *', placeholder: 'What you sell — be specific', type: 'textarea' },
+          { key: 'targetAudience',     label: 'Target Audience', placeholder: 'e.g. Indian women 25-35', type: 'input' },
+        ].map(f => (
+          <div key={f.key}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{f.label}</label>
+            {f.type === 'textarea' ? (
+              <textarea value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                placeholder={f.placeholder} rows={3} className="dark-input" style={{ resize: 'vertical' }} />
+            ) : (
+              <input type="text" value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                placeholder={f.placeholder} className="dark-input" />
+            )}
+          </div>
+        ))}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          {[
+            { key: 'industry', opts: ['ecommerce','fashion','beauty','food','technology','fitness','health','education','realestate','finance'] },
+            { key: 'language', opts: ['hinglish','english','hindi'] },
+          ].map(f => (
+            <div key={f.key}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>{f.key}</label>
+              <select value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} className="dark-input">
+                {f.opts.map(o => <option key={o} value={o}>{o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
+              </select>
+            </div>
+          ))}
+        </div>
+
+        {/* Breakdown preview */}
+        <div style={{ background: 'rgba(229,9,20,0.06)', border: '1px solid rgba(229,9,20,0.15)', borderRadius: '10px', padding: '12px' }}>
+          <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>📦 Monthly breakdown</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
+            {Object.entries(TYPE_COLORS).map(([type, m]) => (
+              <div key={type} style={{ fontSize: '12px', color: '#94A3B8', display: 'flex', gap: '6px' }}>
+                <span>{m.icon}</span>
+                <span style={{ color: m.color, fontWeight: 700 }}>
+                  {type === 'viral_reel' ? '2' : type === 'top_reel' ? '4' : type === 'educational_reel' ? '2' : '4'}×
+                </span>
+                {m.label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={generatePlan} disabled={genLoading}
+          style={{ padding: '13px', background: '#E50914', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: genLoading ? 'not-allowed' : 'pointer', opacity: genLoading ? 0.7 : 1 }}>
+          {genLoading ? '🤖 AI is planning your month (~30s)...' : '✨ Generate Content Plan'}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <p style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>📅 {plan?.monthLabel || 'This Month'}</p>
+          <p style={{ fontSize: '11px', color: '#94A3B8' }}>{sorted.length} posts planned · Click a post to edit &amp; generate</p>
+        </div>
+        <button onClick={() => setShowForm(true)}
+          style={{ fontSize: '11px', padding: '5px 12px', background: 'rgba(229,9,20,0.1)', border: '1px solid rgba(229,9,20,0.25)', borderRadius: '6px', color: '#E50914', cursor: 'pointer', fontWeight: 600 }}>
+          ↺ Regenerate
+        </button>
+      </div>
+
+      {/* Post list */}
+      {sorted.map((post: any) => {
+        const meta = TYPE_COLORS[post.type] || TYPE_COLORS.product_photo;
+        const d = new Date(post.scheduledAt);
+        const isOpen = expanded === post.id;
+        const script = editScript[post.id] ?? (post.script || post.angle || '');
+        const caption = editCaption[post.id] ?? (post.caption || '');
+        return (
+          <div key={post.id} style={{ borderRadius: '10px', marginBottom: '8px', border: `1px solid ${isOpen ? meta.color + '44' : 'rgba(255,255,255,0.07)'}`, overflow: 'hidden', transition: 'border-color 0.2s' }}>
+            {/* Row */}
+            <button onClick={() => setExpanded(isOpen ? null : post.id)}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: isOpen ? meta.bg : 'rgba(13,22,40,0.7)', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
+              {/* Date */}
+              <div style={{ minWidth: '36px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '4px' }}>
+                <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>
+                  {d.toLocaleDateString('en-IN', { month: 'short', timeZone: 'Asia/Kolkata' })}
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff', lineHeight: 1 }}>
+                  {d.toLocaleDateString('en-IN', { day: 'numeric', timeZone: 'Asia/Kolkata' })}
+                </div>
+              </div>
+              {/* Type badge */}
+              <div style={{ padding: '3px 8px', borderRadius: '5px', background: meta.bg, fontSize: '11px', fontWeight: 700, color: meta.color, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {meta.icon} {meta.label}
+              </div>
+              {/* Title */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.title}</p>
+                <p style={{ fontSize: '11px', color: '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' })} IST
+                </p>
+              </div>
+              <span style={{ color: '#94A3B8', fontSize: '14px', flexShrink: 0, transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }}>›</span>
+            </button>
+
+            {/* Expanded edit panel */}
+            {isOpen && (
+              <div style={{ padding: '14px', background: 'rgba(5,11,24,0.9)', borderTop: `1px solid rgba(255,255,255,0.06)` }}>
+                {/* Hook */}
+                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Hook / Angle</p>
+                <div style={{ background: 'rgba(229,9,20,0.06)', border: '1px solid rgba(229,9,20,0.15)', borderRadius: '7px', padding: '10px 12px', marginBottom: '12px', fontSize: '12px', color: '#E50914', lineHeight: 1.5 }}>
+                  {post.angle}
+                </div>
+
+                {/* Script/Prompt editable */}
+                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>
+                  {post.type?.includes('reel') ? 'Script / Voiceover' : 'Image Prompt'}
+                </p>
+                <textarea
+                  value={script}
+                  onChange={e => setEditScript(prev => ({ ...prev, [post.id]: e.target.value }))}
+                  rows={4}
+                  className="dark-input"
+                  style={{ marginBottom: '10px', resize: 'vertical', fontSize: '12px' }}
+                />
+
+                {/* Caption editable */}
+                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Caption</p>
+                <textarea
+                  value={caption}
+                  onChange={e => setEditCaption(prev => ({ ...prev, [post.id]: e.target.value }))}
+                  rows={3}
+                  className="dark-input"
+                  style={{ marginBottom: '12px', resize: 'vertical', fontSize: '12px' }}
+                />
+
+                {/* Hashtags */}
+                {post.hashtags?.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '14px' }}>
+                    {post.hashtags.slice(0, 10).map((h: string) => (
+                      <span key={h} style={{ padding: '2px 7px', background: 'rgba(229,9,20,0.08)', border: '1px solid rgba(229,9,20,0.2)', borderRadius: '4px', fontSize: '11px', color: '#E50914' }}>{h}</span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => onSelectPost({ ...post, script, caption })}
+                    style={{ flex: 2, padding: '10px', background: '#E50914', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                    🚀 Generate This Post
+                  </button>
+                  <button
+                    onClick={() => setExpanded(null)}
+                    style={{ flex: 1, padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', color: '#94A3B8', fontSize: '13px', cursor: 'pointer' }}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {sorted.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '32px', color: '#94A3B8', fontSize: '13px' }}>
+          No posts planned for this period.
+          <button onClick={() => setShowForm(true)} style={{ display: 'block', margin: '12px auto 0', padding: '8px 20px', background: '#E50914', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+            Generate Plan
+          </button>
+        </div>
+      )}
+
+      <a href="/studio/calendar" style={{ display: 'block', textAlign: 'center', fontSize: '12px', color: '#94A3B8', padding: '10px', textDecoration: 'none', marginTop: '4px' }}
+        onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
+        onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>
+        📅 Open full Calendar view →
+      </a>
     </div>
   );
 }
