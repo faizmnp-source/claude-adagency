@@ -689,6 +689,11 @@ export default function StudioPage() {
               onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
               onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
             >Pricing →</Link>
+            <Link href="/studio/calendar"
+              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+            >📅 Calendar →</Link>
           </div>
 
           <div className="flex items-center gap-3">
