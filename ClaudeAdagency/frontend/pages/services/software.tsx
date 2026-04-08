@@ -14,9 +14,10 @@ const SoftwarePage = () => {
       <Head>
         <title>AI Automations &amp; SaaS — TheCraftStudios</title>
         <meta name="description" content="Custom AI automations for finance, sales &amp; CRM. We build SaaS products, intelligent software, and web apps that scale with your business." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <meta property="og:title" content="AI Automations & SaaS — TheCraftStudios" />
+        <meta property="og:description" content="Custom AI automations for finance, sales & CRM. Intelligent software and web apps that scale." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/services/software" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/services/software" />
       </Head>
 
       <NavBar />

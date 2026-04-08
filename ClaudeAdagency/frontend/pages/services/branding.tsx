@@ -14,9 +14,10 @@ const BrandingPage = () => {
       <Head>
         <title>Branding &amp; Social Media Growth — TheCraftStudios</title>
         <meta name="description" content="Grow your Instagram channel with strategic planning, visual branding, and community management that turns followers into loyal customers." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <meta property="og:title" content="Branding & Social Media Growth — TheCraftStudios" />
+        <meta property="og:description" content="Strategic Instagram growth, visual branding, and community management that turns followers into loyal customers." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/services/branding" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/services/branding" />
       </Head>
 
       <NavBar />

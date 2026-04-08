@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block auth/private pages from indexing
+Disallow: /studio/credits
+Disallow: /login
+Disallow: /dashboard
+Disallow: /projects/
+
+Sitemap: https://www.thecraftstudios.in/sitemap.xml

@@ -14,9 +14,10 @@ const InstagramReelsPage = () => {
       <Head>
         <title>Instagram Reels &amp; Branding — TheCraftStudios</title>
         <meta name="description" content="Professional Instagram reels, brand identity &amp; auto-posting. From concept to your feed — we handle everything so your brand dominates social media." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <meta property="og:title" content="Instagram Reels & Branding — TheCraftStudios" />
+        <meta property="og:description" content="Professional Instagram reels, brand identity & auto-posting. From concept to your feed." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/services/instagram-reels" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/services/instagram-reels" />
       </Head>
 
       <NavBar />

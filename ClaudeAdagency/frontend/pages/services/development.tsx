@@ -15,9 +15,10 @@ const DevelopmentPage = () => {
       <Head>
         <title>Web &amp; App Development — TheCraftStudios</title>
         <meta name="description" content="Custom websites, Android &amp; iOS apps — built to look great, load fast, and turn visitors into paying customers." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <meta property="og:title" content="Web & App Development — TheCraftStudios" />
+        <meta property="og:description" content="Custom websites, Android & iOS apps built to look great, load fast, and convert visitors." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/services/development" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/services/development" />
       </Head>
 
       <NavBar />

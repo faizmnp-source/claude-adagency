@@ -1,28 +1,29 @@
 /**
- * NavBar.tsx — Shared navigation bar (matches homepage design)
- * Dark glass nav: transparent → #0A0A0A/97 on scroll
- * Logo: /download.png | Links: Home, Services, AI Studio, Contact
+ * NavBar.tsx — Shared navigation bar
+ * Light glass nav with Services dropdown, Pricing link, and Studio CTA
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Logo from './Logo';
 
 const R     = '#E50914';
-const TEXT  = '#FFFFFF';
-const MUTED = 'rgba(255,255,255,0.65)';
+const MUTED = 'rgba(15,15,15,0.55)';
+const DARK  = '#0A0A0A';
 
-const NAV_LINKS = [
-  { href: '/',        label: 'Home' },
-  { href: '/services', label: 'Services' },
-  { href: '/studio',  label: 'AI Studio' },
-  { href: '/contact', label: 'Contact' },
+const SERVICES = [
+  { href: '/services/instagram-reels', icon: '📸', label: 'Instagram Reels',      desc: 'AI-generated reels & auto-posting' },
+  { href: '/services/branding',        icon: '🎨', label: 'Brand Identity',        desc: 'Logo, colours & visual guidelines' },
+  { href: '/services/development',     icon: '💻', label: 'Web & App Development', desc: 'Custom websites, Android & iOS apps' },
+  { href: '/services/software',        icon: '🤖', label: 'AI Automations & SaaS', desc: 'CRM, finance & intelligent workflows' },
 ];
 
 export const NavBar: React.FC = () => {
-  const [scrolled, setScrolled]     = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled]         = useState(false);
+  const [mobileOpen, setMobileOpen]     = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const dropdownRef                     = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,59 +32,140 @@ export const NavBar: React.FC = () => {
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile + dropdown on route change
   useEffect(() => {
     setMobileOpen(false);
+    setServicesOpen(false);
   }, [router.pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setServicesOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const isActive = (href: string) =>
+    router.pathname === href || (href !== '/' && router.pathname.startsWith(href));
 
   return (
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: scrolled ? 'rgba(10,10,10,0.97)' : 'rgba(10,10,10,0.5)',
-      borderBottom: scrolled
-        ? `1px solid rgba(229,9,20,0.2)`
-        : '1px solid rgba(255,255,255,0.04)',
+      background: scrolled ? 'rgba(249,247,243,0.97)' : 'rgba(249,247,243,0.88)',
+      borderBottom: scrolled ? `1px solid rgba(229,9,20,0.18)` : '1px solid rgba(0,0,0,0.06)',
       backdropFilter: 'blur(20px)',
       transition: 'all 0.3s',
     }}>
       <div style={{
         maxWidth: '1240px', margin: '0 auto', padding: '0 24px',
-        height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        height: '72px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
+
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <Logo size="medium" />
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="cs-nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
-          {NAV_LINKS.map(({ href, label }) => {
-            const active = router.pathname === href || (href !== '/' && router.pathname.startsWith(href));
-            return (
-              <Link
-                key={href} href={href}
-                style={{
-                  fontSize: '14px', fontWeight: 500,
-                  color: active ? R : MUTED,
-                  textDecoration: 'none', transition: 'color 0.2s',
-                  letterSpacing: '0.04em',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.color = R)}
-                onMouseLeave={e => (e.currentTarget.style.color = active ? R : MUTED)}
-              >{label}</Link>
-            );
-          })}
-          <Link
-            href="/services"
+        {/* Desktop Nav */}
+        <nav className="cs-nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+
+          {/* Services dropdown */}
+          <div ref={dropdownRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setServicesOpen(v => !v)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '14px', fontWeight: 500, letterSpacing: '0.04em',
+                color: isActive('/services') ? R : MUTED,
+                display: 'flex', alignItems: 'center', gap: '4px',
+                padding: 0, transition: 'color 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = R)}
+              onMouseLeave={e => (e.currentTarget.style.color = isActive('/services') ? R : MUTED)}
+            >
+              Services
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                style={{ transform: servicesOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+
+            {/* Dropdown panel */}
+            {servicesOpen && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)',
+                background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '16px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.12)', padding: '8px', width: '320px', zIndex: 200,
+              }}>
+                {SERVICES.map(s => (
+                  <Link key={s.href} href={s.href} style={{ textDecoration: 'none' }}>
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '14px',
+                      padding: '12px 14px', borderRadius: '10px', transition: 'background 0.15s',
+                    }}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.04)')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
+                    >
+                      <span style={{ fontSize: '22px', flexShrink: 0 }}>{s.icon}</span>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: DARK }}>{s.label}</div>
+                        <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>{s.desc}</div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Pricing */}
+          <Link href="/pricing"
             style={{
-              padding: '10px 24px', background: R, color: TEXT,
+              fontSize: '14px', fontWeight: 500, letterSpacing: '0.04em',
+              color: isActive('/pricing') ? R : MUTED,
+              textDecoration: 'none', transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = R)}
+            onMouseLeave={e => (e.currentTarget.style.color = isActive('/pricing') ? R : MUTED)}
+          >Pricing</Link>
+
+          {/* AI Studio */}
+          <Link href="/studio"
+            style={{
+              fontSize: '14px', fontWeight: 500, letterSpacing: '0.04em',
+              color: isActive('/studio') ? R : MUTED,
+              textDecoration: 'none', transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = R)}
+            onMouseLeave={e => (e.currentTarget.style.color = isActive('/studio') ? R : MUTED)}
+          >AI Studio</Link>
+
+          {/* Contact */}
+          <Link href="/contact"
+            style={{
+              fontSize: '14px', fontWeight: 500, letterSpacing: '0.04em',
+              color: isActive('/contact') ? R : MUTED,
+              textDecoration: 'none', transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = R)}
+            onMouseLeave={e => (e.currentTarget.style.color = isActive('/contact') ? R : MUTED)}
+          >Contact</Link>
+
+          {/* CTA — goes to Studio, not Services */}
+          <Link href="/studio"
+            style={{
+              padding: '10px 24px', background: R, color: '#fff',
               fontSize: '13px', fontWeight: 700, textDecoration: 'none',
               fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em',
-              transition: 'all 0.2s',
+              borderRadius: '6px', transition: 'all 0.2s', display: 'inline-block',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.05)'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-          >GET STARTED</Link>
+          >TRY FOR FREE</Link>
         </nav>
 
         {/* Burger */}
@@ -91,7 +173,7 @@ export const NavBar: React.FC = () => {
           onClick={() => setMobileOpen(!mobileOpen)}
           className="cs-nav-burger"
           aria-label="Toggle menu"
-          style={{ background: 'none', border: 'none', color: TEXT, cursor: 'pointer', padding: '4px' }}
+          style={{ background: 'none', border: 'none', color: DARK, cursor: 'pointer', padding: '4px' }}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             {mobileOpen
@@ -104,32 +186,49 @@ export const NavBar: React.FC = () => {
       {/* Mobile dropdown */}
       {mobileOpen && (
         <div style={{
-          background: 'rgba(10,10,10,0.99)',
-          borderTop: `1px solid rgba(229,9,20,0.15)`,
-          padding: '20px 24px',
-          display: 'flex', flexDirection: 'column', gap: '16px',
+          background: 'rgba(249,247,243,0.99)',
+          borderTop: `1px solid rgba(229,9,20,0.1)`,
+          padding: '16px 24px 24px',
+          display: 'flex', flexDirection: 'column', gap: '4px',
         }}>
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href}
-              style={{ fontSize: '16px', fontWeight: 500, color: TEXT, textDecoration: 'none' }}
-            >{label}</Link>
+          {/* Services section */}
+          <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#aaa', textTransform: 'uppercase', margin: '8px 0 4px' }}>Services</p>
+          {SERVICES.map(s => (
+            <Link key={s.href} href={s.href}
+              style={{ fontSize: '15px', fontWeight: 500, color: DARK, textDecoration: 'none', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span>{s.icon}</span>{s.label}
+            </Link>
           ))}
-          <Link href="/services"
+
+          {/* Other links */}
+          <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#aaa', textTransform: 'uppercase', margin: '12px 0 4px' }}>Pages</p>
+          {[
+            { href: '/pricing', label: 'Pricing' },
+            { href: '/studio',  label: 'AI Studio' },
+            { href: '/contact', label: 'Contact' },
+          ].map(({ href, label }) => (
+            <Link key={href} href={href}
+              style={{ fontSize: '15px', fontWeight: 500, color: DARK, textDecoration: 'none', padding: '8px 0' }}>
+              {label}
+            </Link>
+          ))}
+
+          <Link href="/studio"
             style={{
-              marginTop: '8px', padding: '14px 24px',
-              background: R, color: TEXT,
+              marginTop: '12px', padding: '14px 24px',
+              background: R, color: '#fff',
               fontSize: '15px', fontWeight: 700,
               textDecoration: 'none', textAlign: 'center',
               fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em',
+              borderRadius: '8px', display: 'block',
             }}
-          >GET STARTED</Link>
+          >TRY FOR FREE →</Link>
         </div>
       )}
 
-      {/* Responsive CSS */}
       <style suppressHydrationWarning>{`
-        @media (max-width: 768px) { .cs-nav-desktop { display: none !important; } }
-        @media (min-width: 769px) { .cs-nav-burger  { display: none !important; } }
+        @media (max-width: 900px) { .cs-nav-desktop { display: none !important; } }
+        @media (min-width: 901px) { .cs-nav-burger  { display: none !important; } }
       `}</style>
     </header>
   );

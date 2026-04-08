@@ -109,9 +109,10 @@ export default function CreditsPage() {
       <Head>
         <title>Buy Credits — TheCraftStudios Studio</title>
         <meta name="description" content="Purchase credit packs to generate AI-powered Instagram reels. Pay via UPI, Cards, NetBanking, and Wallets." />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <meta property="og:title" content="Buy Credits — TheCraftStudios" />
+        <meta property="og:description" content="Purchase credit packs to generate AI-powered Instagram reels. Pay via UPI, Cards, NetBanking, and Wallets." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/studio/credits" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/studio/credits" />
       </Head>
 
       <NavBar />

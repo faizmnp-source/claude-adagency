@@ -44,7 +44,10 @@ const ContactPage = () => {
       <Head>
         <title>Contact — The Craft Studio</title>
         <meta name="description" content="Get in touch with The Craft Studio. We respond within 2 hours." />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <meta property="og:title" content="Contact Us — TheCraftStudios" />
+        <meta property="og:description" content="Get in touch with TheCraftStudios. We build AI-powered Instagram reels, websites & brand identities." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/contact" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/contact" />
       </Head>
 
       <div style={{ background: BG, color: TEXT, fontFamily: "'Inter', sans-serif", minHeight: '100vh' }}>
