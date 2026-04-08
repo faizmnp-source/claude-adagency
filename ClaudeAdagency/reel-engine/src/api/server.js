@@ -191,6 +191,11 @@ app.get('/api/reels/:id/progress', async (req, res) => {
   req.on('close', () => clearInterval(interval));
 });
 
+// ── Start auto-pilot scheduler ────────────────────────────────────────────
+import('../services/scheduler/postExecutor.js').then(({ startAutoScheduler }) => {
+  startAutoScheduler();
+}).catch(err => console.error('Failed to start auto-pilot scheduler:', err.message));
+
 // ── 404 & Error handlers ───────────────────────────────────────────────────
 app.use((req, res) => res.status(404).json({ error: `Route ${req.path} not found` }));
 

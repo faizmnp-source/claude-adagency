@@ -46,8 +46,9 @@ function getUserId(req) {
   return 'dev-user-001';
 }
 
-const PLAN_KEY  = (userId) => `auto:plan:${userId}`;
-const PLAN_TTL  = 60 * 60 * 24 * 45; // 45 days
+const PLAN_KEY    = (userId) => `auto:plan:${userId}`;
+const PAUSED_KEY  = (userId) => `auto:paused:${userId}`;
+const PLAN_TTL    = 60 * 60 * 24 * 45; // 45 days
 
 // ── POST /api/auto/plan — Generate a full monthly content plan ────────────────
 router.post('/plan', async (req, res) => {
@@ -309,6 +310,47 @@ router.post('/execute/:postId', async (req, res) => {
   } catch (err) {
     logger.error('Auto plan post execution failed', { userId, postId, error: err.message });
     return res.status(500).json({ error: 'Post execution failed', detail: err.message });
+  }
+});
+
+// ── GET /api/auto/settings — Return auto-pilot enabled state ────────────────
+router.get('/settings', async (req, res) => {
+  const userId = getUserId(req);
+  try {
+    const [paused, planRaw] = await Promise.all([
+      redis.get(PAUSED_KEY(userId)),
+      redis.get(PLAN_KEY(userId)),
+    ]);
+    return res.json({
+      autoPilotEnabled: !paused,
+      hasPlan: !!planRaw,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to get settings', detail: err.message });
+  }
+});
+
+// ── POST /api/auto/pause — Pause auto-posting for this user ─────────────────
+router.post('/pause', async (req, res) => {
+  const userId = getUserId(req);
+  try {
+    await redis.set(PAUSED_KEY(userId), '1', 'EX', PLAN_TTL);
+    logger.info('Auto-pilot paused', { userId });
+    return res.json({ autoPilotEnabled: false, message: 'Auto-pilot paused. No posts will be automatically published until you resume.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to pause auto-pilot', detail: err.message });
+  }
+});
+
+// ── POST /api/auto/resume — Resume auto-posting for this user ───────────────
+router.post('/resume', async (req, res) => {
+  const userId = getUserId(req);
+  try {
+    await redis.del(PAUSED_KEY(userId));
+    logger.info('Auto-pilot resumed', { userId });
+    return res.json({ autoPilotEnabled: true, message: 'Auto-pilot resumed. Posts will now publish automatically at their scheduled times.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to resume auto-pilot', detail: err.message });
   }
 });
 

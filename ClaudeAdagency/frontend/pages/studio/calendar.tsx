@@ -83,6 +83,8 @@ export default function CalendarPage() {
   const [selected,  setSelected]  = useState<ContentPost | null>(null);
   const [error,     setError]     = useState<string | null>(null);
   const [view,      setView]      = useState<'calendar' | 'list'>('calendar');
+  const [autoPilotEnabled, setAutoPilotEnabled] = useState<boolean | null>(null); // null = loading
+  const [pauseLoading, setPauseLoading] = useState(false);
 
   /* ── Brand setup form ── */
   const [form, setForm] = useState({
@@ -92,10 +94,42 @@ export default function CalendarPage() {
   });
   const [showForm, setShowForm] = useState(false);
 
-  /* ── Load existing plan on mount ── */
+  /* ── Load existing plan + auto-pilot settings on mount ── */
   useEffect(() => {
     loadPlan();
+    loadSettings();
   }, []);
+
+  async function loadSettings() {
+    try {
+      const res = await fetch(`${REEL_ENGINE}/api/auto/settings`, {
+        headers: { Authorization: `Bearer ${getAuthToken()}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAutoPilotEnabled(data.autoPilotEnabled);
+      }
+    } catch {
+      setAutoPilotEnabled(true); // default assume enabled
+    }
+  }
+
+  async function toggleAutoPilot() {
+    setPauseLoading(true);
+    try {
+      const endpoint = autoPilotEnabled ? '/api/auto/pause' : '/api/auto/resume';
+      const res = await fetch(`${REEL_ENGINE}${endpoint}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getAuthToken()}` },
+      });
+      if (!res.ok) throw new Error('Failed to update auto-pilot');
+      setAutoPilotEnabled(!autoPilotEnabled);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setPauseLoading(false);
+    }
+  }
 
   async function loadPlan() {
     setLoading(true);
@@ -227,9 +261,52 @@ export default function CalendarPage() {
               <button onClick={() => setShowForm(true)} style={{ padding: '8px 16px', background: R_SOFT, border: `1px solid ${R_DIM}`, borderRadius: '8px', color: R, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                 ✨ {plan ? 'Regenerate Plan' : 'Generate Plan'}
               </button>
+
+              {/* ── Auto-Pilot Toggle ── */}
+              {autoPilotEnabled !== null && (
+                <button
+                  onClick={toggleAutoPilot}
+                  disabled={pauseLoading}
+                  style={{
+                    padding: '8px 16px',
+                    background: autoPilotEnabled
+                      ? 'rgba(16,185,129,0.12)'
+                      : 'rgba(239,68,68,0.1)',
+                    border: `1px solid ${autoPilotEnabled ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.3)'}`,
+                    borderRadius: '8px',
+                    color: autoPilotEnabled ? '#10B981' : '#f87171',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: pauseLoading ? 'not-allowed' : 'pointer',
+                    opacity: pauseLoading ? 0.6 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{
+                    display: 'inline-block',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: autoPilotEnabled ? '#10B981' : '#f87171',
+                    boxShadow: autoPilotEnabled ? '0 0 6px #10B981' : 'none',
+                    animation: autoPilotEnabled ? 'pulse-dot 2s infinite' : 'none',
+                  }} />
+                  {pauseLoading ? 'Updating…' : autoPilotEnabled ? 'Auto-Pilot: ON' : 'Auto-Pilot: PAUSED'}
+                </button>
+              )}
             </div>
           </div>
         </div>
+
+        <style>{`
+          @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.6; transform: scale(1.4); }
+          }
+        `}</style>
 
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 20px' }}>
 
@@ -417,6 +494,37 @@ export default function CalendarPage() {
             </div>
           ) : (
             <>
+              {/* ── Auto-Pilot Status Banner ── */}
+              {autoPilotEnabled === false && (
+                <div style={{
+                  background: 'rgba(239,68,68,0.07)',
+                  border: '1px solid rgba(239,68,68,0.25)',
+                  borderRadius: '12px',
+                  padding: '14px 20px',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '22px' }}>⏸️</span>
+                    <div>
+                      <div style={{ fontWeight: 700, color: '#f87171', fontSize: '14px' }}>Auto-Pilot is Paused</div>
+                      <div style={{ color: MUTED, fontSize: '13px' }}>Your scheduled posts will NOT be auto-published until you resume.</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={toggleAutoPilot}
+                    disabled={pauseLoading}
+                    style={{ padding: '9px 20px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '8px', color: '#10B981', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}
+                  >
+                    ▶️ Resume Auto-Pilot
+                  </button>
+                </div>
+              )}
+
               {/* ── Stats bar ── */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '24px' }}>
                 {[
