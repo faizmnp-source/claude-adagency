@@ -160,28 +160,28 @@ export default function StudioPage() {
       resolution: '480p', voice: false, music: false,
       color: '#10B981',
       features: ['Wan 2.1 480p', 'Fast (~3 min)', 'No voice/music'],
-      creditsPerSecond: 4,
+      creditsPerSecond: 3,  // 1.5× Replicate: $0.22×1.5×₹85/5s÷₹2 ≈ 3 cr/s
     },
     creator: {
-      id: 'creator', name: '⚡ Creator', tagline: 'Professional Quality',
+      id: 'creator', name: '⚡ Creator', tagline: 'Professional + AI Voice',
       resolution: '720p', voice: true, music: false,
       color: '#4A6CF7',
       features: ['Wan 2.1 720p', 'ElevenLabs Voice', '~5 min'],
-      creditsPerSecond: 8,
+      creditsPerSecond: 7,  // 1.5× Replicate: $0.45×1.5×₹85/5s÷₹2 ≈ 6 + 1 voice = 7 cr/s
     },
     viral: {
       id: 'viral', name: '🚀 Viral', tagline: 'Luma 1080p + Voice + Music',
       resolution: '1080p', voice: true, music: true,
       color: '#F59E0B',
       features: ['Luma Dream Machine', 'Voice + Music', '~7 min'],
-      creditsPerSecond: 10,
+      creditsPerSecond: 4,  // 1.5× Replicate: $0.19×1.5×₹85/5s÷₹2 ≈ 2 + 2 audio = 4 cr/s
     },
     ultra: {
       id: 'ultra', name: '🌟 Ultra', tagline: 'Google Veo 2 + Full Audio',
       resolution: '1080p', voice: true, music: true,
       color: '#8B5CF6',
       features: ['Google Veo 2', 'Voice + Music', '~10 min'],
-      creditsPerSecond: 14,
+      creditsPerSecond: 8,  // 1.5× Replicate: $0.50×1.5×₹85/5s÷₹2 ≈ 6 + 2 audio = 8 cr/s
     },
   } as const;
 

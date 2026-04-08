@@ -140,58 +140,126 @@ const InstagramReelsPage = () => {
                 Pricing
               </div>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
-                Simple Pricing
+                Pay Per Reel
               </h2>
-              <p style={{ color: '#888888', fontSize: '18px' }}>Choose the plan that fits your growth goals</p>
+              <p style={{ color: '#888888', fontSize: '18px', marginBottom: '12px' }}>
+                No subscriptions. No monthly fees. Buy credits once, use anytime.
+              </p>
+              <p style={{ color: '#888888', fontSize: '14px' }}>
+                1 credit = ₹2 &nbsp;·&nbsp; Script: 2 cr/sec &nbsp;·&nbsp; Video: billed by quality package
+              </p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
+
+            {/* Package cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px', marginBottom: '48px' }}>
               {[
-                { name: 'Starter', price: '$999', period: '/month', features: ['3 reels per month', 'Basic editing', 'Trending music', 'Standard hashtags', 'Monthly analytics'], highlighted: false },
-                { name: 'Growth', price: '$1,999', period: '/month', features: ['8 reels per month', 'Professional editing', 'Trending audio optimization', 'Hashtag strategy', 'Weekly analytics', 'Community engagement'], highlighted: true },
-                { name: 'Viral', price: '$2,999', period: '/month', features: ['15 reels per month', 'Custom scripts', 'Premium editing & effects', 'Advanced hashtag strategy', 'Daily analytics', 'Full growth management', 'Priority support'], highlighted: false },
+                {
+                  name: '💰 Starter',
+                  tagline: 'Fast & Budget-Friendly',
+                  model: 'Wan 2.1 480p',
+                  color: '#10B981',
+                  features: ['480p quality', 'Fast generation', 'No voice/music'],
+                  price15s: '₹150', price30s: '₹300', credits15: 75, credits30: 150,
+                  highlighted: false,
+                },
+                {
+                  name: '⚡ Creator',
+                  tagline: 'Professional + AI Voice',
+                  model: 'Wan 2.1 720p',
+                  color: '#4A6CF7',
+                  features: ['720p HD quality', 'ElevenLabs AI voice', 'Cinematic motion'],
+                  price15s: '₹270', price30s: '₹540', credits15: 135, credits30: 270,
+                  highlighted: true,
+                },
+                {
+                  name: '🚀 Viral',
+                  tagline: 'Luma 1080p + Voice + Music',
+                  model: 'Luma Dream Machine',
+                  color: '#F59E0B',
+                  features: ['1080p Luma quality', 'AI voice + music', 'Premium cinematic'],
+                  price15s: '₹180', price30s: '₹360', credits15: 90, credits30: 180,
+                  highlighted: false,
+                },
+                {
+                  name: '🌟 Ultra',
+                  tagline: 'Google Veo 2 + Full Audio',
+                  model: 'Google Veo 2',
+                  color: '#8B5CF6',
+                  features: ['1080p Veo 2', 'AI voice + music', 'Highest quality'],
+                  price15s: '₹300', price30s: '₹600', credits15: 150, credits30: 300,
+                  highlighted: false,
+                },
               ].map((plan, i) => (
                 <div key={i} style={{
                   borderRadius: '16px',
-                  padding: '32px',
+                  padding: '28px',
                   position: 'relative',
-                  overflow: 'hidden',
-                  background: plan.highlighted ? RED : '#1A1A1A',
-                  border: plan.highlighted ? `1px solid ${RED}` : `1px solid ${RED_DIM}`,
+                  background: plan.highlighted ? 'rgba(74,108,247,0.1)' : '#1A1A1A',
+                  border: plan.highlighted ? `1px solid ${plan.color}` : `1px solid ${RED_DIM}`,
                 }}>
                   {plan.highlighted && (
-                    <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', borderRadius: '999px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: '#fff' }}>
+                    <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: plan.color, borderRadius: '999px', padding: '4px 14px', fontSize: '11px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>
                       Most Popular
                     </div>
                   )}
-                  <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>{plan.name}</h3>
-                  <div style={{ marginBottom: '24px' }}>
-                    <span style={{ fontSize: '48px', fontWeight: 700, color: '#fff' }}>{plan.price}</span>
-                    <span style={{ color: plan.highlighted ? 'rgba(255,255,255,0.7)' : '#888888' }}>{plan.period}</span>
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{plan.name}</h3>
+                  <p style={{ fontSize: '12px', color: plan.color, marginBottom: '4px' }}>{plan.tagline}</p>
+                  <p style={{ fontSize: '11px', color: '#666', marginBottom: '20px' }}>{plan.model}</p>
+
+                  {/* Price */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ color: '#888', fontSize: '13px' }}>15s reel</span>
+                      <span style={{ color: '#fff', fontWeight: 700 }}>{plan.price15s} <span style={{ color: '#666', fontWeight: 400, fontSize: '11px' }}>({plan.credits15} cr)</span></span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#888', fontSize: '13px' }}>30s reel</span>
+                      <span style={{ color: '#fff', fontWeight: 700 }}>{plan.price30s} <span style={{ color: '#666', fontWeight: 400, fontSize: '11px' }}>({plan.credits30} cr)</span></span>
+                    </div>
                   </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {plan.features.map((f, j) => (
-                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ flexShrink: 0, fontWeight: 700, color: plan.highlighted ? '#fff' : RED }}>✓</span>
-                        <span style={{ color: plan.highlighted ? 'rgba(255,255,255,0.9)' : '#888888' }}>{f}</span>
+                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px' }}>
+                        <span style={{ color: plan.color, fontWeight: 700 }}>✓</span>
+                        <span style={{ color: '#888' }}>{f}</span>
                       </li>
                     ))}
                   </ul>
-                  <Link href="/contact" style={{
+
+                  <Link href="/studio" style={{
                     display: 'block',
-                    width: '100%',
                     textAlign: 'center',
-                    padding: '12px',
-                    borderRadius: '12px',
+                    padding: '10px',
+                    borderRadius: '10px',
                     fontWeight: 700,
+                    fontSize: '14px',
                     textDecoration: 'none',
-                    background: plan.highlighted ? '#fff' : RED,
-                    color: plan.highlighted ? RED : '#fff',
-                    boxSizing: 'border-box',
+                    background: plan.highlighted ? plan.color : RED,
+                    color: '#fff',
                   }}>
-                    Get Started
+                    Try in Studio →
                   </Link>
                 </div>
               ))}
+            </div>
+
+            {/* Credit packs CTA */}
+            <div style={{ textAlign: 'center', background: 'rgba(229,9,20,0.05)', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px' }}>
+              <p style={{ color: '#fff', fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
+                💳 Credit Packs — ₹499 / ₹1,999 / ₹3,499
+              </p>
+              <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>
+                100 / 500 / 1,000 credits &nbsp;·&nbsp; Credits never expire &nbsp;·&nbsp; UPI · Cards · NetBanking
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link href="/studio/credits" style={{ background: RED, color: '#fff', padding: '12px 32px', borderRadius: '8px', fontWeight: 700, fontSize: '16px', textDecoration: 'none' }}>
+                  Buy Credits →
+                </Link>
+                <Link href="/pricing" style={{ border: `1px solid ${RED_DIM}`, color: '#E8E8E8', padding: '12px 32px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', textDecoration: 'none' }}>
+                  Full Pricing →
+                </Link>
+              </div>
             </div>
           </div>
         </section>

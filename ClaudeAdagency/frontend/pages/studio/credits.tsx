@@ -19,9 +19,15 @@ declare global {
   interface Window { Razorpay: any; }
 }
 
+function getAuthToken(): string {
+  if (typeof window === 'undefined') return 'dev-token';
+  return localStorage.getItem('cs_token') || 'dev-token';
+}
+
 export default function CreditsPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const REEL_ENGINE = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 
   // Dynamically load Razorpay script if not already loaded
@@ -31,24 +37,27 @@ export default function CreditsPage() {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load Razorpay'));
+      script.onerror = () => reject(new Error('Failed to load Razorpay checkout'));
       document.body.appendChild(script);
     });
 
   const handlePurchase = async (packId: string) => {
     setLoading(packId);
+    setError(null);
     try {
       // Ensure Razorpay SDK is loaded
       await loadRazorpay();
 
+      const token = getAuthToken();
+
       // Step 1: Create Razorpay order on backend
       const res = await fetch(`${REEL_ENGINE}/api/payments/order`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ packId }),
       });
       const order = await res.json();
-      if (!order.orderId) throw new Error(order.error || 'Failed to create order');
+      if (!res.ok || !order.orderId) throw new Error(order.error || 'Failed to create order');
 
       // Step 2: Open Razorpay checkout modal
       const rzp = new window.Razorpay({
@@ -60,25 +69,36 @@ export default function CreditsPage() {
         order_id: order.orderId,
         theme: { color: RED },
         prefill: { name: '', email: '', contact: '' },
+        modal: {
+          ondismiss: () => setLoading(null),
+        },
         handler: async (response: any) => {
-          // Step 3: Verify payment on backend + credit user
-          const verify = await fetch(`${REEL_ENGINE}/api/payments/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer dev-token` },
-            body: JSON.stringify({
-              orderId: response.razorpay_order_id,
-              paymentId: response.razorpay_payment_id,
-              signature: response.razorpay_signature,
-              packId,
-            }),
-          });
-          const result = await verify.json();
-          if (result.success) setSuccess(true);
+          try {
+            // Step 3: Verify payment on backend + credit user
+            const verify = await fetch(`${REEL_ENGINE}/api/payments/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                packId,
+              }),
+            });
+            const result = await verify.json();
+            if (result.success) {
+              setSuccess(true);
+            } else {
+              throw new Error(result.error || 'Payment verification failed');
+            }
+          } catch (e: any) {
+            setError(e.message || 'Payment verified but credit failed. Contact support.');
+          }
         },
       });
       rzp.open();
     } catch (err: any) {
-      alert(err.message || 'Payment failed. Please try again.');
+      setError(err.message || 'Payment failed. Please try again.');
     } finally {
       setLoading(null);
     }
@@ -109,6 +129,12 @@ export default function CreditsPage() {
             </div>
           ) : (
             <>
+              {error && (
+                <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', color: '#f87171', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>⚠️ {error}</span>
+                  <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '18px' }}>✕</button>
+                </div>
+              )}
               <div style={{ textAlign: 'center', marginBottom: '64px' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
                   Credit Packs

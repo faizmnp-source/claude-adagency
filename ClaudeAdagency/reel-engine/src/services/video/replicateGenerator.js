@@ -104,30 +104,36 @@ MODELS.default  = MODELS.wan720p;
 MODELS.budget   = MODELS.wan480p;
 MODELS.premium  = MODELS.minimax;
 
+// Pricing: 1.5× Replicate cost + audio premium (1 cr/s for voice, 2 cr/s for voice+music)
+// 1 credit = ₹2 | $1 = ₹85
 export const VIDEO_PACKAGES = {
   starter: {
     id: 'starter', name: '💰 Starter', tagline: 'Fast & Budget-Friendly',
     modelKey: 'wan480p', resolution: '480p', voice: false, music: false,
     features: ['Wan 2.1 480p', 'Fast ~3 min', 'No voice/music'],
-    estimatedUsdPerClip: 0.22, clipDurationSec: 5, creditsPerSecond: 4, color: '#10B981',
+    estimatedUsdPerClip: 0.22, clipDurationSec: 5, creditsPerSecond: 3, color: '#10B981',
+    // $0.22×1.5×₹85/5s = ₹5.61/s ÷ ₹2 = 2.8 → 3 cr/s
   },
   creator: {
     id: 'creator', name: '⚡ Creator', tagline: 'Professional + AI Voice',
     modelKey: 'wan720p', resolution: '720p', voice: true, music: false,
     features: ['Wan 2.1 720p', 'ElevenLabs voice', '~5 min'],
-    estimatedUsdPerClip: 0.45, clipDurationSec: 5, creditsPerSecond: 8, color: '#4A6CF7', popular: true,
+    estimatedUsdPerClip: 0.45, clipDurationSec: 5, creditsPerSecond: 7, color: '#4A6CF7', popular: true,
+    // $0.45×1.5×₹85/5s = ₹11.48/s ÷ ₹2 = 5.7 + 1 voice = 7 cr/s
   },
   viral: {
     id: 'viral', name: '🚀 Viral', tagline: 'Luma 1080p + Voice + Music',
     modelKey: 'luma', resolution: '1080p', voice: true, music: true,
     features: ['Luma Dream Machine', 'Voice + Music', '~7 min'],
-    estimatedUsdPerClip: 0.19, clipDurationSec: 5, creditsPerSecond: 10, color: '#F59E0B',
+    estimatedUsdPerClip: 0.19, clipDurationSec: 5, creditsPerSecond: 4, color: '#F59E0B',
+    // $0.19×1.5×₹85/5s = ₹4.84/s ÷ ₹2 = 2.4 + 2 audio = 4 cr/s
   },
   ultra: {
     id: 'ultra', name: '🌟 Ultra', tagline: 'Google Veo 2 + Full Audio',
     modelKey: 'veo2', resolution: '1080p', voice: true, music: true,
     features: ['Google Veo 2', 'Voice + Music', '~10 min'],
-    estimatedUsdPerClip: 0.50, clipDurationSec: 5, creditsPerSecond: 14, color: '#8B5CF6',
+    estimatedUsdPerClip: 0.50, clipDurationSec: 5, creditsPerSecond: 8, color: '#8B5CF6',
+    // $0.50×1.5×₹85/5s = ₹12.75/s ÷ ₹2 = 6.4 + 2 audio = 8 cr/s
   },
 };
 
