@@ -170,20 +170,30 @@ export default function StudioPage() {
       creditsPerSecond: 8,
     },
     viral: {
-      id: 'viral', name: '🚀 Viral', tagline: 'Maximum Impact',
+      id: 'viral', name: '🚀 Viral', tagline: 'Luma 1080p + Voice + Music',
       resolution: '1080p', voice: true, music: true,
       color: '#F59E0B',
       features: ['Luma Dream Machine', 'Voice + Music', '~7 min'],
       creditsPerSecond: 10,
     },
+    ultra: {
+      id: 'ultra', name: '🌟 Ultra', tagline: 'Google Veo 2 + Full Audio',
+      resolution: '1080p', voice: true, music: true,
+      color: '#8B5CF6',
+      features: ['Google Veo 2', 'Voice + Music', '~10 min'],
+      creditsPerSecond: 14,
+    },
   } as const;
 
   const MANUAL_MODELS_FRONTEND = [
-    { key: 'wan480p', label: '💰 Wan 480p',         usdPerClip: 0.22, res: '480p' },
-    { key: 'wan720p', label: '⚡ Wan 720p',         usdPerClip: 0.45, res: '720p' },
-    { key: 'luma',    label: '🚀 Luma Dream Machine', usdPerClip: 0.19, res: '1080p' },
-    { key: 'kling',   label: '🎬 Kling v2.5 Pro',   usdPerClip: 0.35, res: '1080p' },
-    { key: 'minimax', label: '✨ Minimax Hailuo',    usdPerClip: 0.28, res: '720p' },
+    { key: 'wan480p',    label: '💰 Wan 2.1 480p',       usdPerClip: 0.22, res: '480p',  clipSec: 5 },
+    { key: 'wan720p',    label: '⚡ Wan 2.1 720p',       usdPerClip: 0.45, res: '720p',  clipSec: 5 },
+    { key: 'luma_flash', label: '⚡ Luma Ray Flash',     usdPerClip: 0.10, res: '1080p', clipSec: 5 },
+    { key: 'luma',       label: '🚀 Luma Dream Machine', usdPerClip: 0.19, res: '1080p', clipSec: 5 },
+    { key: 'kling',      label: '🎬 Kling v2.5',         usdPerClip: 0.35, res: '1080p', clipSec: 5 },
+    { key: 'minimax',    label: '✨ Minimax Hailuo',      usdPerClip: 0.28, res: '720p',  clipSec: 6 },
+    { key: 'veo2_flash', label: '🌐 Veo 2 Flash',        usdPerClip: 0.25, res: '720p',  clipSec: 5 },
+    { key: 'veo2',       label: '🌟 Google Veo 2',       usdPerClip: 0.50, res: '1080p', clipSec: 5 },
   ];
 
   /** Calculate video credit cost for selected package / model */
@@ -848,32 +858,20 @@ export default function StudioPage() {
                 {contentType === 'video' && (
                   <div>
                     <label className="text-sm text-[#94A3B8] mb-2 block">🎬 Video Model</label>
-                    <div className="space-y-2">
+                    <select
+                      value={manualModelKey}
+                      onChange={e => setManualModelKey(e.target.value)}
+                      className="dark-input"
+                    >
                       {MANUAL_MODELS_FRONTEND.map(m => {
                         const cost = calcVideoCredits(null, m.key, duration);
-                        const isSelected = manualModelKey === m.key;
                         return (
-                          <button
-                            key={m.key}
-                            onClick={() => setManualModelKey(m.key)}
-                            className="w-full rounded-xl p-3 text-left flex items-center justify-between transition-all"
-                            style={{
-                              background: isSelected ? 'rgba(229,9,20,0.08)' : 'rgba(255,255,255,0.03)',
-                              border: `1px solid ${isSelected ? 'rgba(229,9,20,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                            }}
-                          >
-                            <div>
-                              <span className="font-bold text-white text-sm">{m.label}</span>
-                              <span className="text-xs text-[#94A3B8] ml-2">{m.res}</span>
-                            </div>
-                            <div className="text-right text-xs">
-                              <div className="font-bold text-white">+{cost.credits} cr</div>
-                              <div className="text-[#94A3B8]">≈₹{cost.inr}</div>
-                            </div>
-                          </button>
+                          <option key={m.key} value={m.key}>
+                            {m.label} · {m.res} · +{cost.credits}cr (≈₹{cost.inr})
+                          </option>
                         );
                       })}
-                    </div>
+                    </select>
                     <p className="text-xs text-[#94A3B8] mt-2">
                       Script: {creditCost} cr + Video: {calcVideoCredits(null, manualModelKey, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(null, manualModelKey, duration).credits} total</strong>
                     </p>
@@ -1112,40 +1110,21 @@ export default function StudioPage() {
                 {/* ── Video Package Selector (express video mode) ── */}
                 {contentType === 'video' && (
                   <div>
-                    <label className="text-sm text-[#94A3B8] mb-3 block">Video Quality Package</label>
-                    <div className="space-y-2">
+                    <label className="text-sm text-[#94A3B8] mb-2 block">🎬 Video Package</label>
+                    <select
+                      value={videoPackage}
+                      onChange={e => setVideoPackage(e.target.value)}
+                      className="dark-input"
+                    >
                       {Object.values(VIDEO_PACKAGES_FRONTEND).map(pkg => {
                         const cost = calcVideoCredits(pkg.id, null, duration);
-                        const isSelected = videoPackage === pkg.id;
                         return (
-                          <button
-                            key={pkg.id}
-                            onClick={() => setVideoPackage(pkg.id)}
-                            className="w-full rounded-xl p-3 text-left transition-all"
-                            style={{
-                              background: isSelected ? `${pkg.color}15` : 'rgba(255,255,255,0.03)',
-                              border: `1px solid ${isSelected ? pkg.color : 'rgba(255,255,255,0.08)'}`,
-                            }}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="font-bold text-white text-sm">{pkg.name}</span>
-                                <span className="text-xs ml-2" style={{ color: pkg.color }}>{pkg.tagline}</span>
-                              </div>
-                              <div className="text-right text-xs">
-                                <div className="font-bold text-white">+{cost.credits} cr</div>
-                                <div className="text-[#94A3B8]">≈₹{cost.inr}</div>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {pkg.features.map(f => (
-                                <span key={f} className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: `${pkg.color}20`, color: pkg.color }}>{f}</span>
-                              ))}
-                            </div>
-                          </button>
+                          <option key={pkg.id} value={pkg.id}>
+                            {pkg.name} · {pkg.resolution} · +{cost.credits}cr (≈₹{cost.inr})
+                          </option>
                         );
                       })}
-                    </div>
+                    </select>
                     <p className="text-xs text-[#94A3B8] mt-2">
                       Script: {creditCost} cr + Video: {calcVideoCredits(videoPackage, null, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(videoPackage, null, duration).credits} total credits</strong>
                     </p>
@@ -1563,40 +1542,21 @@ export default function StudioPage() {
                 {/* ── Video Package Selector (auto video mode) ── */}
                 {contentType === 'video' && (
                   <div>
-                    <label className="text-sm text-[#94A3B8] mb-3 block">🎬 Select Video Package</label>
-                    <div className="space-y-2">
+                    <label className="text-sm text-[#94A3B8] mb-2 block">🎬 Video Package</label>
+                    <select
+                      value={videoPackage}
+                      onChange={e => setVideoPackage(e.target.value)}
+                      className="dark-input"
+                    >
                       {Object.values(VIDEO_PACKAGES_FRONTEND).map(pkg => {
                         const cost = calcVideoCredits(pkg.id, null, duration);
-                        const isSelected = videoPackage === pkg.id;
                         return (
-                          <button
-                            key={pkg.id}
-                            onClick={() => setVideoPackage(pkg.id)}
-                            className="w-full rounded-xl p-3 text-left transition-all"
-                            style={{
-                              background: isSelected ? `${pkg.color}15` : 'rgba(255,255,255,0.03)',
-                              border: `1px solid ${isSelected ? pkg.color : 'rgba(255,255,255,0.08)'}`,
-                            }}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="font-bold text-white text-sm">{pkg.name}</span>
-                                <span className="text-xs ml-2" style={{ color: pkg.color }}>{pkg.tagline}</span>
-                              </div>
-                              <div className="text-right text-xs">
-                                <div className="font-bold text-white">+{cost.credits} cr</div>
-                                <div className="text-[#94A3B8]">≈₹{cost.inr}</div>
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {pkg.features.map(f => (
-                                <span key={f} className="text-xs px-1.5 py-0.5 rounded-full" style={{ background: `${pkg.color}20`, color: pkg.color }}>{f}</span>
-                              ))}
-                            </div>
-                          </button>
+                          <option key={pkg.id} value={pkg.id}>
+                            {pkg.name} · {pkg.resolution} · +{cost.credits}cr (≈₹{cost.inr})
+                          </option>
                         );
                       })}
-                    </div>
+                    </select>
                     <p className="text-xs text-[#94A3B8] mt-2">
                       Script: {creditCost} cr + Video: {calcVideoCredits(videoPackage, null, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(videoPackage, null, duration).credits} total credits</strong>
                     </p>

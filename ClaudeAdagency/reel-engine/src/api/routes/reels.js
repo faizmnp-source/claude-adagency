@@ -97,7 +97,7 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
     const reelId = uuid();
 
     if (![15, 30, 50].includes(parseInt(duration))) {
-      return res.status(400).json({ error: 'Duration must be 15, 30, or 50 seconds' });
+      return res.status(400).json({ error: 'Duration must be 15, 30, or 50 seconds. Got: ' + duration });
     }
 
     // Deduct credits
@@ -428,8 +428,12 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'No images found for this reel. Images expire after 1 hour — regenerate the reel.' });
     }
     const paths = JSON.parse(savedPaths);
-    const host = req.headers['x-forwarded-host'] || req.headers.host;
-    const imageUrls = paths.map((_, i) => `https://${host}/api/reels/${reelId}/images/${i}`);
+    // IMPORTANT: Must use the public REEL_ENGINE_URL so Replicate can actually fetch these images.
+    // Never use req.headers.host — that can be internal/proxy hostname that Replicate can't reach.
+    const publicBase = (process.env.REEL_ENGINE_URL || '').replace(/['"]/g, '').replace(/\/+$/, '')
+      || `https://${req.headers['x-forwarded-host'] || req.headers.host}`;
+    const imageUrls = paths.map((_, i) => `${publicBase}/api/reels/${reelId}/images/${i}`);
+    logger.info('Image URLs for Replicate', { publicBase, imageUrls });
 
     logger.info('Building image URLs for Replicate', { reelId, imageUrls });
 

@@ -22,6 +22,16 @@ router.get('/post-types', (req, res) => {
   res.json({ postTypes: IMAGE_POST_TYPES });
 });
 
+// GET /api/images/models — list available image generation models
+router.get('/models', async (req, res) => {
+  try {
+    const { IMAGE_MODELS } = await import('../../services/image/imageGenerator.js');
+    res.json({ models: IMAGE_MODELS });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/images/schedule
 router.get('/schedule', (req, res) => {
   const { industry = 'ecommerce', region = 'india', postType = 'educational', count = 7 } = req.query;
@@ -47,6 +57,7 @@ router.post('/generate', async (req, res) => {
       scheduleDay,
       scheduleTime,
       count = 1,
+      imageModel = 'flux-dev', // Image quality: flux-schnell | flux-dev | flux-pro | sd35 | ideogram
     } = req.body;
 
     if (!productDescription && !customPrompt) {
@@ -77,6 +88,7 @@ router.post('/generate', async (req, res) => {
         industry,
         designStyle,
         customPrompt,
+        imageModel,
       });
       results.push(result);
     }

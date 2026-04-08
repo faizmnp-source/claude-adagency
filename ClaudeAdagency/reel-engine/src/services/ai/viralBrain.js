@@ -91,7 +91,15 @@ Return ONLY valid JSON:
     }],
   });
 
-  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
+  const raw = response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  try {
+    return JSON.parse(raw);
+  } catch {
+    // If Claude added explanation text, find the JSON object/array
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('Could not parse viral trends JSON from Claude response');
+  }
 }
 
 /**
@@ -138,7 +146,11 @@ Return ONLY valid JSON:
     }],
   });
 
-  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
+  const raw2 = response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  try { return JSON.parse(raw2); } catch {
+    const m = raw2.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]);
+    throw new Error('Could not parse viral analysis JSON');
+  }
 }
 
 /**
@@ -179,5 +191,9 @@ Return ONLY valid JSON:
     }],
   });
 
-  return JSON.parse(response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim());
+  const raw3 = response.content[0].text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  try { return JSON.parse(raw3); } catch {
+    const m = raw3.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]);
+    throw new Error('Could not parse viral fuse JSON');
+  }
 }
