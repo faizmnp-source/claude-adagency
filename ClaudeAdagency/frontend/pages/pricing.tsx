@@ -5,10 +5,6 @@ import Link from 'next/link';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 
-// Pricing: 1.5× Replicate cost. 1 credit = ₹2 | $1 = ₹85
-// Script generation: 2 cr/s (Claude AI)
-// Video creditsPerSecond = (usdPerClip × 1.5 × 85) / (2 × clipSec) + audio premium
-
 const VIDEO_PACKAGES = [
   {
     id: 'starter',
@@ -21,14 +17,12 @@ const VIDEO_PACKAGES = [
     color: '#10B981',
     bg: 'rgba(16,185,129,0.08)',
     border: 'rgba(16,185,129,0.3)',
-    features: ['Wan 2.1 480p video', 'Fast generation (~3 min)', 'No AI voice/music', 'Great for testing'],
-    // 3 cr/s video — Replicate ₹18.70/5s × 1.5 = ₹28.05 ≈ 3 cr/s
+    features: ['480p AI video quality', 'Fast generation (~3 min)', 'No AI voice/music', 'Great for testing ideas'],
     pricing: {
-      duration15: { credits: 30 + 45,   inr: 150  },
-      duration30: { credits: 60 + 90,   inr: 300  },
-      duration50: { credits: 100 + 150, inr: 500  },
+      duration15: { credits: 75,  inr: 150  },
+      duration30: { credits: 150, inr: 300  },
+      duration50: { credits: 250, inr: 500  },
     },
-    usdPerClip: 0.22,
     creditsPerSec: 3,
   },
   {
@@ -42,21 +36,19 @@ const VIDEO_PACKAGES = [
     color: '#4A6CF7',
     bg: 'rgba(74,108,247,0.08)',
     border: 'rgba(74,108,247,0.35)',
-    features: ['Wan 2.1 720p HD video', 'ElevenLabs AI voice', 'Cinematic motion prompts', '~5 min generation'],
-    // 7 cr/s — Replicate ₹38.25/5s × 1.5 = ₹57.38 ≈ 6 cr/s + 1 voice = 7 cr/s
+    features: ['720p HD video quality', 'ElevenLabs AI voice', 'Cinematic motion', '~5 min generation'],
     pricing: {
-      duration15: { credits: 30 + 105,  inr: 270  },
-      duration30: { credits: 60 + 210,  inr: 540  },
-      duration50: { credits: 100 + 350, inr: 900  },
+      duration15: { credits: 135, inr: 270  },
+      duration30: { credits: 270, inr: 540  },
+      duration50: { credits: 450, inr: 900  },
     },
-    usdPerClip: 0.45,
     creditsPerSec: 7,
     popular: true,
   },
   {
     id: 'viral',
     name: '🚀 Viral',
-    tagline: 'Luma 1080p + Voice + Music',
+    tagline: '1080p + Voice + Music',
     modelName: 'Luma Dream Machine',
     resolution: '1080p',
     voice: true,
@@ -64,14 +56,12 @@ const VIDEO_PACKAGES = [
     color: '#F59E0B',
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.35)',
-    features: ['Luma Dream Machine 1080p', 'ElevenLabs AI voice', 'MusicGen background music', 'Premium cinematic motion'],
-    // 4 cr/s — Replicate ₹16.15/5s × 1.5 = ₹24.23 ≈ 2 cr/s + 2 audio = 4 cr/s
+    features: ['1080p cinematic quality', 'ElevenLabs AI voice', 'AI background music', 'Premium motion output'],
     pricing: {
-      duration15: { credits: 30 + 60,   inr: 180  },
-      duration30: { credits: 60 + 120,  inr: 360  },
-      duration50: { credits: 100 + 200, inr: 600  },
+      duration15: { credits: 90,  inr: 180  },
+      duration30: { credits: 180, inr: 360  },
+      duration50: { credits: 300, inr: 600  },
     },
-    usdPerClip: 0.19,
     creditsPerSec: 4,
   },
   {
@@ -85,34 +75,31 @@ const VIDEO_PACKAGES = [
     color: '#8B5CF6',
     bg: 'rgba(139,92,246,0.08)',
     border: 'rgba(139,92,246,0.35)',
-    features: ['Google Veo 2 1080p', 'ElevenLabs AI voice', 'MusicGen background music', 'Highest quality output'],
-    // 8 cr/s — Replicate ₹42.50/5s × 1.5 = ₹63.75 ≈ 6 cr/s + 2 audio = 8 cr/s
+    features: ['Google Veo 2 quality', 'ElevenLabs AI voice', 'AI background music', 'Highest fidelity output'],
     pricing: {
-      duration15: { credits: 30 + 120,  inr: 300  },
-      duration30: { credits: 60 + 240,  inr: 600  },
-      duration50: { credits: 100 + 400, inr: 1000 },
+      duration15: { credits: 150, inr: 300  },
+      duration30: { credits: 300, inr: 600  },
+      duration50: { credits: 500, inr: 1000 },
     },
-    usdPerClip: 0.50,
     creditsPerSec: 8,
   },
 ];
 
-// All 8 manual models — 1.5× Replicate cost per clip
 const MANUAL_MODELS = [
-  { key: 'wan480p',    label: '💰 Wan 2.1 480p',       res: '480p',  usdPerClip: 0.22, clipSec: 5, inrPerClip: '₹28',  inrPer30s: '₹168'  },
-  { key: 'wan720p',    label: '⚡ Wan 2.1 720p',       res: '720p',  usdPerClip: 0.45, clipSec: 5, inrPerClip: '₹57',  inrPer30s: '₹344'  },
-  { key: 'luma_flash', label: '⚡ Luma Ray Flash',     res: '1080p', usdPerClip: 0.10, clipSec: 5, inrPerClip: '₹13',  inrPer30s: '₹77'   },
-  { key: 'luma',       label: '🚀 Luma Dream Machine', res: '1080p', usdPerClip: 0.19, clipSec: 5, inrPerClip: '₹24',  inrPer30s: '₹146'  },
-  { key: 'kling',      label: '🎬 Kling v2.5',         res: '1080p', usdPerClip: 0.35, clipSec: 5, inrPerClip: '₹45',  inrPer30s: '₹268'  },
-  { key: 'minimax',    label: '✨ Minimax Hailuo',      res: '720p',  usdPerClip: 0.28, clipSec: 6, inrPerClip: '₹36/6s', inrPer30s: '₹179'  },
-  { key: 'veo2_flash', label: '🌐 Veo 2 Flash',        res: '720p',  usdPerClip: 0.25, clipSec: 5, inrPerClip: '₹32',  inrPer30s: '₹191'  },
-  { key: 'veo2',       label: '🌟 Google Veo 2',       res: '1080p', usdPerClip: 0.50, clipSec: 5, inrPerClip: '₹64',  inrPer30s: '₹383'  },
+  { key: 'wan480p',    label: '💰 Wan 2.1 480p',       res: '480p',  inrPerClip: '₹28',  inrPer30s: '₹168'  },
+  { key: 'wan720p',    label: '⚡ Wan 2.1 720p',       res: '720p',  inrPerClip: '₹57',  inrPer30s: '₹344'  },
+  { key: 'luma_flash', label: '⚡ Luma Ray Flash',     res: '1080p', inrPerClip: '₹13',  inrPer30s: '₹77'   },
+  { key: 'luma',       label: '🚀 Luma Dream Machine', res: '1080p', inrPerClip: '₹24',  inrPer30s: '₹146'  },
+  { key: 'kling',      label: '🎬 Kling v2.5',         res: '1080p', inrPerClip: '₹45',  inrPer30s: '₹268'  },
+  { key: 'minimax',    label: '✨ Minimax Hailuo',      res: '720p',  inrPerClip: '₹36',  inrPer30s: '₹179'  },
+  { key: 'veo2_flash', label: '🌐 Veo 2 Flash',        res: '720p',  inrPerClip: '₹32',  inrPer30s: '₹191'  },
+  { key: 'veo2',       label: '🌟 Google Veo 2',       res: '1080p', inrPerClip: '₹64',  inrPer30s: '₹383'  },
 ];
 
 const CREDIT_PACKS = [
-  { credits: 100,  price: '₹499',   priceNum: 499,   reels: '~1–3 reels', popular: false },
-  { credits: 500,  price: '₹1,999', priceNum: 1999,  reels: '~5–15 reels', popular: true  },
-  { credits: 1000, price: '₹3,499', priceNum: 3499,  reels: '~10–30 reels', popular: false },
+  { credits: 100,  price: '₹499',   priceNum: 499,  reels: '~1–3 reels',   popular: false },
+  { credits: 500,  price: '₹1,999', priceNum: 1999, reels: '~5–15 reels',  popular: true  },
+  { credits: 1000, price: '₹3,499', priceNum: 3499, reels: '~10–30 reels', popular: false },
 ];
 
 export default function PricingPage() {
@@ -120,7 +107,11 @@ export default function PricingPage() {
     <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#fff' }}>
       <Head>
         <title>Pricing — TheCraftStudios</title>
-        <meta name="description" content="Transparent pay-per-use pricing for AI reel generation. 1.5× Replicate cost, credits never expire." />
+        <meta name="description" content="Simple pay-per-use pricing for AI reel generation. Buy credits once, use anytime. No subscriptions." />
+        <meta property="og:title" content="Pricing — TheCraftStudios" />
+        <meta property="og:description" content="Pay only for what you generate. Credits never expire. No subscriptions." />
+        <meta property="og:url" content="https://www.thecraftstudios.in/pricing" />
+        <link rel="canonical" href="https://www.thecraftstudios.in/pricing" />
       </Head>
 
       <NavBar />
@@ -130,17 +121,17 @@ export default function PricingPage() {
         {/* Hero */}
         <div className="text-center mb-14">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Transparent <span style={{ color: '#E50914' }}>Pricing</span>
+            Simple, Transparent <span style={{ color: '#E50914' }}>Pricing</span>
           </h1>
           <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
-            Pay only for what you generate. Credits never expire.
-            We charge <strong className="text-white">1.5×</strong> the Replicate model cost — zero hidden fees.
+            Pay only for what you generate. No subscriptions, no monthly fees.
+            Credits <strong className="text-white">never expire.</strong>
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-4 text-sm text-[#94A3B8]">
-            <span>Script (Claude AI): <strong className="text-white">2 cr/sec</strong></span>
-            <span className="hidden sm:inline text-[#94A3B8]">•</span>
-            <span>Video: billed per package below</span>
-            <span className="hidden sm:inline text-[#94A3B8]">•</span>
+            <span>Script: <strong className="text-white">2 cr/sec</strong></span>
+            <span className="hidden sm:inline">•</span>
+            <span>Video: billed by package below</span>
+            <span className="hidden sm:inline">•</span>
             <span><strong className="text-white">1 credit = ₹2</strong></span>
           </div>
         </div>
@@ -149,7 +140,7 @@ export default function PricingPage() {
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-white mb-2">🎬 Video Generation Packages</h2>
           <p className="text-[#94A3B8] text-sm mb-8">
-            Charged after script generation. All prices = script + video cost combined.
+            Prices below include both script generation and video. Choose based on your quality needs.
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -173,7 +164,7 @@ export default function PricingPage() {
 
                 {/* Price breakdown */}
                 <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                  <p className="text-xs text-[#94A3B8] mb-2 font-medium uppercase tracking-wide">Script + Video cost</p>
+                  <p className="text-xs text-[#94A3B8] mb-2 font-medium uppercase tracking-wide">Total cost per reel</p>
                   {[
                     { label: '15s', ...pkg.pricing.duration15 },
                     { label: '30s', ...pkg.pricing.duration30 },
@@ -212,52 +203,48 @@ export default function PricingPage() {
 
                 <Link href="/studio" className="block text-center py-2.5 rounded-xl font-bold text-xs transition-all"
                   style={{ background: pkg.color, color: '#fff' }}>
-                  Create with {pkg.name.split(' ').slice(1).join(' ')} →
+                  Try {pkg.name.split(' ').slice(1).join(' ')} →
                 </Link>
               </div>
             ))}
           </div>
 
-          {/* Pricing note */}
           <div className="mt-4 p-4 rounded-xl text-xs text-[#94A3B8]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <strong className="text-white">How it works:</strong> Script (2 cr/sec) is charged when you hit "Generate". Video credits are charged when you hit "Generate Video". You can review the script before committing to video.
+            <strong className="text-white">How it works:</strong> Script credits are charged when you generate your script. Video credits are charged separately when you generate the video — so you can review the script first before committing to video.
           </div>
         </section>
 
-        {/* ── Manual Model Reference ── */}
+        {/* ── Manual Model Pricing ── */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-2">🎮 Manual Mode — All 8 Models</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">🎮 Manual Mode — Pick Any Model</h2>
           <p className="text-[#94A3B8] text-sm mb-6">
-            In Manual mode, pick any model. Pricing = 1.5× Replicate cost (₹85/$). Script cost (2 cr/sec) is separate.
+            In Manual mode you choose the exact AI model. Script cost (2 cr/sec) is charged separately.
           </p>
 
           <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="grid grid-cols-5 px-5 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wide" style={{ background: 'rgba(255,255,255,0.03)' }}>
+            <div className="grid grid-cols-4 px-5 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wide" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <span className="col-span-2">Model</span>
               <span>Resolution</span>
-              <span>Per clip</span>
               <span>30s reel</span>
             </div>
             {MANUAL_MODELS.map((m, i) => (
-              <div key={m.key} className="grid grid-cols-5 px-5 py-3.5 items-center text-sm"
+              <div key={m.key} className="grid grid-cols-4 px-5 py-3.5 items-center"
                 style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                 <span className="col-span-2 font-semibold text-white text-sm">{m.label}</span>
                 <span className="text-[#94A3B8] text-xs">{m.res}</span>
-                <span className="text-[#94A3B8] text-xs">${m.usdPerClip}×1.5 = {m.inrPerClip}</span>
                 <span className="text-white font-semibold text-sm">{m.inrPer30s}</span>
               </div>
             ))}
           </div>
           <p className="text-xs text-[#94A3B8] mt-3">
-            * Replicate prices shown in USD. INR calculated at ₹85/$. 30s reel = 6 clips (5s each) except Minimax (5 clips × 6s).
-            Manual mode does not include AI voice or music.
+            * Manual mode does not include AI voice or music. 30s reel = 6 clips (5s each).
           </p>
         </section>
 
         {/* ── Credit Packs ── */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-white mb-2">💳 Buy Credits</h2>
-          <p className="text-[#94A3B8] text-sm mb-8">Credits are used for script + video generation. <strong className="text-white">Never expire.</strong></p>
+          <p className="text-[#94A3B8] text-sm mb-8">Credits work across all features — reels, images, voiceovers. <strong className="text-white">Never expire.</strong></p>
 
           <div className="grid md:grid-cols-3 gap-6">
             {CREDIT_PACKS.map(pack => (
@@ -275,8 +262,8 @@ export default function PricingPage() {
                 <div className="text-3xl font-bold text-white mb-1">{pack.credits}</div>
                 <div className="text-[#94A3B8] text-sm mb-1">credits</div>
                 <div className="text-xs text-[#94A3B8] mb-4">{pack.reels}</div>
-                <div className="text-2xl font-bold mb-6" style={{ color: '#E50914' }}>{pack.price}</div>
-                <div className="text-xs text-[#94A3B8] mb-5">= ₹{(pack.priceNum / pack.credits).toFixed(1)} per credit</div>
+                <div className="text-2xl font-bold mb-2" style={{ color: '#E50914' }}>{pack.price}</div>
+                <div className="text-xs text-[#94A3B8] mb-6">= ₹{(pack.priceNum / pack.credits).toFixed(1)} per credit</div>
                 <Link href="/studio/credits" className="block text-center py-3 rounded-xl font-bold text-sm"
                   style={{ background: pack.popular ? '#E50914' : 'rgba(255,255,255,0.06)', color: '#fff', border: pack.popular ? 'none' : '1px solid rgba(255,255,255,0.1)' }}>
                   Buy {pack.credits} Credits
@@ -285,21 +272,21 @@ export default function PricingPage() {
             ))}
           </div>
 
-          {/* Quick reference table */}
+          {/* Quick reference */}
           <div className="mt-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="px-5 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wide" style={{ background: 'rgba(255,255,255,0.03)' }}>
-              What can you make with 500 credits?
+              What can I make with 500 credits?
             </div>
             <div className="divide-y divide-white/5">
               {[
-                { pkg: '💰 Starter 30s', credits: 150, count: '3 reels' },
-                { pkg: '⚡ Creator 30s', credits: 270, count: '1 reel + script for next' },
-                { pkg: '🚀 Viral 30s',   credits: 180, count: '2 reels' },
-                { pkg: '🌟 Ultra 30s',   credits: 300, count: '1 reel' },
+                { pkg: '💰 Starter 30s',  credits: 150, count: '3 reels' },
+                { pkg: '⚡ Creator 30s',  credits: 270, count: '1 reel + leftover credits' },
+                { pkg: '🚀 Viral 30s',    credits: 180, count: '2 reels' },
+                { pkg: '🌟 Ultra 30s',    credits: 300, count: '1 reel' },
               ].map(row => (
                 <div key={row.pkg} className="flex items-center justify-between px-5 py-3 text-sm">
                   <span className="text-white font-semibold">{row.pkg}</span>
-                  <span className="text-[#94A3B8]">{row.credits} cr each → <strong className="text-white">{row.count}</strong></span>
+                  <span className="text-[#94A3B8]">{row.credits} cr → <strong className="text-white">{row.count}</strong></span>
                 </div>
               ))}
             </div>
@@ -312,28 +299,28 @@ export default function PricingPage() {
           <div className="space-y-4">
             {[
               {
-                q: 'How is pricing calculated?',
-                a: 'We charge 1.5× the Replicate model cost, which covers GPU compute, API overhead, and platform maintenance. 1 credit = ₹2. Script generation uses Claude AI at 2 credits/sec. Video generation is billed separately per the package you choose.',
-              },
-              {
-                q: 'Why is Viral (Luma) cheaper than Creator (Wan 720p)?',
-                a: 'Luma Dream Machine produces 1080p output at $0.19/clip while Wan 720p costs $0.45/clip on Replicate. Quality isn\'t always correlated with price — Luma uses a more efficient architecture. So you get 1080p for less!',
+                q: 'How does the credit system work?',
+                a: '1 credit = ₹2. Script generation costs 2 credits per second of reel. Video generation is billed separately per package after you approve the script — so you only pay for video quality when you\'re ready.',
               },
               {
                 q: 'Why are credits charged separately for script and video?',
-                a: 'Script generation uses Claude AI (2cr/sec, charged upfront). Video uses GPU models on Replicate (charged per package after you approve the script). This way you only pay for video quality after reviewing your script.',
+                a: 'Script and video are two separate AI steps. Charging them separately lets you review and approve the script before committing to the more intensive video generation step.',
+              },
+              {
+                q: 'Why is Viral (Luma) cheaper than Creator (Wan 720p)?',
+                a: 'Different AI models have different efficiency profiles. Luma Dream Machine delivers 1080p cinematic quality at a lower cost than Wan 720p, so we pass that saving on to you. Better quality, better price.',
               },
               {
                 q: 'Do credits expire?',
-                a: 'No. Credits stay in your account indefinitely. Buy once, use anytime.',
+                a: 'No. Credits stay in your account indefinitely. Buy once, use anytime — no pressure.',
               },
               {
-                q: 'Is background music from Suno AI?',
-                a: 'Suno AI has no public API. Background music (Viral & Ultra packages) is generated by Meta\'s MusicGen on Replicate — high-quality, royalty-free instrumental tracks.',
+                q: 'Does the Viral/Ultra package include real music?',
+                a: 'Yes — background music is AI-generated and royalty-free, created from a text prompt that matches your reel\'s tone (e.g. "upbeat commercial energy"). It\'s unique to each reel.',
               },
               {
                 q: 'What payment methods are supported?',
-                a: 'UPI, Net Banking, Debit Card, Credit Card, and wallets via Razorpay (India-first).',
+                a: 'UPI, Net Banking, Debit Card, Credit Card, and wallets — all via Razorpay, India\'s most trusted payment gateway.',
               },
             ].map(({ q, a }) => (
               <div key={q} className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>

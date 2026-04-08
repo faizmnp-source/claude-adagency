@@ -22,12 +22,12 @@ import { AnimatedCounter } from '../components/AnimatedCounter';
 const R = '#E50914';           // Netflix red — flat, no shine
 const R_GLOW = 'rgba(229,9,20,0.18)';      // very subtle, only for borders
 const R_GLOW_SOFT = 'rgba(229,9,20,0.08)'; // near invisible glow
-const BG = '#0A0A0A';
-const BG2 = '#111111';
-const BG3 = '#1A1A1A';
-const TEXT = '#FFFFFF';
-const TEXT2 = '#E8E8E8';
-const MUTED = '#888888';
+const BG = '#F9F7F3';
+const BG2 = '#F0EDE6';
+const BG3 = '#FFFFFF';
+const TEXT = '#0A0A0A';
+const TEXT2 = '#1A1A1A';
+const MUTED = '#64748B';
 
 /* ─── Inline SVG icons ───────────────────────── */
 const Ic = {
@@ -154,8 +154,8 @@ export default function HomePage() {
         ══════════════════════════════ */}
         <header style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: scrolled ? 'rgba(10,10,10,0.97)' : 'transparent',
-          borderBottom: scrolled ? `1px solid rgba(229,9,20,0.18)` : '1px solid transparent',
+          background: scrolled ? 'rgba(249,247,243,0.97)' : 'rgba(249,247,243,0.85)',
+          borderBottom: scrolled ? `1px solid rgba(229,9,20,0.18)` : '1px solid rgba(0,0,0,0.06)',
           backdropFilter: scrolled ? 'blur(20px)' : 'none',
           transition: 'all 0.3s',
         }}>
@@ -166,9 +166,9 @@ export default function HomePage() {
 
             <nav className="cs-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
               {NAV.map(({ href, label }) => (
-                <Link key={href} href={href} style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color 0.2s', letterSpacing: '0.04em' }}
+                <Link key={href} href={href} style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(15,15,15,0.6)', textDecoration: 'none', transition: 'color 0.2s', letterSpacing: '0.04em' }}
                   onMouseEnter={e => (e.currentTarget.style.color = R)}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(15,15,15,0.6)')}
                 >{label}</Link>
               ))}
               <Link href="/services" style={{ padding: '10px 24px', borderRadius: '4px', background: R, color: TEXT, fontSize: '13px', fontWeight: 700, textDecoration: 'none', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em', transition: 'all 0.2s' }}
@@ -185,9 +185,9 @@ export default function HomePage() {
           </div>
 
           {mobileOpen && (
-            <div style={{ background: 'rgba(10,10,10,0.99)', borderTop: `1px solid rgba(229,9,20,0.15)`, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ background: 'rgba(249,247,243,0.99)', borderTop: `1px solid rgba(229,9,20,0.12)`, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {NAV.map(({ href, label }) => (
-                <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{ fontSize: '16px', fontWeight: 500, color: TEXT2, textDecoration: 'none' }}>{label}</Link>
+                <Link key={href} href={href} onClick={() => setMobileOpen(false)} style={{ fontSize: '16px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none' }}>{label}</Link>
               ))}
               <Link href="/services" onClick={() => setMobileOpen(false)} style={{ marginTop: '8px', padding: '14px 24px', background: R, color: TEXT, fontSize: '15px', fontWeight: 700, textDecoration: 'none', textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
                 GET STARTED
@@ -206,7 +206,7 @@ export default function HomePage() {
           position: 'relative', minHeight: '100vh',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           overflow: 'hidden', paddingTop: '72px',
-          background: `radial-gradient(ellipse at 50% 40%, #1c1c1c 0%, ${BG} 65%)`,
+          background: `radial-gradient(ellipse at 50% 40%, #EDEBE5 0%, ${BG} 65%)`,
         }}>
           {/* Dramatic red radial glow — center BG */}
           <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%)', width: '900px', height: '700px', background: `radial-gradient(ellipse, rgba(229,9,20,0.14) 0%, transparent 65%)`, pointerEvents: 'none' }} />
@@ -240,7 +240,7 @@ export default function HomePage() {
             </h1>
 
             {/* Subheading — Bebas Neue, red accent */}
-            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(18px, 3vw, 26px)', letterSpacing: '4px', color: 'rgba(255,255,255,0.6)', marginBottom: '24px' }}>
+            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(18px, 3vw, 26px)', letterSpacing: '4px', color: 'rgba(15,15,15,0.55)', marginBottom: '24px' }}>
               WEBSITE &nbsp;•&nbsp; APP &nbsp;•&nbsp; SAAS &nbsp;•&nbsp; SOCIAL &nbsp;•&nbsp; EVERYTHING
             </p>
 
@@ -271,14 +271,14 @@ export default function HomePage() {
               <Link href="/contact" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '10px',
                 padding: '18px 40px',
-                background: 'transparent', color: TEXT,
+                background: 'transparent', color: R,
                 fontSize: '16px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
                 textDecoration: 'none',
                 border: `2px solid ${R}`,
                 borderRadius: '2px',
                 transition: 'all 0.25s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.12)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(229,9,20,0.08)'; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
               >
                 SCHEDULE DEMO
@@ -298,7 +298,7 @@ export default function HomePage() {
             skill: scroll-experience (animated counters)
             skill: landing-page-generator (grid pattern)
         ══════════════════════════════ */}
-        <section style={{ background: '#000', borderTop: `1px solid rgba(229,9,20,0.12)`, borderBottom: `1px solid rgba(229,9,20,0.12)`, padding: '64px 24px' }}>
+        <section style={{ background: '#FFFFFF', boxShadow: '0 2px 30px rgba(0,0,0,0.06)', borderTop: `1px solid rgba(229,9,20,0.12)`, borderBottom: `1px solid rgba(229,9,20,0.12)`, padding: '64px 24px' }}>
           <div style={{ maxWidth: '960px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', textAlign: 'center' }}>
             {[
               { icon: Ic.briefcase, target: 500, suffix: '+', label: 'Digital Platforms Built' },
@@ -363,14 +363,14 @@ export default function HomePage() {
                     <div style={{
                       padding: svc.featured ? '44px 36px' : '36px 30px',
                       background: BG,
-                      border: svc.featured ? `2px solid ${R}` : `1px solid rgba(255,255,255,0.08)`,
+                      border: svc.featured ? `2px solid ${R}` : `1px solid rgba(0,0,0,0.08)`,
                       borderLeft: !svc.featured ? `4px solid ${R}` : undefined,
                       borderRadius: '0',
                       position: 'relative',
                       overflow: 'hidden',
                       cursor: 'pointer',
                       transform: svc.featured ? 'translateY(-16px)' : 'none',
-                      boxShadow: svc.featured ? `0 0 40px rgba(229,9,20,0.25), 0 0 80px rgba(229,9,20,0.08)` : 'none',
+                      boxShadow: svc.featured ? `0 0 40px rgba(229,9,20,0.25), 0 0 80px rgba(229,9,20,0.08)` : '0 2px 16px rgba(0,0,0,0.06)',
                       transition: 'all 0.3s ease',
                       height: '100%',
                     }}
@@ -386,7 +386,7 @@ export default function HomePage() {
                         const el = e.currentTarget as HTMLElement;
                         el.style.boxShadow = svc.featured ? `0 0 40px rgba(229,9,20,0.25)` : 'none';
                         el.style.transform = svc.featured ? 'translateY(-16px)' : 'none';
-                        el.style.border = svc.featured ? `2px solid ${R}` : `1px solid rgba(255,255,255,0.08)`;
+                        el.style.border = svc.featured ? `2px solid ${R}` : `1px solid rgba(0,0,0,0.08)`;
                         if (!svc.featured) el.style.borderLeft = `4px solid ${R}`;
                       }}
                     >
