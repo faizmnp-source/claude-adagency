@@ -1,5 +1,9 @@
 import 'dotenv/config';
 
+function cleanEnv(value) {
+  return typeof value === 'string' ? value.replace(/['"]/g, '').trim() : value;
+}
+
 export const config = {
   port: parseInt(process.env.PORT || '4000'),
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -46,9 +50,9 @@ export const config = {
   },
 
   razorpay: {
-    keyId: process.env.RAZORPAY_KEY_ID,
-    keySecret: process.env.RAZORPAY_KEY_SECRET,
-    webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET,
+    keyId: cleanEnv(process.env.RAZORPAY_KEY_ID),
+    keySecret: cleanEnv(process.env.RAZORPAY_KEY_SECRET),
+    webhookSecret: cleanEnv(process.env.RAZORPAY_WEBHOOK_SECRET),
   },
 
   auth: {
