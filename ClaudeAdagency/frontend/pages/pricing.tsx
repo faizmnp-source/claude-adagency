@@ -8,103 +8,99 @@ import Footer from '../components/Footer';
 const VIDEO_PACKAGES = [
   {
     id: 'starter',
-    name: '💰 Starter',
+    name: 'Starter',
+    emoji: '💰',
     tagline: 'Fast & Budget-Friendly',
     modelName: 'Wan 2.1 480p',
     resolution: '480p',
     voice: false,
     music: false,
-    color: '#10B981',
-    bg: 'rgba(16,185,129,0.08)',
-    border: 'rgba(16,185,129,0.3)',
+    color: '#15803d',
+    glow: 'rgba(21,128,61,0.12)',
     features: ['480p AI video quality', 'Fast generation (~3 min)', 'No AI voice/music', 'Great for testing ideas'],
     pricing: {
-      duration15: { credits: 75,  inr: 150  },
-      duration30: { credits: 150, inr: 300  },
-      duration50: { credits: 250, inr: 500  },
+      duration15: { credits: 75, inr: 150 },
+      duration30: { credits: 150, inr: 300 },
+      duration50: { credits: 250, inr: 500 },
     },
-    creditsPerSec: 3,
   },
   {
     id: 'creator',
-    name: '⚡ Creator',
+    name: 'Creator',
+    emoji: '⚡',
     tagline: 'Professional + AI Voice',
     modelName: 'Wan 2.1 720p',
     resolution: '720p',
     voice: true,
     music: false,
-    color: '#4A6CF7',
-    bg: 'rgba(74,108,247,0.08)',
-    border: 'rgba(74,108,247,0.35)',
+    color: '#0b2b26',
+    glow: 'rgba(11,43,38,0.12)',
     features: ['720p HD video quality', 'ElevenLabs AI voice', 'Cinematic motion', '~5 min generation'],
     pricing: {
-      duration15: { credits: 135, inr: 270  },
-      duration30: { credits: 270, inr: 540  },
-      duration50: { credits: 450, inr: 900  },
+      duration15: { credits: 135, inr: 270 },
+      duration30: { credits: 270, inr: 540 },
+      duration50: { credits: 450, inr: 900 },
     },
-    creditsPerSec: 7,
     popular: true,
   },
   {
     id: 'viral',
-    name: '🚀 Viral',
+    name: 'Viral',
+    emoji: '🚀',
     tagline: '1080p + Voice + Music',
     modelName: 'Luma Dream Machine',
     resolution: '1080p',
     voice: true,
     music: true,
-    color: '#F59E0B',
-    bg: 'rgba(245,158,11,0.08)',
-    border: 'rgba(245,158,11,0.35)',
+    color: '#e36414',
+    glow: 'rgba(227,100,20,0.12)',
     features: ['1080p cinematic quality', 'ElevenLabs AI voice', 'AI background music', 'Premium motion output'],
     pricing: {
-      duration15: { credits: 90,  inr: 180  },
-      duration30: { credits: 180, inr: 360  },
-      duration50: { credits: 300, inr: 600  },
+      duration15: { credits: 90, inr: 180 },
+      duration30: { credits: 180, inr: 360 },
+      duration50: { credits: 300, inr: 600 },
     },
-    creditsPerSec: 4,
   },
   {
     id: 'ultra',
-    name: '🌟 Ultra',
+    name: 'Ultra',
+    emoji: '🌟',
     tagline: 'Google Veo 2 + Full Audio',
     modelName: 'Google Veo 2',
     resolution: '1080p',
     voice: true,
     music: true,
-    color: '#8B5CF6',
-    bg: 'rgba(139,92,246,0.08)',
-    border: 'rgba(139,92,246,0.35)',
+    color: '#7c3aed',
+    glow: 'rgba(124,58,237,0.12)',
     features: ['Google Veo 2 quality', 'ElevenLabs AI voice', 'AI background music', 'Highest fidelity output'],
     pricing: {
-      duration15: { credits: 150, inr: 300  },
-      duration30: { credits: 300, inr: 600  },
+      duration15: { credits: 150, inr: 300 },
+      duration30: { credits: 300, inr: 600 },
       duration50: { credits: 500, inr: 1000 },
     },
-    creditsPerSec: 8,
   },
 ];
 
 const MANUAL_MODELS = [
-  { key: 'wan480p',    label: '💰 Wan 2.1 480p',       res: '480p',  inrPerClip: '₹28',  inrPer30s: '₹168'  },
-  { key: 'wan720p',    label: '⚡ Wan 2.1 720p',       res: '720p',  inrPerClip: '₹57',  inrPer30s: '₹344'  },
-  { key: 'luma_flash', label: '⚡ Luma Ray Flash',     res: '1080p', inrPerClip: '₹13',  inrPer30s: '₹77'   },
-  { key: 'luma',       label: '🚀 Luma Dream Machine', res: '1080p', inrPerClip: '₹24',  inrPer30s: '₹146'  },
-  { key: 'kling',      label: '🎬 Kling v2.5',         res: '1080p', inrPerClip: '₹45',  inrPer30s: '₹268'  },
-  { key: 'minimax',    label: '✨ Minimax Hailuo',      res: '720p',  inrPerClip: '₹36',  inrPer30s: '₹179'  },
-  { key: 'veo2_flash', label: '🌐 Veo 2 Flash',        res: '720p',  inrPerClip: '₹32',  inrPer30s: '₹191'  },
-  { key: 'veo2',       label: '🌟 Google Veo 2',       res: '1080p', inrPerClip: '₹64',  inrPer30s: '₹383'  },
+  { key: 'wan480p', label: 'Wan 2.1 480p', res: '480p', inrPerClip: '₹28', inrPer30s: '₹168' },
+  { key: 'wan720p', label: 'Wan 2.1 720p', res: '720p', inrPerClip: '₹57', inrPer30s: '₹344' },
+  { key: 'luma_flash', label: 'Luma Ray Flash', res: '1080p', inrPerClip: '₹13', inrPer30s: '₹77' },
+  { key: 'luma', label: 'Luma Dream Machine', res: '1080p', inrPerClip: '₹24', inrPer30s: '₹146' },
+  { key: 'kling', label: 'Kling v2.5', res: '1080p', inrPerClip: '₹45', inrPer30s: '₹268' },
+  { key: 'minimax', label: 'Minimax Hailuo', res: '720p', inrPerClip: '₹36', inrPer30s: '₹179' },
+  { key: 'veo2_flash', label: 'Veo 2 Flash', res: '720p', inrPerClip: '₹32', inrPer30s: '₹191' },
+  { key: 'veo2', label: 'Google Veo 2', res: '1080p', inrPerClip: '₹64', inrPer30s: '₹383' },
 ];
 
 const CREDIT_PACKS = [
-  { credits: 100,  price: '₹499',   priceNum: 499,  reels: '~1–3 reels',   popular: false },
-  { credits: 500,  price: '₹1,999', priceNum: 1999, reels: '~5–15 reels',  popular: true  },
+  { credits: 100, price: '₹499', priceNum: 499, reels: '~1–3 reels', popular: false },
+  { credits: 500, price: '₹1,999', priceNum: 1999, reels: '~5–15 reels', popular: true },
   { credits: 1000, price: '₹3,499', priceNum: 3499, reels: '~10–30 reels', popular: false },
 ];
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#fff' }}>
+    <>
       <Head>
         <title>Pricing — TheCraftStudios</title>
         <meta name="description" content="Simple pay-per-use pricing for AI reel generation. Buy credits once, use anytime. No subscriptions." />
@@ -114,235 +110,210 @@ export default function PricingPage() {
         <link rel="canonical" href="https://www.thecraftstudios.in/pricing" />
       </Head>
 
-      <NavBar />
+      <div className="page-shell">
+        <NavBar />
 
-      <main className="max-w-5xl mx-auto px-4 py-16">
+        <main className="editorial-grid page-hero">
+          <section style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <span className="section-chip">Investment Model</span>
+            <h1 className="section-title" style={{ marginTop: '20px', marginBottom: '16px' }}>
+              Simple, Transparent <span className="text-accent">Pricing</span>
+            </h1>
+            <p className="section-copy" style={{ maxWidth: '760px', margin: '0 auto' }}>
+              Pay only for what you generate. No subscriptions, no monthly lock-in. Credits never expire, so you can scale on your own rhythm.
+            </p>
+          </section>
 
-        {/* Hero */}
-        <div className="text-center mb-14">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Simple, Transparent <span style={{ color: '#E50914' }}>Pricing</span>
-          </h1>
-          <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
-            Pay only for what you generate. No subscriptions, no monthly fees.
-            Credits <strong className="text-white">never expire.</strong>
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-4 text-sm text-[#94A3B8]">
-            <span>Script: <strong className="text-white">2 cr/sec</strong></span>
-            <span className="hidden sm:inline">•</span>
-            <span>Video: billed by package below</span>
-            <span className="hidden sm:inline">•</span>
-            <span><strong className="text-white">1 credit = ₹2</strong></span>
-          </div>
-        </div>
+          <section style={{ marginBottom: '64px' }}>
+            <div style={{ marginBottom: '24px' }}>
+              <div className="eyebrow">Video Packages</div>
+              <h2 className="display" style={{ fontSize: '44px', marginTop: '8px' }}>Choose Your Output Tier</h2>
+            </div>
 
-        {/* ── Video Packages ── */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-2">🎬 Video Generation Packages</h2>
-          <p className="text-[#94A3B8] text-sm mb-8">
-            Prices below include both script generation and video. Choose based on your quality needs.
-          </p>
+            <div className="pricing-package-grid" style={{ display: 'grid', gap: '22px' }}>
+              {VIDEO_PACKAGES.map((pkg) => (
+                <div
+                  key={pkg.id}
+                  className={pkg.popular ? 'editorial-card editorial-card-dark' : 'editorial-card'}
+                  style={{
+                    padding: '28px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    background: pkg.popular ? 'linear-gradient(135deg, #0b2b26 0%, #123732 100%)' : '#fff',
+                  }}
+                >
+                  {pkg.popular && (
+                    <span style={{ position: 'absolute', top: '18px', right: '18px', padding: '8px 14px', borderRadius: '999px', background: 'rgba(255,255,255,0.14)', color: '#fff', fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                      Most Popular
+                    </span>
+                  )}
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {VIDEO_PACKAGES.map(pkg => (
-              <div key={pkg.id}
-                className="rounded-2xl p-5 flex flex-col relative"
-                style={{ background: pkg.bg, border: `1px solid ${pkg.border}` }}>
+                  <div className="floating-orb float-a" style={{ top: '-60px', right: '-30px', width: '160px', height: '160px', background: pkg.glow }} />
 
-                {pkg.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
-                    style={{ background: pkg.color, color: '#fff' }}>
-                    Most Popular
-                  </div>
-                )}
+                  <div style={{ position: 'relative', zIndex: 1 }}>
+                    <div style={{ fontSize: '30px', marginBottom: '14px' }}>{pkg.emoji}</div>
+                    <h3 className="display" style={{ fontSize: '34px', marginBottom: '8px', color: pkg.popular ? '#fff' : 'var(--ink)' }}>{pkg.name}</h3>
+                    <div style={{ color: pkg.popular ? 'rgba(255,255,255,0.76)' : pkg.color, fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>{pkg.tagline}</div>
+                    <div style={{ color: pkg.popular ? 'rgba(255,255,255,0.56)' : 'var(--muted)', fontSize: '13px', marginBottom: '18px' }}>{pkg.modelName} · {pkg.resolution}</div>
 
-                <div className="mb-4">
-                  <h3 className="text-lg font-bold text-white">{pkg.name}</h3>
-                  <p className="text-xs" style={{ color: pkg.color }}>{pkg.tagline}</p>
-                  <p className="text-xs text-[#94A3B8] mt-1">{pkg.modelName} · {pkg.resolution}</p>
-                </div>
-
-                {/* Price breakdown */}
-                <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(0,0,0,0.3)' }}>
-                  <p className="text-xs text-[#94A3B8] mb-2 font-medium uppercase tracking-wide">Total cost per reel</p>
-                  {[
-                    { label: '15s', ...pkg.pricing.duration15 },
-                    { label: '30s', ...pkg.pricing.duration30 },
-                    { label: '50s', ...pkg.pricing.duration50 },
-                  ].map(row => (
-                    <div key={row.label} className="flex justify-between items-center py-1.5 border-b border-white/5 last:border-0">
-                      <span className="text-xs text-[#94A3B8]">{row.label}</span>
-                      <div className="text-right">
-                        <span className="font-bold text-white text-xs">{row.credits} cr</span>
-                        <span className="text-xs text-[#94A3B8] ml-1.5">≈₹{row.inr}</span>
-                      </div>
+                    <div style={{ borderRadius: '22px', padding: '16px', background: pkg.popular ? 'rgba(255,255,255,0.08)' : 'rgba(246,241,238,0.8)', border: `1px solid ${pkg.popular ? 'rgba(255,255,255,0.08)' : 'rgba(17,17,17,0.06)'}`, marginBottom: '18px' }}>
+                      <div className="eyebrow" style={{ color: pkg.popular ? 'rgba(255,255,255,0.5)' : 'var(--muted)', marginBottom: '10px' }}>Total Cost Per Reel</div>
+                      {[{ label: '15s', ...pkg.pricing.duration15 }, { label: '30s', ...pkg.pricing.duration30 }, { label: '50s', ...pkg.pricing.duration50 }].map((row) => (
+                        <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid rgba(17,17,17,0.06)' }}>
+                          <span style={{ color: pkg.popular ? 'rgba(255,255,255,0.72)' : 'var(--ink-soft)', fontSize: '13px' }}>{row.label}</span>
+                          <span style={{ color: pkg.popular ? '#fff' : 'var(--ink)', fontWeight: 700, fontSize: '13px' }}>
+                            {row.credits} cr <span style={{ color: pkg.popular ? 'rgba(255,255,255,0.56)' : 'var(--muted)', fontWeight: 600 }}>≈₹{row.inr}</span>
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
 
-                {/* Features */}
-                <ul className="space-y-1.5 mb-5 flex-1">
-                  {pkg.features.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-xs text-[#94A3B8]">
-                      <span style={{ color: pkg.color }}>✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
+                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '18px' }}>
+                      {pkg.features.map((feature) => (
+                        <li key={feature} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', color: pkg.popular ? 'rgba(255,255,255,0.82)' : 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.6 }}>
+                          <span style={{ color: pkg.popular ? '#fff' : pkg.color, fontWeight: 700 }}>✦</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                {/* Audio indicators */}
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${pkg.voice ? 'text-green-400' : 'text-[#94A3B8]'}`}
-                    style={{ background: pkg.voice ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${pkg.voice ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.1)'}` }}>
-                    {pkg.voice ? '🎙️ Voice' : '🔇 No Voice'}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${pkg.music ? 'text-green-400' : 'text-[#94A3B8]'}`}
-                    style={{ background: pkg.music ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${pkg.music ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.1)'}` }}>
-                    {pkg.music ? '🎵 Music' : '🔕 No Music'}
-                  </span>
-                </div>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                      <span style={{ padding: '8px 12px', borderRadius: '999px', background: pkg.voice ? 'rgba(21,128,61,0.12)' : 'rgba(17,17,17,0.05)', color: pkg.voice ? '#15803d' : pkg.popular ? 'rgba(255,255,255,0.6)' : 'var(--muted)', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                        {pkg.voice ? 'Voice Included' : 'No Voice'}
+                      </span>
+                      <span style={{ padding: '8px 12px', borderRadius: '999px', background: pkg.music ? 'rgba(21,128,61,0.12)' : 'rgba(17,17,17,0.05)', color: pkg.music ? '#15803d' : pkg.popular ? 'rgba(255,255,255,0.6)' : 'var(--muted)', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                        {pkg.music ? 'Music Included' : 'No Music'}
+                      </span>
+                    </div>
 
-                <Link href="/studio" className="block text-center py-2.5 rounded-xl font-bold text-xs transition-all"
-                  style={{ background: pkg.color, color: '#fff' }}>
-                  Try {pkg.name.split(' ').slice(1).join(' ')} →
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 p-4 rounded-xl text-xs text-[#94A3B8]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <strong className="text-white">How it works:</strong> Script credits are charged when you generate your script. Video credits are charged separately when you generate the video — so you can review the script first before committing to video.
-          </div>
-        </section>
-
-        {/* ── Manual Model Pricing ── */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-2">🎮 Manual Mode — Pick Any Model</h2>
-          <p className="text-[#94A3B8] text-sm mb-6">
-            In Manual mode you choose the exact AI model. Script cost (2 cr/sec) is charged separately.
-          </p>
-
-          <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="grid grid-cols-4 px-5 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wide" style={{ background: 'rgba(255,255,255,0.03)' }}>
-              <span className="col-span-2">Model</span>
-              <span>Resolution</span>
-              <span>30s reel</span>
-            </div>
-            {MANUAL_MODELS.map((m, i) => (
-              <div key={m.key} className="grid grid-cols-4 px-5 py-3.5 items-center"
-                style={{ background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                <span className="col-span-2 font-semibold text-white text-sm">{m.label}</span>
-                <span className="text-[#94A3B8] text-xs">{m.res}</span>
-                <span className="text-white font-semibold text-sm">{m.inrPer30s}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-[#94A3B8] mt-3">
-            * Manual mode does not include AI voice or music. 30s reel = 6 clips (5s each).
-          </p>
-        </section>
-
-        {/* ── Credit Packs ── */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold text-white mb-2">💳 Buy Credits</h2>
-          <p className="text-[#94A3B8] text-sm mb-8">Credits work across all features — reels, images, voiceovers. <strong className="text-white">Never expire.</strong></p>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {CREDIT_PACKS.map(pack => (
-              <div key={pack.credits} className="rounded-2xl p-6 relative"
-                style={{
-                  background: pack.popular ? 'rgba(229,9,20,0.06)' : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${pack.popular ? 'rgba(229,9,20,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                }}>
-                {pack.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold"
-                    style={{ background: '#E50914', color: '#fff' }}>
-                    Best Value
+                    <Link href="/studio" className={pkg.popular ? 'cta-primary' : 'cta-secondary'} style={pkg.popular ? { width: '100%' } : { width: '100%' }}>
+                      Try {pkg.name}
+                    </Link>
                   </div>
-                )}
-                <div className="text-3xl font-bold text-white mb-1">{pack.credits}</div>
-                <div className="text-[#94A3B8] text-sm mb-1">credits</div>
-                <div className="text-xs text-[#94A3B8] mb-4">{pack.reels}</div>
-                <div className="text-2xl font-bold mb-2" style={{ color: '#E50914' }}>{pack.price}</div>
-                <div className="text-xs text-[#94A3B8] mb-6">= ₹{(pack.priceNum / pack.credits).toFixed(1)} per credit</div>
-                <Link href="/studio/credits" className="block text-center py-3 rounded-xl font-bold text-sm"
-                  style={{ background: pack.popular ? '#E50914' : 'rgba(255,255,255,0.06)', color: '#fff', border: pack.popular ? 'none' : '1px solid rgba(255,255,255,0.1)' }}>
-                  Buy {pack.credits} Credits
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          {/* Quick reference */}
-          <div className="mt-6 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="px-5 py-3 text-xs font-semibold text-[#94A3B8] uppercase tracking-wide" style={{ background: 'rgba(255,255,255,0.03)' }}>
-              What can I make with 500 credits?
-            </div>
-            <div className="divide-y divide-white/5">
-              {[
-                { pkg: '💰 Starter 30s',  credits: 150, count: '3 reels' },
-                { pkg: '⚡ Creator 30s',  credits: 270, count: '1 reel + leftover credits' },
-                { pkg: '🚀 Viral 30s',    credits: 180, count: '2 reels' },
-                { pkg: '🌟 Ultra 30s',    credits: 300, count: '1 reel' },
-              ].map(row => (
-                <div key={row.pkg} className="flex items-center justify-between px-5 py-3 text-sm">
-                  <span className="text-white font-semibold">{row.pkg}</span>
-                  <span className="text-[#94A3B8]">{row.credits} cr → <strong className="text-white">{row.count}</strong></span>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* ── FAQ ── */}
-        <section>
-          <h2 className="text-2xl font-bold text-white mb-6">FAQs</h2>
-          <div className="space-y-4">
-            {[
-              {
-                q: 'How does the credit system work?',
-                a: '1 credit = ₹2. Script generation costs 2 credits per second of reel. Video generation is billed separately per package after you approve the script — so you only pay for video quality when you\'re ready.',
-              },
-              {
-                q: 'Why are credits charged separately for script and video?',
-                a: 'Script and video are two separate AI steps. Charging them separately lets you review and approve the script before committing to the more intensive video generation step.',
-              },
-              {
-                q: 'Why is Viral (Luma) cheaper than Creator (Wan 720p)?',
-                a: 'Different AI models have different efficiency profiles. Luma Dream Machine delivers 1080p cinematic quality at a lower cost than Wan 720p, so we pass that saving on to you. Better quality, better price.',
-              },
-              {
-                q: 'Do credits expire?',
-                a: 'No. Credits stay in your account indefinitely. Buy once, use anytime — no pressure.',
-              },
-              {
-                q: 'Does the Viral/Ultra package include real music?',
-                a: 'Yes — background music is AI-generated and royalty-free, created from a text prompt that matches your reel\'s tone (e.g. "upbeat commercial energy"). It\'s unique to each reel.',
-              },
-              {
-                q: 'What payment methods are supported?',
-                a: 'UPI, Net Banking, Debit Card, Credit Card, and wallets — all via Razorpay, India\'s most trusted payment gateway.',
-              },
-            ].map(({ q, a }) => (
-              <div key={q} className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <p className="font-semibold text-white mb-2">{q}</p>
-                <p className="text-sm text-[#94A3B8]">{a}</p>
+          <section style={{ marginBottom: '64px' }}>
+            <div style={{ marginBottom: '18px' }}>
+              <div className="eyebrow">Manual Mode</div>
+              <h2 className="display" style={{ fontSize: '44px', marginTop: '8px' }}>Pick The Exact Model</h2>
+            </div>
+
+            <div className="editorial-card" style={{ overflow: 'hidden' }}>
+              <div className="pricing-table-row pricing-table-head">
+                <span>Model</span>
+                <span>Resolution</span>
+                <span>Per Clip</span>
+                <span>30s Reel</span>
               </div>
-            ))}
-          </div>
-        </section>
+              {MANUAL_MODELS.map((model, index) => (
+                <div key={model.key} className="pricing-table-row" style={{ background: index % 2 === 0 ? 'rgba(246,241,238,0.55)' : 'transparent' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--ink)' }}>{model.label}</span>
+                  <span className="muted">{model.res}</span>
+                  <span className="text-forest" style={{ fontWeight: 700 }}>{model.inrPerClip}</span>
+                  <span className="text-accent" style={{ fontWeight: 700 }}>{model.inrPer30s}</span>
+                </div>
+              ))}
+            </div>
+          </section>
 
-        {/* CTA */}
-        <div className="text-center mt-16 py-12 rounded-2xl" style={{ background: 'rgba(229,9,20,0.06)', border: '1px solid rgba(229,9,20,0.2)' }}>
-          <h2 className="text-3xl font-bold text-white mb-3">Ready to go viral?</h2>
-          <p className="text-[#94A3B8] mb-6">New users get 30 free credits — no credit card needed.</p>
-          <Link href="/studio" className="inline-block px-10 py-4 rounded-xl font-bold text-lg"
-            style={{ background: '#E50914', color: '#fff' }}>
-            Start Creating Free →
-          </Link>
-        </div>
-      </main>
+          <section style={{ marginBottom: '64px' }}>
+            <div style={{ marginBottom: '22px' }}>
+              <div className="eyebrow">Credit Packs</div>
+              <h2 className="display" style={{ fontSize: '44px', marginTop: '8px' }}>Buy Credits Once</h2>
+            </div>
 
-      <Footer />
-    </div>
+            <div className="credit-pack-grid" style={{ display: 'grid', gap: '22px' }}>
+              {CREDIT_PACKS.map((pack) => (
+                <div key={pack.credits} className={pack.popular ? 'editorial-card editorial-card-dark' : 'editorial-card'} style={{ padding: '30px', position: 'relative', background: pack.popular ? 'linear-gradient(135deg, #e36414 0%, #c84e05 100%)' : '#fff' }}>
+                  {pack.popular && (
+                    <span style={{ position: 'absolute', top: '18px', right: '18px', padding: '8px 14px', borderRadius: '999px', background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                      Best Value
+                    </span>
+                  )}
+                  <div className="metric-value" style={{ color: pack.popular ? '#fff' : 'var(--ink)' }}>{pack.credits}</div>
+                  <div style={{ color: pack.popular ? 'rgba(255,255,255,0.76)' : 'var(--muted)', fontSize: '14px', marginBottom: '10px' }}>Credits</div>
+                  <div className="display" style={{ fontSize: '48px', color: pack.popular ? '#fff' : 'var(--accent)', marginBottom: '8px' }}>{pack.price}</div>
+                  <div style={{ color: pack.popular ? 'rgba(255,255,255,0.76)' : 'var(--ink-soft)', fontSize: '14px', marginBottom: '16px' }}>{pack.reels}</div>
+                  <div style={{ color: pack.popular ? 'rgba(255,255,255,0.76)' : 'var(--muted)', fontSize: '13px', marginBottom: '18px' }}>≈₹{(pack.priceNum / pack.credits).toFixed(1)} per credit</div>
+                  <Link href="/studio/credits" className={pack.popular ? 'cta-secondary' : 'cta-primary'} style={pack.popular ? { width: '100%', background: '#fff', color: 'var(--accent)', border: 'none' } : { width: '100%' }}>
+                    Buy {pack.credits} Credits
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section style={{ marginBottom: '80px' }}>
+            <div style={{ marginBottom: '18px' }}>
+              <div className="eyebrow">FAQs</div>
+              <h2 className="display" style={{ fontSize: '44px', marginTop: '8px' }}>Questions, Answered</h2>
+            </div>
+            <div style={{ display: 'grid', gap: '14px' }}>
+              {[
+                { q: 'How does the credit system work?', a: '1 credit = ₹2. Script generation costs 2 credits per second of reel. Video generation is billed separately per package after you approve the script.' },
+                { q: 'Why are script and video charged separately?', a: 'They are separate AI workloads. This lets you refine the script first and only spend the heavier video credits once the narrative is approved.' },
+                { q: 'Do credits expire?', a: 'No. Credits remain in your account until you use them.' },
+                { q: 'Which payment methods are supported?', a: 'UPI, Net Banking, Debit Card, Credit Card, and wallets via Razorpay.' },
+              ].map((item) => (
+                <div key={item.q} className="editorial-card" style={{ padding: '22px 24px' }}>
+                  <p style={{ color: 'var(--ink)', fontWeight: 700, fontSize: '16px', marginBottom: '8px' }}>{item.q}</p>
+                  <p style={{ color: 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.7 }}>{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </main>
+
+        <Footer />
+      </div>
+
+      <style jsx>{`
+        .pricing-package-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .credit-pack-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .pricing-table-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+          gap: 14px;
+          align-items: center;
+          padding: 16px 20px;
+        }
+        .pricing-table-head {
+          color: var(--muted);
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          border-bottom: 1px solid rgba(17, 17, 17, 0.06);
+        }
+        @media (max-width: 1180px) {
+          .pricing-package-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 820px) {
+          .credit-pack-grid,
+          .pricing-package-grid {
+            grid-template-columns: 1fr;
+          }
+          .pricing-table-row {
+            grid-template-columns: 1.4fr 0.8fr 0.8fr 0.8fr;
+            font-size: 12px;
+          }
+        }
+        @media (max-width: 620px) {
+          .pricing-table-row,
+          .pricing-table-head {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </>
   );
 }
