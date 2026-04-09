@@ -5,323 +5,301 @@ import Link from 'next/link';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
-const RED = '#E50914';
-const RED_DIM = 'rgba(229,9,20,0.15)';
+const deliverables = [
+  {
+    title: 'Content Production',
+    copy: 'We script, structure, and package reels that are designed to stop the scroll instead of blending into the feed.',
+    items: ['Hook-first scripting', 'Short-form storyboarding', 'Editing and finishing', 'Caption and CTA writing'],
+  },
+  {
+    title: 'Publishing System',
+    copy: 'We turn content into an operating rhythm with scheduling, review loops, and clear publishing accountability.',
+    items: ['Posting calendar setup', 'Auto-publishing support', 'Approval workflows', 'Asset organization'],
+  },
+  {
+    title: 'Growth Layer',
+    copy: 'We connect reels to measurable business outcomes instead of chasing vanity metrics in isolation.',
+    items: ['Hashtag strategy', 'Engagement optimisation', 'Performance reporting', 'Iteration planning'],
+  },
+];
 
-const InstagramReelsPage = () => {
+const process = [
+  ['01', 'Brief', 'We define the product angle, audience intent, and the exact behavior each reel should trigger.'],
+  ['02', 'Build', 'We write hooks, shape scenes, and assemble the reel package around your offer and brand tone.'],
+  ['03', 'Publish', 'We schedule or auto-post at the right moment with the supporting caption, tags, and CTA.'],
+  ['04', 'Refine', 'We review performance, identify the winners, and feed the strongest patterns into the next batch.'],
+];
+
+const packages = [
+  {
+    name: 'Starter',
+    detail: 'For teams that want a lighter reel engine and consistent publishing momentum.',
+    points: ['Fast-turnaround reels', 'Core edit package', 'Scheduled delivery', 'Basic reporting'],
+  },
+  {
+    name: 'Creator',
+    detail: 'For brands that need stronger production quality, richer pacing, and a sharper conversion layer.',
+    points: ['Higher quality outputs', 'Voice and audio options', 'Creative direction', 'Performance loop'],
+    featured: true,
+  },
+  {
+    name: 'Premium',
+    detail: 'For brands treating short-form content as a primary acquisition and retention channel.',
+    points: ['Priority production', 'Campaign support', 'Advanced iteration', 'Studio collaboration'],
+  },
+];
+
+const proof = [
+  { label: 'Reels created', value: '500+' },
+  { label: 'Views generated', value: '10M+' },
+  { label: 'Engagement lift', value: '3x' },
+];
+
+export default function InstagramReelsPage() {
   return (
     <>
       <Head>
-        <title>Instagram Reels &amp; Branding — TheCraftStudios</title>
-        <meta name="description" content="Professional Instagram reels, brand identity &amp; auto-posting. From concept to your feed — we handle everything so your brand dominates social media." />
-        <meta property="og:title" content="Instagram Reels & Branding — TheCraftStudios" />
-        <meta property="og:description" content="Professional Instagram reels, brand identity & auto-posting. From concept to your feed." />
+        <title>Instagram Reels & Social Growth - TheCraftStudios</title>
+        <meta
+          name="description"
+          content="Instagram reels, publishing systems, and growth workflows designed to turn attention into pipeline."
+        />
+        <meta property="og:title" content="Instagram Reels & Social Growth - TheCraftStudios" />
+        <meta
+          property="og:description"
+          content="Short-form content systems that combine scripting, production, publishing, and iteration."
+        />
         <meta property="og:url" content="https://www.thecraftstudios.in/services/instagram-reels" />
         <link rel="canonical" href="https://www.thecraftstudios.in/services/instagram-reels" />
       </Head>
 
-      <NavBar />
+      <div className="page-shell">
+        <NavBar />
 
-      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
-
-        {/* Hero */}
-        <section style={{ paddingTop: '120px', paddingBottom: '80px', padding: '120px 16px 80px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: RED, display: 'inline-block' }}></span>
-              Instagram Reels &amp; Branding
-            </div>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(56px, 10vw, 96px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', lineHeight: 1, letterSpacing: '0.02em' }}>
-              Reels That<br /><span style={{ color: RED }}>Actually Go Viral</span>
+        <main className="editorial-grid page-hero">
+          <section style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <span className="section-chip">Social Growth Wing</span>
+            <h1 className="section-title" style={{ marginTop: '22px', marginBottom: '16px' }}>
+              Reels That Turn <span className="text-accent">Attention Into Pipeline</span>
             </h1>
-            <p style={{ color: '#888888', fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.7 }}>
-              Professional Instagram reels, brand identity &amp; auto-posting. From concept to your feed —
-              we handle everything so your brand dominates social media.
+            <p className="section-copy" style={{ maxWidth: '780px', margin: '0 auto 28px' }}>
+              We build short-form content systems around your offer, not random trends. That means stronger hooks,
+              cleaner publishing workflows, and reels that support real brand and sales growth.
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', marginBottom: '64px' }}>
-              <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 40px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
-                Book Your Reels
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              <Link href="/contact" className="cta-primary">
+                Book A Reels Strategy Call
               </Link>
-              <a href="#pricing" style={{ border: `1px solid rgba(229,9,20,0.4)`, color: '#E8E8E8', padding: '16px 40px', borderRadius: '8px', fontWeight: 600, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
-                View Pricing
-              </a>
+              <Link href="/studio" className="cta-secondary">
+                Try The Studio
+              </Link>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', maxWidth: '600px', margin: '0 auto' }}>
-              {[{ value: '500+', label: 'Reels Created' }, { value: '10M+', label: 'Views Generated' }, { value: '3x', label: 'Avg Engagement Boost' }].map((s, i) => (
-                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: RED, marginBottom: '4px' }}>{s.value}</div>
-                  <div style={{ fontSize: '12px', color: '#888888' }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
 
-        {/* What We Deliver */}
-        <section style={{ padding: '96px 16px', background: '#111111' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '64px', alignItems: 'center' }}>
-              <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                  What You Get
+          <section className="reels-proof-grid" style={{ display: 'grid', gap: '18px', marginBottom: '56px' }}>
+            {proof.map((item) => (
+              <div
+                key={item.label}
+                className="editorial-card"
+                style={{ padding: '24px', textAlign: 'center', background: 'rgba(246,241,238,0.82)' }}
+              >
+                <div className="display text-forest" style={{ fontSize: '44px', marginBottom: '8px' }}>
+                  {item.value}
                 </div>
-                <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 6vw, 56px)', color: '#fff', marginBottom: '32px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                  What We Deliver
-                </h2>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {[
-                    'Professional scriptwriting tailored to your brand',
-                    'High-quality video production and filming',
-                    'Expert editing with trending music & effects',
-                    'Hashtag strategy and growth optimization',
-                    'Auto-posting to Instagram at peak times',
-                    'Performance analytics and monthly insights',
-                    'Brand identity design & visual guidelines',
-                    'Community management & DM handling',
-                  ].map((item, i) => (
-                    <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(229,9,20,0.1)', border: `1px solid rgba(229,9,20,0.4)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
-                        <span style={{ color: RED, fontSize: '11px', fontWeight: 700 }}>✓</span>
-                      </div>
-                      <span style={{ color: '#888888', fontSize: '18px' }}>{item}</span>
-                    </li>
+                <div
+                  style={{
+                    color: 'var(--muted)',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {item.label}
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <section className="reels-deliverables-grid" style={{ display: 'grid', gap: '22px', marginBottom: '64px' }}>
+            {deliverables.map((block) => (
+              <article key={block.title} className="editorial-card" style={{ padding: '28px' }}>
+                <div className="eyebrow">{block.title}</div>
+                <p
+                  style={{
+                    color: 'var(--ink-soft)',
+                    fontSize: '15px',
+                    lineHeight: 1.8,
+                    marginTop: '14px',
+                    marginBottom: '18px',
+                  }}
+                >
+                  {block.copy}
+                </p>
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {block.items.map((item) => (
+                    <div
+                      key={item}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        color: 'var(--ink)',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      <span className="text-accent">*</span>
+                      <span>{item}</span>
+                    </div>
                   ))}
-                </ul>
-              </div>
-              <div style={{ position: 'relative' }}>
-                <div style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '48px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎬</div>
-                  <p style={{ color: '#fff', fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>Professional Content Creation</p>
-                  <p style={{ color: '#888888' }}>From concept to viral in 48 hours</p>
                 </div>
-                <div style={{ position: 'absolute', bottom: '-16px', right: '-16px', background: '#1A1A1A', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '12px', padding: '12px 20px' }}>
-                  <div style={{ fontSize: '20px', fontWeight: 700, color: RED }}>48hrs</div>
-                  <div style={{ fontSize: '12px', color: '#888888' }}>Turnaround</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+              </article>
+            ))}
+          </section>
 
-        {/* Process */}
-        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                The Process
-              </div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
-                Our Process
-              </h2>
-              <p style={{ color: '#888888', fontSize: '18px' }}>Four steps from concept to viral content</p>
+          <section
+            className="editorial-card editorial-card-dark"
+            style={{
+              padding: '30px',
+              marginBottom: '64px',
+              background: 'linear-gradient(135deg, #0b2b26 0%, #153a33 100%)',
+            }}
+          >
+            <div className="eyebrow" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              Delivery Process
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
-              {[
-                { step: '01', icon: '💡', title: 'Concept', desc: 'We brainstorm viral-worthy ideas tailored to your brand and niche.' },
-                { step: '02', icon: '📝', title: 'Script', desc: 'Professional scripts with strong hooks optimized for engagement.' },
-                { step: '03', icon: '🎬', title: 'Film & Edit', desc: 'High-quality production with trending effects and music.' },
-                { step: '04', icon: '🚀', title: 'Auto-Post', desc: 'Scheduled at peak times with optimized hashtags.' },
-              ].map((item, i) => (
-                <div key={i} style={{ textAlign: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '16px', background: '#1A1A1A', border: `1px solid ${RED_DIM}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 20px' }}>{item.icon}</div>
-                  <div style={{ color: RED, fontWeight: 700, fontSize: '13px', letterSpacing: '0.15em', marginBottom: '8px' }}>{item.step}</div>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{item.title}</h3>
-                  <p style={{ color: '#888888', fontSize: '14px', lineHeight: 1.7 }}>{item.desc}</p>
+            <div className="reels-process-grid" style={{ display: 'grid', gap: '18px', marginTop: '20px' }}>
+              {process.map(([step, title, copy]) => (
+                <div
+                  key={step}
+                  style={{
+                    padding: '20px',
+                    borderRadius: '24px',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <div
+                    style={{
+                      color: '#f4c7a1',
+                      fontSize: '12px',
+                      fontWeight: 800,
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    {step}
+                  </div>
+                  <h2 style={{ color: '#fff', fontSize: '22px', fontWeight: 800, marginBottom: '8px' }}>{title}</h2>
+                  <p style={{ color: 'rgba(255,255,255,0.74)', fontSize: '14px', lineHeight: 1.7 }}>{copy}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Pricing */}
-        <section id="pricing" style={{ padding: '96px 16px', background: '#111111' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                Pricing
-              </div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '16px' }}>
-                Pay Per Reel
+          <section style={{ marginBottom: '72px' }}>
+            <div style={{ marginBottom: '18px', textAlign: 'center' }}>
+              <div className="eyebrow">Engagement Models</div>
+              <h2 className="display" style={{ fontSize: '42px', marginTop: '8px' }}>
+                Flexible Reels Packages
               </h2>
-              <p style={{ color: '#888888', fontSize: '18px', marginBottom: '12px' }}>
-                No subscriptions. No monthly fees. Buy credits once, use anytime.
-              </p>
-              <p style={{ color: '#888888', fontSize: '14px' }}>
-                1 credit = ₹2 &nbsp;·&nbsp; Script: 2 cr/sec &nbsp;·&nbsp; Video: billed by quality package
-              </p>
             </div>
 
-            {/* Package cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px', marginBottom: '48px' }}>
-              {[
-                {
-                  name: '💰 Starter',
-                  tagline: 'Fast & Budget-Friendly',
-                  model: 'Wan 2.1 480p',
-                  color: '#10B981',
-                  features: ['480p quality', 'Fast generation', 'No voice/music'],
-                  price15s: '₹150', price30s: '₹300', credits15: 75, credits30: 150,
-                  highlighted: false,
-                },
-                {
-                  name: '⚡ Creator',
-                  tagline: 'Professional + AI Voice',
-                  model: 'Wan 2.1 720p',
-                  color: '#4A6CF7',
-                  features: ['720p HD quality', 'ElevenLabs AI voice', 'Cinematic motion'],
-                  price15s: '₹270', price30s: '₹540', credits15: 135, credits30: 270,
-                  highlighted: true,
-                },
-                {
-                  name: '🚀 Viral',
-                  tagline: 'Luma 1080p + Voice + Music',
-                  model: 'Luma Dream Machine',
-                  color: '#F59E0B',
-                  features: ['1080p Luma quality', 'AI voice + music', 'Premium cinematic'],
-                  price15s: '₹180', price30s: '₹360', credits15: 90, credits30: 180,
-                  highlighted: false,
-                },
-                {
-                  name: '🌟 Ultra',
-                  tagline: 'Google Veo 2 + Full Audio',
-                  model: 'Google Veo 2',
-                  color: '#8B5CF6',
-                  features: ['1080p Veo 2', 'AI voice + music', 'Highest quality'],
-                  price15s: '₹300', price30s: '₹600', credits15: 150, credits30: 300,
-                  highlighted: false,
-                },
-              ].map((plan, i) => (
-                <div key={i} style={{
-                  borderRadius: '16px',
-                  padding: '28px',
-                  position: 'relative',
-                  background: plan.highlighted ? 'rgba(74,108,247,0.1)' : '#1A1A1A',
-                  border: plan.highlighted ? `1px solid ${plan.color}` : `1px solid ${RED_DIM}`,
-                }}>
-                  {plan.highlighted && (
-                    <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: plan.color, borderRadius: '999px', padding: '4px 14px', fontSize: '11px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>
-                      Most Popular
-                    </div>
-                  )}
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{plan.name}</h3>
-                  <p style={{ fontSize: '12px', color: plan.color, marginBottom: '4px' }}>{plan.tagline}</p>
-                  <p style={{ fontSize: '11px', color: '#666', marginBottom: '20px' }}>{plan.model}</p>
-
-                  {/* Price */}
-                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '12px', padding: '14px', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ color: '#888', fontSize: '13px' }}>15s reel</span>
-                      <span style={{ color: '#fff', fontWeight: 700 }}>{plan.price15s} <span style={{ color: '#666', fontWeight: 400, fontSize: '11px' }}>({plan.credits15} cr)</span></span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#888', fontSize: '13px' }}>30s reel</span>
-                      <span style={{ color: '#fff', fontWeight: 700 }}>{plan.price30s} <span style={{ color: '#666', fontWeight: 400, fontSize: '11px' }}>({plan.credits30} cr)</span></span>
-                    </div>
+            <div className="reels-package-grid" style={{ display: 'grid', gap: '22px' }}>
+              {packages.map((pkg) => (
+                <article
+                  key={pkg.name}
+                  className={pkg.featured ? 'editorial-card editorial-card-dark' : 'editorial-card'}
+                  style={{
+                    padding: '28px',
+                    background: pkg.featured
+                      ? 'linear-gradient(135deg, #0b2b26 0%, #153a33 100%)'
+                      : 'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(246,241,238,0.92) 100%)',
+                  }}
+                >
+                  <div className="eyebrow" style={{ color: pkg.featured ? 'rgba(255,255,255,0.55)' : 'var(--accent)' }}>
+                    {pkg.featured ? 'Recommended' : 'Package'}
                   </div>
-
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {plan.features.map((f, j) => (
-                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px' }}>
-                        <span style={{ color: plan.color, fontWeight: 700 }}>✓</span>
-                        <span style={{ color: '#888' }}>{f}</span>
-                      </li>
+                  <h3
+                    className="display"
+                    style={{ fontSize: '36px', marginTop: '10px', color: pkg.featured ? '#fff' : 'var(--ink)' }}
+                  >
+                    {pkg.name}
+                  </h3>
+                  <p
+                    style={{
+                      color: pkg.featured ? 'rgba(255,255,255,0.76)' : 'var(--ink-soft)',
+                      fontSize: '15px',
+                      lineHeight: 1.8,
+                      margin: '14px 0 18px',
+                    }}
+                  >
+                    {pkg.detail}
+                  </p>
+                  <div style={{ display: 'grid', gap: '10px', marginBottom: '22px' }}>
+                    {pkg.points.map((point) => (
+                      <div
+                        key={point}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          color: pkg.featured ? 'rgba(255,255,255,0.84)' : 'var(--ink)',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <span style={{ color: pkg.featured ? '#f4c7a1' : 'var(--accent)' }}>*</span>
+                        <span>{point}</span>
+                      </div>
                     ))}
-                  </ul>
-
-                  <Link href="/studio" style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '10px',
-                    borderRadius: '10px',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    textDecoration: 'none',
-                    background: plan.highlighted ? plan.color : RED,
-                    color: '#fff',
-                  }}>
-                    Try in Studio →
+                  </div>
+                  <Link href="/contact" className={pkg.featured ? 'cta-primary' : 'cta-secondary'}>
+                    Choose {pkg.name}
                   </Link>
-                </div>
+                </article>
               ))}
             </div>
-
-            {/* Credit packs CTA */}
-            <div style={{ textAlign: 'center', background: 'rgba(229,9,20,0.05)', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px' }}>
-              <p style={{ color: '#fff', fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>
-                💳 Credit Packs — ₹499 / ₹1,999 / ₹3,499
-              </p>
-              <p style={{ color: '#888', fontSize: '14px', marginBottom: '20px' }}>
-                100 / 500 / 1,000 credits &nbsp;·&nbsp; Credits never expire &nbsp;·&nbsp; UPI · Cards · NetBanking
-              </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link href="/studio/credits" style={{ background: RED, color: '#fff', padding: '12px 32px', borderRadius: '8px', fontWeight: 700, fontSize: '16px', textDecoration: 'none' }}>
-                  Buy Credits →
-                </Link>
-                <Link href="/pricing" style={{ border: `1px solid ${RED_DIM}`, color: '#E8E8E8', padding: '12px 32px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', textDecoration: 'none' }}>
-                  Full Pricing →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Success Stories */}
-        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                Results
-              </div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                Success Stories
-              </h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px' }}>
-              {[
-                { brand: 'Fashion Brand X', before: '5K followers', after: '50K followers', growth: '+900%', time: '3 months' },
-                { brand: 'Beauty Influencer', before: '10K followers', after: '100K followers', growth: '+900%', time: '4 months' },
-                { brand: 'E-commerce Store', before: '2K followers', after: '25K followers', growth: '+1,150%', time: '2 months' },
-              ].map((study, i) => (
-                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '24px' }}>{study.brand}</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-                    <div>
-                      <p style={{ color: '#888888', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Before</p>
-                      <p style={{ fontSize: '24px', fontWeight: 700, color: '#888888' }}>{study.before}</p>
-                    </div>
-                    <div style={{ height: '1px', background: `linear-gradient(to right, ${RED}, transparent)` }}></div>
-                    <div>
-                      <p style={{ color: '#888888', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>After {study.time}</p>
-                      <p style={{ fontSize: '24px', fontWeight: 700, color: '#fff' }}>{study.after}</p>
-                    </div>
-                  </div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(229,9,20,0.1)', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '999px', padding: '8px 16px' }}>
-                    <span style={{ fontSize: '20px', fontWeight: 700, color: RED }}>{study.growth}</span>
-                    <span style={{ color: '#888888', fontSize: '14px' }}>growth</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section style={{ padding: '80px 16px', background: '#111111', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ maxWidth: '896px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 8vw, 80px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-              Ready to Create<br /><span style={{ color: RED }}>Viral Content?</span>
-            </h2>
-            <p style={{ color: '#888888', fontSize: '20px', marginBottom: '40px' }}>Let's turn your brand story into engaging, viral-worthy Instagram reels.</p>
-            <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 48px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
-              Book Your Reels Today →
-            </Link>
-          </div>
-        </section>
+          </section>
+        </main>
 
         <Footer />
       </div>
+
+      <style jsx>{`
+        .reels-proof-grid,
+        .reels-deliverables-grid,
+        .reels-package-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .reels-process-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (max-width: 1100px) {
+          .reels-process-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 960px) {
+          .reels-proof-grid,
+          .reels-deliverables-grid,
+          .reels-package-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .reels-process-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </>
   );
-};
-
-export default InstagramReelsPage;
+}
