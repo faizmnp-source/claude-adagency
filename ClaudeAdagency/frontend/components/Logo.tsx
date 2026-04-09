@@ -35,7 +35,7 @@ export const Logo: React.FC<LogoProps> = ({
       style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, ...style }}
     >
       <img
-        src="/logofinal.png"
+        src="/image.png"
         alt="The Craft Studios"
         height={height}
         style={{

@@ -679,19 +679,19 @@ export default function StudioPage() {
               <Logo variant="horizontal" size="small" color="color" />
             </Link>
             <Link href="/services/instagram-reels"
-              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+              style={{ fontSize: '12px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
             >Services →</Link>
             <Link href="/pricing"
-              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+              style={{ fontSize: '12px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
             >Pricing →</Link>
             <Link href="/studio/calendar"
-              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+              style={{ fontSize: '12px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--accent)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
             >📅 Calendar →</Link>
           </div>
 
@@ -699,30 +699,30 @@ export default function StudioPage() {
             {/* Instagram badge */}
             {instagram.connected ? (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
-                style={{ background: 'rgba(229,9,20,0.08)', border: '1px solid rgba(229,9,20,0.25)' }}>
-                <span className="text-[#E50914]">📸</span>
-                <span className="text-white hidden sm:block">@{instagram.username || 'IG'}</span>
+                style={{ background: 'rgba(227,100,20,0.08)', border: '1px solid rgba(227,100,20,0.22)' }}>
+                <span className="text-[var(--accent)]">📸</span>
+                <span className="text-[var(--forest)] hidden sm:block">@{instagram.username || 'IG'}</span>
                 <button onClick={disconnectInstagram} className="text-[#94A3B8] hover:text-red-400 ml-1">✕</button>
               </div>
             ) : (
               <button onClick={connectInstagram}
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#94A3B8' }}>
+                style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(17,17,17,0.08)', color: 'var(--muted)' }}>
                 📸 Connect IG
               </button>
             )}
 
             {/* Credits */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(17,17,17,0.08)' }}>
               <span className="text-[#94A3B8] text-xs">Credits:</span>
               <span className="font-bold purple-gradient-text text-sm">{credits}</span>
             </div>
 
             {/* User avatar */}
             {user && user.picture ? (
-              <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-[rgba(229,9,20,0.3)]" />
+              <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-[rgba(227,100,20,0.26)]" />
             ) : user ? (
-              <div className="w-8 h-8 rounded-full bg-[rgba(229,9,20,0.15)] flex items-center justify-center text-white text-sm font-bold">{user.name?.[0] || 'U'}</div>
+              <div className="w-8 h-8 rounded-full bg-[rgba(227,100,20,0.14)] flex items-center justify-center text-[var(--forest)] text-sm font-bold">{user.name?.[0] || 'U'}</div>
             ) : null}
 
             <BellIcon />
@@ -748,55 +748,99 @@ export default function StudioPage() {
             STEP: UPLOAD / SETTINGS
             ═══════════════════════════════════ */}
         {(step === 'upload' || step === 'settings') && (
-          <div className="max-w-6xl mx-auto">
+          <div className="studio-phone-shell">
 
             {/* Title */}
             <div className="text-center mb-6">
-              <h1 className="display" style={{ fontSize: 'clamp(52px, 8vw, 108px)', color: 'var(--ink)', marginBottom: '12px' }}>AI Studio</h1>
-              <p className="text-[#94A3B8] text-sm">Create scroll-stopping videos &amp; images — powered by AI.</p>
+              <h1 className="display" style={{ fontSize: 'clamp(48px, 8vw, 84px)', color: 'var(--ink)', marginBottom: '12px' }}>AI Studio</h1>
+              <p className="text-[#94A3B8] text-sm" style={{ maxWidth: '420px', margin: '0 auto' }}>
+                Create scroll-stopping reels and image posts inside a tighter studio canvas built for content review.
+              </p>
             </div>
 
             {/* ── Content Type Selector (Video / Image) ── */}
             <div className="flex justify-center mb-6">
-              <div className="flex gap-2 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="studio-segmented-toggle">
                 <button
                   onClick={() => setContentType('video')}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${contentType === 'video' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
-                  style={contentType === 'video' ? { background: '#E50914' } : {}}
+                  className={contentType === 'video' ? 'is-active' : ''}
                 >
                   🎬 Video Reel
                 </button>
                 <button
                   onClick={() => setContentType('image')}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${contentType === 'image' ? 'text-white' : 'text-[#94A3B8] hover:text-white'}`}
-                  style={contentType === 'image' ? { background: '#E50914' } : {}}
+                  className={contentType === 'image' ? 'is-active' : ''}
                 >
                   🖼️ Image Post
                 </button>
               </div>
             </div>
 
-            {/* ── Mode selector ── */}
-            <div className="mb-6">
-              <label className="text-sm text-[#94A3B8] mb-3 block">Mode</label>
-              <div className="flex gap-2 flex-wrap">
-                {([
-                  { key: 'express'  as Mode, icon: '⚡',  label: 'Express'  },
-                  { key: 'manual'   as Mode, icon: '✏️',  label: 'Manual'   },
-                  { key: 'auto'     as Mode, icon: '🎬',  label: 'Auto'     },
-                  { key: 'notebook' as Mode, icon: '📚',  label: 'Notebook' },
-                ]).map(m => (
-                  <button
-                    key={m.key}
-                    onClick={() => setMode(m.key)}
-                    className={`mode-pill flex-1 justify-center ${mode === m.key ? 'mode-pill-active' : ''}`}
-                    style={{ minWidth: '70px' }}
-                  >
-                    {m.icon} {m.label}
-                  </button>
-                ))}
+            <div className="studio-phone-stage">
+              {contentType === 'video' && (
+                <div className="mb-6">
+                  <div className="studio-preview-placeholder">
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: '0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '12px',
+                        padding: '36px',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '72px',
+                          height: '72px',
+                          borderRadius: '24px',
+                          display: 'grid',
+                          placeItems: 'center',
+                          background: 'rgba(11,43,38,0.92)',
+                          color: '#fff',
+                          boxShadow: '0 18px 42px rgba(11,43,38,0.16)',
+                          fontSize: '28px',
+                        }}
+                      >
+                        ▶
+                      </div>
+                      <div className="eyebrow" style={{ color: 'var(--accent)' }}>Reel Preview Placeholder</div>
+                      <p style={{ color: 'var(--ink)', fontSize: '18px', fontWeight: 700 }}>
+                        Your uploaded video reel will sit here
+                      </p>
+                      <p style={{ color: 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.7, maxWidth: '280px' }}>
+                        We are keeping space for your own built video content so you can preview it in a portrait mobile frame.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Mode selector ── */}
+              <div className="mb-6">
+                <label className="text-sm text-[#94A3B8] mb-3 block">Mode</label>
+                <div className="flex gap-2 flex-wrap">
+                  {([
+                    { key: 'express'  as Mode, icon: '⚡',  label: 'Express'  },
+                    { key: 'manual'   as Mode, icon: '✏️',  label: 'Manual'   },
+                    { key: 'auto'     as Mode, icon: '🎬',  label: 'Auto'     },
+                    { key: 'notebook' as Mode, icon: '📚',  label: 'Notebook' },
+                  ]).map(m => (
+                    <button
+                      key={m.key}
+                      onClick={() => setMode(m.key)}
+                      className={`mode-pill flex-1 justify-center ${mode === m.key ? 'mode-pill-active' : ''}`}
+                      style={{ minWidth: '70px' }}
+                    >
+                      {m.icon} {m.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
             {/* ═══════════════
                 MANUAL MODE
@@ -956,26 +1000,25 @@ export default function StudioPage() {
                       ref={dropRef}
                       onDrop={handleDrop}
                       onDragOver={(e) => e.preventDefault()}
-                      className="rounded-xl p-5 text-center cursor-pointer transition-all hover:border-[rgba(123,46,255,0.4)]"
-                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      className="studio-dropzone rounded-xl p-5 text-center cursor-pointer"
                       onClick={() => document.getElementById('file-input-manual')?.click()}
                     >
                       {images.length === 0 ? (
                         <>
                           <div className="text-2xl mb-2">🖼️</div>
-                          <p className="text-white text-sm font-semibold">Upload product images</p>
+                          <p className="text-[var(--forest)] text-sm font-semibold">Upload product images</p>
                           <p className="text-[#94A3B8] text-xs">Up to 10 images (JPG, PNG, WEBP)</p>
                         </>
                       ) : (
                         <div className="flex flex-wrap gap-2 justify-center">
                           {images.map((img, idx) => (
-                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(17,17,17,0.08)' }}>
                               <img src={img.preview} alt="" className="w-full h-full object-cover" />
                               <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                                 className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
                             </div>
                           ))}
-                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(255,255,255,0.15)' }}>+</div>
+                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(17,17,17,0.12)' }}>+</div>
                         </div>
                       )}
                       <input id="file-input-manual" type="file" accept="image/*" multiple className="hidden"
@@ -1056,26 +1099,25 @@ export default function StudioPage() {
                     <div
                       onDrop={handleDrop}
                       onDragOver={(e) => e.preventDefault()}
-                      className="rounded-xl p-5 text-center cursor-pointer transition-all hover:border-[rgba(123,46,255,0.4)]"
-                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      className="studio-dropzone rounded-xl p-5 text-center cursor-pointer"
                       onClick={() => document.getElementById('file-input-express')?.click()}
                     >
                       {images.length === 0 ? (
                         <>
                           <div className="text-2xl mb-2">🖼️</div>
-                          <p className="text-white text-sm font-semibold">Upload product images</p>
+                          <p className="text-[var(--forest)] text-sm font-semibold">Upload product images</p>
                           <p className="text-[#94A3B8] text-xs">Up to 10 images (JPG, PNG, WEBP)</p>
                         </>
                       ) : (
                         <div className="flex flex-wrap gap-2 justify-center">
                           {images.map((img, idx) => (
-                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(17,17,17,0.08)' }}>
                               <img src={img.preview} alt="" className="w-full h-full object-cover" />
                               <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                                 className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
                             </div>
                           ))}
-                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(255,255,255,0.15)' }}>+</div>
+                          <div className="w-14 h-14 rounded-lg flex items-center justify-center text-[#94A3B8] text-xl" style={{ border: '1px dashed rgba(17,17,17,0.12)' }}>+</div>
                         </div>
                       )}
                       <input id="file-input-express" type="file" accept="image/*" multiple className="hidden"
@@ -1815,8 +1857,7 @@ export default function StudioPage() {
                     <div
                       onDrop={handleDrop}
                       onDragOver={(e) => e.preventDefault()}
-                      className="rounded-xl p-5 text-center cursor-pointer"
-                      style={{ border: '1px dashed rgba(255,255,255,0.15)', background: 'rgba(13,22,40,0.4)' }}
+                      className="studio-dropzone rounded-xl p-5 text-center cursor-pointer"
                       onClick={() => document.getElementById('file-input-notebook')?.click()}
                     >
                       {images.length === 0 ? (
@@ -1824,7 +1865,7 @@ export default function StudioPage() {
                       ) : (
                         <div className="flex flex-wrap gap-2 justify-center">
                           {images.map((img, idx) => (
-                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                            <div key={idx} className="relative w-14 h-14 rounded-lg overflow-hidden group" style={{ border: '1px solid rgba(17,17,17,0.08)' }}>
                               <img src={img.preview} alt="" className="w-full h-full object-cover" />
                               <button onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                                 className="absolute inset-0 bg-black/50 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">✕</button>
@@ -1893,6 +1934,7 @@ export default function StudioPage() {
                 >Sign out ({user.email})</button>
               </div>
             )}
+          </div>
           </div>
         )}
 

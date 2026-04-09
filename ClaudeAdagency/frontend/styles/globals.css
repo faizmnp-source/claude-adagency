@@ -265,6 +265,94 @@ a {
   margin-top: 0;
 }
 
+.studio-phone-shell {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.studio-phone-stage {
+  padding: 24px;
+  border-radius: 36px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 241, 238, 0.94) 100%);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  box-shadow: 0 30px 90px rgba(35, 25, 17, 0.14);
+}
+
+.studio-preview-placeholder {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 9 / 16;
+  border-radius: 34px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background:
+    radial-gradient(circle at top, rgba(227, 100, 20, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 241, 238, 0.92) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.studio-preview-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border-radius: 24px;
+  border: 1px dashed rgba(227, 100, 20, 0.28);
+}
+
+.studio-preview-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: auto 50% 20px;
+  width: 120px;
+  height: 6px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(11, 43, 38, 0.12);
+}
+
+.studio-segmented-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  box-shadow: 0 14px 34px rgba(35, 25, 17, 0.08);
+}
+
+.studio-segmented-toggle button {
+  min-height: 48px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #9b8e86;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.studio-segmented-toggle button.is-active {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-soft) 100%);
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(11, 43, 38, 0.16);
+}
+
+.studio-dropzone {
+  border: 1px dashed rgba(227, 100, 20, 0.28);
+  background: rgba(255, 255, 255, 0.78);
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.studio-dropzone:hover {
+  border-color: rgba(227, 100, 20, 0.42);
+  background: rgba(255, 255, 255, 0.92);
+  transform: translateY(-1px);
+}
+
 .studio-header-links a {
   color: var(--muted) !important;
 }
