@@ -19,6 +19,28 @@ import { logger } from '../../utils/logger.js';
 
 const router = Router();
 
+function serializeError(err) {
+  if (err instanceof Error) {
+    return {
+      message: err.message,
+      stack: err.stack,
+      name: err.name,
+      ...(err.statusCode ? { statusCode: err.statusCode } : {}),
+      ...(err.error ? { error: err.error } : {}),
+      ...(err.description ? { description: err.description } : {}),
+    };
+  }
+
+  if (err && typeof err === 'object') {
+    return {
+      ...err,
+      message: typeof err.message === 'string' ? err.message : JSON.stringify(err),
+    };
+  }
+
+  return { message: String(err) };
+}
+
 // ── GET /api/payments/packs ──────────────────────────────────────────────
 router.get('/packs', (req, res) => {
   const packs = Object.entries(CREDIT_PACKS).map(([id, pack]) => ({
@@ -47,8 +69,9 @@ router.post('/order', authMiddleware, async (req, res) => {
     const orderData = await createOrder({ userId, packId });
     res.json(orderData);
   } catch (err) {
-    logger.error('Razorpay order error', { err: err.message });
-    res.status(500).json({ error: err.message });
+    const error = serializeError(err);
+    logger.error('Razorpay order error', error);
+    res.status(500).json({ error: error.message || 'Failed to create order' });
   }
 });
 
@@ -66,8 +89,9 @@ router.post('/verify', authMiddleware, async (req, res) => {
     const result = await verifyAndCreditPayment({ orderId, paymentId, signature, userId, packId });
     res.json(result);
   } catch (err) {
-    logger.error('Payment verification failed', { err: err.message });
-    res.status(400).json({ error: err.message });
+    const error = serializeError(err);
+    logger.error('Payment verification failed', error);
+    res.status(400).json({ error: error.message || 'Payment verification failed' });
   }
 });
 
@@ -90,8 +114,9 @@ router.post('/razorpay', async (req, res) => {
     await handleWebhook(req.body, signature);
     res.json({ received: true });
   } catch (err) {
-    logger.error('Razorpay webhook error', { err: err.message });
-    res.status(400).json({ error: err.message });
+    const error = serializeError(err);
+    logger.error('Razorpay webhook error', error);
+    res.status(400).json({ error: error.message || 'Webhook error' });
   }
 });
 
