@@ -754,7 +754,7 @@ export default function StudioPage() {
           </div>
         </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
 
         {/* Error */}
         {error && (
@@ -1232,7 +1232,7 @@ export default function StudioPage() {
             )}
 
             {/* ── Hidden: auto mode used to have these fields, now replaced by calendar ── */}
-            {mode === 'DISABLED_auto_old' && (
+            {false && (
               <div className="space-y-5">
                 {/* Product input */}
                 <div>
@@ -2172,6 +2172,7 @@ export default function StudioPage() {
           </div>
         )}
 
+        </div>
       </div>
       <Footer />
     </div>
