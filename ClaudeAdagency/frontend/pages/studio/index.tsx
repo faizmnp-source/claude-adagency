@@ -4,8 +4,6 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
-import NavBar from '../../components/NavBar';
-import Footer from '../../components/Footer';
 
 /* ── Bell Icon ── */
 const BellIcon = () => (
@@ -671,15 +669,14 @@ export default function StudioPage() {
   };
 
   return (
-    <div className="page-shell">
-      <NavBar />
+    <div className="studio-app-shell">
 
       {/* ── Header ── */}
-      <header className="sticky top-0 z-50" style={{ background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,9,20,0.12)' }}>
-        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-50" style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(17,17,17,0.08)', boxShadow: '0 14px 36px rgba(35,25,17,0.06)' }}>
+        <div className="max-w-7xl mx-auto px-4" style={{ minHeight: '88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+          <div className="studio-header-links flex items-center gap-3">
             <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-              <Logo variant="icon" size="small" color="color" />
+              <Logo variant="horizontal" size="small" color="color" />
             </Link>
             <Link href="/services/instagram-reels"
               style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
@@ -733,28 +730,7 @@ export default function StudioPage() {
         </div>
       </header>
 
-      <div className="editorial-grid" style={{ paddingTop: '24px', paddingBottom: '24px' }}>
-        <section className="editorial-card" style={{ padding: '28px', marginBottom: '28px' }}>
-          <span className="section-chip">Content Studio</span>
-          <h1 className="section-title" style={{ fontSize: '54px', marginTop: '16px', marginBottom: '12px' }}>
-            Generate, Review, And <span className="text-accent">Ship Faster</span>
-          </h1>
-          <p className="section-copy" style={{ maxWidth: '760px', marginBottom: '18px' }}>
-            The workflow is unchanged. This layer brings the studio interface closer to the rest of the redesigned site
-            so credits, approvals, and publishing feel like one product.
-          </p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Link href="/studio/calendar" className="cta-secondary">Open Calendar</Link>
-            <Link href="/pricing" className="cta-secondary">View Pricing</Link>
-            {!instagram.connected && (
-              <button onClick={connectInstagram} className="cta-secondary" style={{ minHeight: '46px', padding: '0 18px' }}>
-                Connect Instagram
-              </button>
-            )}
-          </div>
-        </section>
-
-        <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
+      <div className="studio-content-frame max-w-7xl mx-auto px-4 py-6 relative z-10">
 
         {/* Error */}
         {error && (
@@ -772,11 +748,11 @@ export default function StudioPage() {
             STEP: UPLOAD / SETTINGS
             ═══════════════════════════════════ */}
         {(step === 'upload' || step === 'settings') && (
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-6xl mx-auto">
 
             {/* Title */}
             <div className="text-center mb-6">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Content Studio</h1>
+              <h1 className="display" style={{ fontSize: 'clamp(52px, 8vw, 108px)', color: 'var(--ink)', marginBottom: '12px' }}>AI Studio</h1>
               <p className="text-[#94A3B8] text-sm">Create scroll-stopping videos &amp; images — powered by AI.</p>
             </div>
 
@@ -2173,8 +2149,6 @@ export default function StudioPage() {
         )}
 
         </div>
-      </div>
-      <Footer />
     </div>
   );
 }
