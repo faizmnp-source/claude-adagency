@@ -7,17 +7,16 @@ import { useState } from 'react';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
-const RED = '#E50914';
-const RED_DIM = 'rgba(229,9,20,0.15)';
-
 const PACKS = [
   { id: 'starter', credits: 100, price: '₹499', reels: '2–6', icon: '🚀', tag: null },
-  { id: 'growth',  credits: 500, price: '₹1,999', reels: '10–33', icon: '⚡', tag: 'Best Value' },
-  { id: 'viral',   credits: 1000, price: '₹3,499', reels: '20–66', icon: '🔥', tag: 'Most Popular' },
+  { id: 'growth', credits: 500, price: '₹1,999', reels: '10–33', icon: '⚡', tag: 'Best Value' },
+  { id: 'viral', credits: 1000, price: '₹3,499', reels: '20–66', icon: '🔥', tag: 'Most Popular' },
 ];
 
 declare global {
-  interface Window { Razorpay: any; }
+  interface Window {
+    Razorpay: any;
+  }
 }
 
 function isLikelyJwt(token: string | null): token is string {
@@ -37,9 +36,9 @@ export default function CreditsPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const REEL_ENGINE = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
+  const REEL_ENGINE =
+    process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
 
-  // Dynamically load Razorpay script if not already loaded
   const loadRazorpay = (): Promise<void> =>
     new Promise((resolve, reject) => {
       if (window.Razorpay) return resolve();
@@ -62,10 +61,8 @@ export default function CreditsPage() {
         return;
       }
 
-      // Ensure Razorpay SDK is loaded
       await loadRazorpay();
 
-      // Step 1: Create Razorpay order on backend
       const res = await fetch(`${REEL_ENGINE}/api/payments/order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -79,7 +76,6 @@ export default function CreditsPage() {
       }
       if (!res.ok || !order.orderId) throw new Error(order.error || 'Failed to create order');
 
-      // Step 2: Open Razorpay checkout modal
       const rzp = new window.Razorpay({
         key: order.keyId,
         amount: order.amount,
@@ -87,14 +83,13 @@ export default function CreditsPage() {
         name: 'TheCraftStudios',
         description: order.pack.name,
         order_id: order.orderId,
-        theme: { color: RED },
+        theme: { color: '#E36414' },
         prefill: { name: '', email: '', contact: '' },
         modal: {
           ondismiss: () => setLoading(null),
         },
         handler: async (response: any) => {
           try {
-            // Step 3: Verify payment on backend + credit user
             const verify = await fetch(`${REEL_ENGINE}/api/payments/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -140,107 +135,110 @@ export default function CreditsPage() {
         <link rel="canonical" href="https://www.thecraftstudios.in/studio/credits" />
       </Head>
 
-      <NavBar />
+      <div className="page-shell">
+        <NavBar />
 
-      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
-        <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '100px 16px 64px' }}>
+        <main className="editorial-grid page-hero">
           {success ? (
-            <div style={{ textAlign: 'center', paddingTop: '96px', paddingBottom: '96px' }}>
-              <div style={{ fontSize: '64px', marginBottom: '24px', color: RED }}>✓</div>
-              <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>Credits Added!</h2>
-              <p style={{ color: '#888888', marginBottom: '32px' }}>Your credits have been added to your account.</p>
-              <Link href="/studio" style={{ background: RED, color: '#fff', padding: '12px 32px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>
-                Go to Studio →
+            <section className="editorial-card-dark" style={{ borderRadius: '40px', padding: '70px 30px', textAlign: 'center', background: 'linear-gradient(135deg, #0b2b26 0%, #123732 100%)', marginBottom: '30px' }}>
+              <div style={{ fontSize: '62px', marginBottom: '16px' }}>✓</div>
+              <h2 className="display" style={{ fontSize: '58px', marginBottom: '10px' }}>Credits Added</h2>
+              <p style={{ color: 'rgba(255,255,255,0.74)', fontSize: '16px', marginBottom: '22px' }}>
+                Your credits have been added to your account successfully.
+              </p>
+              <Link href="/studio" className="cta-primary">
+                Go To Studio
               </Link>
-            </div>
+            </section>
           ) : (
             <>
               {error && (
-                <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', color: '#f87171', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>⚠️ {error}</span>
-                  <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '18px' }}>✕</button>
+                <div style={{ borderRadius: '26px', padding: '16px 20px', marginBottom: '22px', background: 'rgba(185,28,28,0.08)', border: '1px solid rgba(185,28,28,0.16)', color: '#b91c1c', fontSize: '14px', display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center' }}>
+                  <span>⚠ {error}</span>
+                  <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', fontSize: '18px' }}>
+                    ×
+                  </button>
                 </div>
               )}
-              <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                  Credit Packs
-                </div>
-                <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 8vw, 64px)', color: '#fff', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                  Buy Credits
+
+              <section style={{ textAlign: 'center', marginBottom: '50px' }}>
+                <span className="section-chip">Credit Packs</span>
+                <h1 className="section-title" style={{ marginTop: '20px', marginBottom: '14px' }}>
+                  Buy <span className="text-accent">Credits</span>
                 </h1>
-                <p style={{ color: '#888888', fontSize: '18px' }}>1 second of reel = 2 credits · 3 free regenerations per reel</p>
-                <p style={{ color: RED, fontSize: '14px', marginTop: '8px' }}>Pay via UPI · Cards · NetBanking · Wallets</p>
-              </div>
+                <p className="section-copy" style={{ maxWidth: '760px', margin: '0 auto' }}>
+                  1 second of reel = 2 credits. Every reel includes 3 free regenerations, and checkout works with UPI, cards, NetBanking, and wallets.
+                </p>
+              </section>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '32px', marginBottom: '64px' }}>
-                {PACKS.map((pack) => (
-                  <div key={pack.id} style={{
-                    borderRadius: '16px',
-                    padding: '32px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    background: pack.id === 'growth' ? RED : '#1A1A1A',
-                    border: pack.id === 'growth' ? `1px solid ${RED}` : `1px solid ${RED_DIM}`,
-                  }}>
-                    {pack.tag && (
-                      <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', borderRadius: '999px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, color: '#fff' }}>
-                        {pack.tag}
-                      </div>
-                    )}
-                    <div style={{ fontSize: '36px', marginBottom: '16px' }}>{pack.icon}</div>
-                    <div style={{ fontSize: '40px', fontWeight: 700, marginBottom: '4px', color: '#fff' }}>
-                      {pack.credits}
+              <section className="credit-grid" style={{ display: 'grid', gap: '22px', marginBottom: '50px' }}>
+                {PACKS.map((pack) => {
+                  const featured = pack.id === 'growth';
+                  return (
+                    <div key={pack.id} className={featured ? 'editorial-card-dark' : 'editorial-card'} style={{ borderRadius: '32px', padding: '30px', position: 'relative', overflow: 'hidden', background: featured ? 'linear-gradient(135deg, #e36414 0%, #c84e05 100%)' : '#fff' }}>
+                      {pack.tag && (
+                        <span style={{ position: 'absolute', top: '18px', right: '18px', padding: '8px 14px', borderRadius: '999px', background: featured ? 'rgba(255,255,255,0.22)' : 'rgba(17,17,17,0.05)', color: featured ? '#fff' : 'var(--ink)', fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                          {pack.tag}
+                        </span>
+                      )}
+
+                      <div style={{ fontSize: '34px', marginBottom: '12px' }}>{pack.icon}</div>
+                      <div className="metric-value" style={{ color: featured ? '#fff' : 'var(--ink)' }}>{pack.credits}</div>
+                      <div style={{ color: featured ? 'rgba(255,255,255,0.76)' : 'var(--muted)', fontSize: '15px', marginBottom: '12px' }}>Credits</div>
+                      <div className="display" style={{ fontSize: '52px', marginBottom: '14px', color: featured ? '#fff' : 'var(--accent)' }}>{pack.price}</div>
+
+                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+                        {[`${pack.reels} reels (15–50s)`, '3 free regens per reel', 'All features included', 'No expiry'].map((item) => (
+                          <li key={item} style={{ display: 'flex', gap: '10px', color: featured ? 'rgba(255,255,255,0.84)' : 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.6 }}>
+                            <span style={{ color: featured ? '#fff' : 'var(--accent)', fontWeight: 700 }}>✦</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <button
+                        onClick={() => handlePurchase(pack.id)}
+                        disabled={loading === pack.id}
+                        className={featured ? 'cta-secondary' : 'cta-primary'}
+                        style={
+                          featured
+                            ? { width: '100%', background: '#fff', color: 'var(--accent)', border: 'none', opacity: loading === pack.id ? 0.6 : 1, cursor: loading === pack.id ? 'not-allowed' : 'pointer' }
+                            : { width: '100%', opacity: loading === pack.id ? 0.6 : 1, cursor: loading === pack.id ? 'not-allowed' : 'pointer' }
+                        }
+                      >
+                        {loading === pack.id ? 'Opening...' : 'Buy Now'}
+                      </button>
                     </div>
-                    <div style={{ fontSize: '14px', marginBottom: '20px', color: pack.id === 'growth' ? 'rgba(255,255,255,0.7)' : '#888888' }}>Credits</div>
-                    <div style={{ fontSize: '30px', fontWeight: 700, marginBottom: '24px', color: '#fff' }}>{pack.price}</div>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {[
-                        `${pack.reels} reels (15–50s)`,
-                        '3 free regens per reel',
-                        'All features included',
-                        'No expiry',
-                      ].map((f, i) => (
-                        <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: pack.id === 'growth' ? 'rgba(255,255,255,0.9)' : '#888888' }}>
-                          <span style={{ color: pack.id === 'growth' ? '#fff' : RED }}>✓</span>{f}
-                        </li>
-                      ))}
-                    </ul>
-                    <button
-                      onClick={() => handlePurchase(pack.id)}
-                      disabled={loading === pack.id}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        borderRadius: '12px',
-                        fontWeight: 700,
-                        fontSize: '15px',
-                        cursor: loading === pack.id ? 'not-allowed' : 'pointer',
-                        opacity: loading === pack.id ? 0.6 : 1,
-                        border: 'none',
-                        background: pack.id === 'growth' ? '#fff' : RED,
-                        color: pack.id === 'growth' ? RED : '#fff',
-                        transition: 'opacity 0.2s',
-                      }}
-                    >
-                      {loading === pack.id ? 'Opening...' : 'Buy Now'}
-                    </button>
-                  </div>
-                ))}
-              </div>
+                  );
+                })}
+              </section>
 
-              <div style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Need more? Contact us for agency pricing</h3>
-                <p style={{ color: '#888888', marginBottom: '16px' }}>Custom credit bundles, white-label options, API access</p>
-                <Link href="/contact" style={{ background: RED, color: '#fff', padding: '12px 32px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>
-                  Contact Sales →
+              <section className="editorial-card" style={{ borderRadius: '36px', padding: '34px 28px', textAlign: 'center', marginBottom: '28px' }}>
+                <h3 className="display" style={{ fontSize: '42px', marginBottom: '10px' }}>Need More?</h3>
+                <p style={{ color: 'var(--ink-soft)', fontSize: '15px', marginBottom: '18px' }}>
+                  Contact us for agency pricing, custom credit bundles, white-label options, or API access.
+                </p>
+                <Link href="/contact" className="cta-primary">
+                  Contact Sales
                 </Link>
-              </div>
+              </section>
             </>
           )}
-        </div>
+        </main>
 
         <Footer />
       </div>
+
+      <style jsx>{`
+        .credit-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        @media (max-width: 980px) {
+          .credit-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </>
   );
 }

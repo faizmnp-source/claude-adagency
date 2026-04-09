@@ -42,7 +42,7 @@ export const NavBar: React.FC = () => {
   const isActive = (href: string) =>
     router.pathname === href || (href !== '/' && router.pathname.startsWith(href));
 
-  const desktopLink = (href: string, label: string) => (
+  const navLink = (href: string, label: string) => (
     <Link
       key={href}
       href={href}
@@ -175,9 +175,10 @@ export const NavBar: React.FC = () => {
               )}
             </div>
 
-            {desktopLink('/pricing', 'Pricing')}
-            {desktopLink('/studio', 'AI Studio')}
-            {desktopLink('/contact', 'Contact')}
+            {navLink('/pricing', 'Pricing')}
+            {navLink('/studio', 'AI Studio')}
+            {navLink('/designs', 'Designs')}
+            {navLink('/contact', 'Contact')}
 
             <Link href="/studio" className="cta-primary" style={{ minHeight: '48px', padding: '0 26px' }}>
               Try For Free
@@ -247,6 +248,7 @@ export const NavBar: React.FC = () => {
             <div className="eyebrow" style={{ marginTop: '12px', marginBottom: '4px' }}>Pages</div>
             <Link href="/pricing" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Pricing</Link>
             <Link href="/studio" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>AI Studio</Link>
+            <Link href="/designs" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Designs</Link>
             <Link href="/contact" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Contact</Link>
 
             <Link href="/studio" className="cta-primary" style={{ marginTop: '10px', width: '100%' }}>
