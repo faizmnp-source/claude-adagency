@@ -84,6 +84,7 @@ const NAV = [
   { href: '/services', label: 'Services' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/studio', label: 'AI Studio' },
+  { href: '/designs', label: 'Designs' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -240,6 +241,22 @@ export default function HomePage() {
               >
                 START CREATING NOW
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </Link>
+
+              <Link href="/designs" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '10px',
+                padding: '16px 34px',
+                background: 'transparent', color: '#fff',
+                fontSize: '15px', fontWeight: 700, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.12em',
+                textDecoration: 'none',
+                border: '2px solid rgba(255,255,255,0.25)',
+                borderRadius: '4px',
+                transition: 'all 0.25s',
+              }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+              >
+                VIEW 10 DESIGNS
               </Link>
 
               <Link href="/contact" style={{

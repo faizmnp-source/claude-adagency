@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TheCraftStudios — 10 Design Concepts Preview</title>
+  <style>
+    :root { --bg:#0b0d14; --card:#121826; --text:#f8fafc; --muted:#9ca3af; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,sans-serif; background:linear-gradient(180deg,#06070d,#0b0d14 40%); color:var(--text); }
+    .wrap{ max-width:1200px; margin:0 auto; padding:32px 20px 80px; }
+    h1{ font-size:clamp(28px,4vw,44px); margin:0 0 10px; }
+    p.lead{ color:var(--muted); margin:0 0 26px; }
+    .tip{ background:#111827; border:1px solid #1f2937; padding:14px 16px; border-radius:12px; color:#cbd5e1; margin-bottom:22px; }
+    .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+    .card{ border-radius:18px; border:1px solid rgba(255,255,255,.12); overflow:hidden; background:var(--card); box-shadow:0 10px 30px rgba(0,0,0,.28); }
+    .hero{ padding:18px; min-height:145px; position:relative; }
+    .hero h3{ margin:0; font-size:18px; }
+    .hero small{ display:block; color:rgba(255,255,255,.84); margin-top:6px; }
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .chip{ font-size:12px; padding:5px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); }
+    .body{ padding:14px 16px 18px; }
+    .palette{ display:flex; gap:6px; margin:10px 0 12px; }
+    .sw{ width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,255,255,.28); }
+    .studio{ display:grid; grid-template-columns:72px 1fr 92px; gap:8px; margin-top:8px; }
+    .studio > div{ border-radius:10px; min-height:56px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; font-size:11px; color:#e5e7eb; }
+    footer{ margin-top:28px; color:#94a3b8; font-size:13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>10 Website Design Concepts — Visual Preview</h1>
+    <p class="lead">Quick visual boards so you can see and compare the directions before implementation.</p>
+    <div class="tip">How to use: pick top 2 concepts, then we can convert one into full page wireframes and finally implement in frontend/backend without changing functionality.</div>
+
+    <section class="grid" id="concepts"></section>
+
+    <footer>
+      Source concepts are documented in <code>WEBSITE_REDESIGN_CONCEPTS.md</code>.
+    </footer>
+  </div>
+
+  <script>
+    const concepts = [
+      { n:'1', name:'Crimson Nebula 3D', vibe:'Cinematic premium futuristic', bg:'radial-gradient(circle at 30% 20%, #e5091455 0%, #05070f 60%)', p:['#05070F','#0E1424','#E50914','#7C3AED','#9CA3AF'] },
+      { n:'2', name:'Liquid Glass Social Pro', vibe:'Social polished transparent', bg:'linear-gradient(135deg,#0b1020,#172554,#0b1020)', p:['#0B1020','#FFFFFF22','#FF3B5C','#22D3EE','#D1D5DB'] },
+      { n:'3', name:'Creator Neon Grid', vibe:'High-energy creator motion', bg:'linear-gradient(140deg,#070b14,#111827,#070b14)', p:['#070B14','#FF1B2D','#2563EB','#8B5CF6','#94A3B8'] },
+      { n:'4', name:'Enterprise AI Black Titanium', vibe:'Trusted enterprise precision', bg:'linear-gradient(120deg,#0a0a0b,#111827)', p:['#0A0A0B','#1F2937','#DC2626','#10B981','#9CA3AF'] },
+      { n:'5', name:'Aurora Motion Studio', vibe:'Artistic premium emotional', bg:'linear-gradient(130deg,#060916,#7c3aed55,#3b82f655)', p:['#060916','#F43F5E','#7C3AED','#3B82F6','#E5E7EB'] },
+      { n:'6', name:'Social Commerce Velocity', vibe:'Performance growth focused', bg:'linear-gradient(120deg,#0b132b,#172554)', p:['#0B132B','#E11D48','#F59E0B','#3B82F6','#E5E7EB'] },
+      { n:'7', name:'Minimal Luxe Mono + Red', vibe:'Luxury minimal with red', bg:'linear-gradient(160deg,#09090b,#18181b)', p:['#09090B','#FAFAFA','#27272A','#71717A','#EF4444'] },
+      { n:'8', name:'Futuristic Hologram UI', vibe:'Experimental AI-lab', bg:'linear-gradient(130deg,#04050a,#a855f744,#22d3ee44)', p:['#04050A','#F43F5E','#22D3EE','#A855F7','#E5E7EB'] },
+      { n:'9', name:'Warm Premium Human-Tech', vibe:'Human-friendly trusted tech', bg:'linear-gradient(135deg,#111827,#fb718533,#fdba7433)', p:['#111827','#FB7185','#FDBA74','#60A5FA','#E5E7EB'] },
+      { n:'10', name:'Ultra Premium 3D Dark Royale', vibe:'Award-winning flagship', bg:'linear-gradient(135deg,#040816,#6d28d955,#2563eb55)', p:['#040816','#E50914','#6D28D9','#2563EB','#E5E7EB'] }
+    ];
+
+    const root = document.getElementById('concepts');
+    concepts.forEach(c => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="hero" style="background:${c.bg}">
+          <h3>${c.n}) ${c.name}</h3>
+          <small>${c.vibe}</small>
+          <div class="chips"><span class="chip">Home</span><span class="chip">Studio</span><span class="chip">Pricing</span></div>
+        </div>
+        <div class="body">
+          <strong style="font-size:13px;color:#cbd5e1">Palette</strong>
+          <div class="palette">${c.p.map(x=>`<span class='sw' title='${x}' style='background:${x}'></span>`).join('')}</div>
+          <strong style="font-size:13px;color:#cbd5e1">Studio Layout Preview</strong>
+          <div class="studio"><div>Rail</div><div>Create</div><div>Preview</div></div>
+        </div>`;
+      root.appendChild(card);
+    });
+  </script>
+</body>
+</html>
