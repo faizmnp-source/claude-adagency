@@ -2,6 +2,7 @@
 
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
@@ -19,12 +20,20 @@ declare global {
   interface Window { Razorpay: any; }
 }
 
-function getAuthToken(): string {
-  if (typeof window === 'undefined') return 'dev-token';
-  return localStorage.getItem('cs_token') || 'dev-token';
+function isLikelyJwt(token: string | null): token is string {
+  if (!token) return false;
+  const parts = token.split('.');
+  return parts.length === 3 && parts.every(Boolean);
+}
+
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('cs_token');
+  return isLikelyJwt(token) ? token : null;
 }
 
 export default function CreditsPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,10 +54,16 @@ export default function CreditsPage() {
     setLoading(packId);
     setError(null);
     try {
+      const token = getAuthToken();
+      if (!token) {
+        if (typeof window !== 'undefined') localStorage.removeItem('cs_token');
+        setError('Your session has expired. Please sign in again to continue.');
+        router.push('/login');
+        return;
+      }
+
       // Ensure Razorpay SDK is loaded
       await loadRazorpay();
-
-      const token = getAuthToken();
 
       // Step 1: Create Razorpay order on backend
       const res = await fetch(`${REEL_ENGINE}/api/payments/order`, {
@@ -57,6 +72,11 @@ export default function CreditsPage() {
         body: JSON.stringify({ packId }),
       });
       const order = await res.json();
+      if (res.status === 401) {
+        localStorage.removeItem('cs_token');
+        router.push('/login');
+        throw new Error('Your session has expired. Please sign in again.');
+      }
       if (!res.ok || !order.orderId) throw new Error(order.error || 'Failed to create order');
 
       // Step 2: Open Razorpay checkout modal
@@ -86,6 +106,11 @@ export default function CreditsPage() {
               }),
             });
             const result = await verify.json();
+            if (verify.status === 401) {
+              localStorage.removeItem('cs_token');
+              router.push('/login');
+              throw new Error('Your session expired before payment verification. Please sign in again.');
+            }
             if (result.success) {
               setSuccess(true);
             } else {
