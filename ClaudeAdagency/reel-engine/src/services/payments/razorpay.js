@@ -14,10 +14,22 @@ const razorpay = new Razorpay({
   key_secret: config.razorpay.keySecret,
 });
 
+function maskSecret(secret) {
+  if (!secret) return '[missing]';
+  if (secret.length <= 6) return `${secret[0] || ''}***`;
+  return `${secret.slice(0, 3)}***${secret.slice(-3)}`;
+}
+
 function buildReceipt(packId) {
   const ts = Date.now().toString(36);
   return `rcpt_${packId}_${ts}`.slice(0, 40);
 }
+
+logger.info('Razorpay config loaded', {
+  keyId: config.razorpay.keyId || '[missing]',
+  keySecretMasked: maskSecret(config.razorpay.keySecret),
+  keySecretLength: config.razorpay.keySecret?.length || 0,
+});
 
 export const CREDIT_PACKS = {
   starter: {
@@ -52,6 +64,14 @@ export async function createOrder({ userId, packId }) {
   if (!config.razorpay.keyId || !config.razorpay.keySecret) {
     throw new Error('Razorpay is not configured on the server');
   }
+
+  logger.info('Creating Razorpay order', {
+    userId,
+    packId,
+    keyId: config.razorpay.keyId,
+    keySecretMasked: maskSecret(config.razorpay.keySecret),
+    keySecretLength: config.razorpay.keySecret.length,
+  });
 
   const order = await razorpay.orders.create({
     amount: pack.price,
