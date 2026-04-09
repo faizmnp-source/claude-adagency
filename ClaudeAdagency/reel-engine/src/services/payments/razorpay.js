@@ -14,6 +14,11 @@ const razorpay = new Razorpay({
   key_secret: config.razorpay.keySecret,
 });
 
+function buildReceipt(packId) {
+  const ts = Date.now().toString(36);
+  return `rcpt_${packId}_${ts}`.slice(0, 40);
+}
+
 export const CREDIT_PACKS = {
   starter: {
     credits: 100,
@@ -44,11 +49,14 @@ export const CREDIT_PACKS = {
 export async function createOrder({ userId, packId }) {
   const pack = CREDIT_PACKS[packId];
   if (!pack) throw new Error(`Invalid pack: ${packId}`);
+  if (!config.razorpay.keyId || !config.razorpay.keySecret) {
+    throw new Error('Razorpay is not configured on the server');
+  }
 
   const order = await razorpay.orders.create({
     amount: pack.price,
     currency: pack.currency,
-    receipt: `reel_${userId}_${packId}_${Date.now()}`,
+    receipt: buildReceipt(packId),
     notes: {
       userId,
       packId,
