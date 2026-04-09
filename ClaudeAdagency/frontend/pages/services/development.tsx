@@ -5,178 +5,165 @@ import Link from 'next/link';
 import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
-const RED = '#E50914';
-const RED_DIM = 'rgba(229,9,20,0.15)';
-const RED_MED = 'rgba(229,9,20,0.2)';
+const capabilities = [
+  {
+    title: 'Web Platforms',
+    copy: 'Landing pages, company websites, and custom product surfaces with thoughtful structure and clear conversion paths.',
+    items: ['Marketing websites', 'Custom CMS surfaces', 'SEO-ready builds', 'Performance-focused frontends'],
+  },
+  {
+    title: 'Mobile Products',
+    copy: 'Native-feeling mobile applications designed for retention, clarity, and clean customer journeys.',
+    items: ['Android delivery', 'iOS delivery', 'Cross-platform apps', 'Store submission support'],
+  },
+  {
+    title: 'Commerce & Flows',
+    copy: 'Checkout, lead capture, booking, and account experiences where every screen has a measurable job to do.',
+    items: ['E-commerce journeys', 'Payments integration', 'Customer dashboards', 'Operational back-office tools'],
+  },
+];
 
-const DevelopmentPage = () => {
+const process = [
+  ['01', 'Discovery', 'We map the offer, audience, and product requirements before any visual layer is committed.'],
+  ['02', 'Design', 'We shape the interface system, information hierarchy, and responsive behavior around your core journey.'],
+  ['03', 'Build', 'We implement the product with production-ready patterns, clean integrations, and staged QA.'],
+  ['04', 'Launch', 'We ship, verify, and stay close through post-launch polish and iteration.'],
+];
+
+const stack = [
+  { label: 'Frontend', value: 'Next.js, React, TypeScript, Tailwind CSS' },
+  { label: 'Backend', value: 'Node.js, Python, APIs, automation services' },
+  { label: 'Mobile', value: 'React Native, Android, iOS delivery' },
+  { label: 'Infra', value: 'Cloud deployment, databases, integrations, analytics' },
+];
+
+export default function DevelopmentPage() {
   return (
     <>
       <Head>
-        <title>Web &amp; App Development — TheCraftStudios</title>
-        <meta name="description" content="Custom websites, Android &amp; iOS apps — built to look great, load fast, and turn visitors into paying customers." />
-        <meta property="og:title" content="Web & App Development — TheCraftStudios" />
-        <meta property="og:description" content="Custom websites, Android & iOS apps built to look great, load fast, and convert visitors." />
+        <title>Web & App Development - TheCraftStudios</title>
+        <meta
+          name="description"
+          content="Custom websites and mobile apps built for clarity, performance, and conversion."
+        />
+        <meta property="og:title" content="Web & App Development - TheCraftStudios" />
+        <meta
+          property="og:description"
+          content="Product-led websites and mobile experiences engineered for scale."
+        />
         <meta property="og:url" content="https://www.thecraftstudios.in/services/development" />
         <link rel="canonical" href="https://www.thecraftstudios.in/services/development" />
       </Head>
 
-      <NavBar />
+      <div className="page-shell">
+        <NavBar />
 
-      <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', fontFamily: "'Inter', sans-serif" }}>
-
-        {/* Hero */}
-        <section style={{ paddingTop: '72px', paddingBottom: '80px', padding: '72px 16px 80px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1, paddingTop: '48px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '24px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-              Web, Mobile &amp; App Development
-            </div>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(56px, 10vw, 96px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', lineHeight: 1, letterSpacing: '0.02em' }}>
-              Web &amp; App<br /><span style={{ color: RED }}>That Converts</span>
+        <main className="editorial-grid page-hero">
+          <section style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <span className="section-chip">Development Wing</span>
+            <h1 className="section-title" style={{ marginTop: '22px', marginBottom: '16px' }}>
+              Build Products That <span className="text-accent">Move Fast</span>
             </h1>
-            <p style={{ color: '#888888', fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.7 }}>
-              Custom websites, Android &amp; iOS apps — built to look great, load fast, and turn
-              visitors into paying customers.
+            <p className="section-copy" style={{ maxWidth: '760px', margin: '0 auto 28px' }}>
+              We design and build websites, mobile apps, and conversion-critical product flows that feel sharp,
+              deliberate, and ready for growth from day one.
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center' }}>
-              <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 40px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
-                Start Your Project →
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              <Link href="/contact" className="cta-primary">
+                Start Your Project
               </Link>
-              <Link href="/services/software" style={{ border: `1px solid rgba(229,9,20,0.4)`, color: '#E8E8E8', padding: '16px 40px', borderRadius: '8px', fontWeight: 600, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
-                Need AI / SaaS? →
+              <Link href="/services/software" className="cta-secondary">
+                Need AI Or SaaS?
               </Link>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Services Grid */}
-        <section style={{ padding: '96px 16px', background: '#111111' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                What We Build
-              </div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                Our Development Services
-              </h2>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
-              {[
-                { icon: '🖥️', title: 'Website Design & Development', items: ['Landing pages', 'Corporate websites', 'Portfolio sites', 'Custom CMS'], desc: 'Responsive, fast-loading websites that look stunning on every device and are built to convert.' },
-                { icon: '📱', title: 'Android & iOS App Development', items: ['Native Android apps', 'Native iOS apps', 'Cross-platform (React Native)', 'App Store submission'], desc: 'Mobile-first apps built for performance, designed for user delight and business growth.' },
-                { icon: '🛒', title: 'E-commerce Solutions', items: ['Online stores', 'Payment integration', 'Inventory management', 'Order tracking'], desc: 'Complete e-commerce platforms with seamless checkout optimized for maximum conversions.' },
-              ].map((s, i) => (
-                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ width: '56px', height: '56px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', marginBottom: '24px', background: 'rgba(229,9,20,0.08)', border: `1px solid rgba(229,9,20,0.2)` }}>{s.icon}</div>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{s.title}</h3>
-                  <p style={{ color: '#888888', fontSize: '14px', marginBottom: '20px', lineHeight: 1.7 }}>{s.desc}</p>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {s.items.map((item, j) => (
-                      <li key={j} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#888888' }}>
-                        <span style={{ color: RED, fontWeight: 700 }}>✓</span>{item}
-                      </li>
-                    ))}
-                  </ul>
+          <section className="development-grid" style={{ display: 'grid', gap: '22px', marginBottom: '64px' }}>
+            {capabilities.map((capability) => (
+              <article key={capability.title} className="editorial-card" style={{ padding: '28px' }}>
+                <div className="eyebrow">{capability.title}</div>
+                <p style={{ color: 'var(--ink-soft)', fontSize: '15px', lineHeight: 1.8, marginTop: '14px', marginBottom: '18px' }}>
+                  {capability.copy}
+                </p>
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {capability.items.map((item) => (
+                    <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--ink)', fontSize: '14px', fontWeight: 600 }}>
+                      <span className="text-accent">*</span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </article>
+            ))}
+          </section>
 
-            {/* Software/SaaS CTA card */}
-            <div style={{ marginTop: '40px', background: '#1A1A1A', border: `1px solid rgba(229,9,20,0.3)`, borderRadius: '16px', padding: '32px', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '32px' }}>
-                <div>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid rgba(229,9,20,0.4)`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.08)' }}>
-                    🤖 Also Building
+          <section className="editorial-card editorial-card-dark" style={{ padding: '30px', marginBottom: '64px', background: 'linear-gradient(135deg, #0b2b26 0%, #153a33 100%)' }}>
+            <div className="eyebrow" style={{ color: 'rgba(255,255,255,0.55)' }}>Delivery Process</div>
+            <div className="process-grid" style={{ display: 'grid', gap: '18px', marginTop: '20px' }}>
+              {process.map(([step, title, copy]) => (
+                <div key={step} style={{ padding: '20px', borderRadius: '24px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ color: '#f4c7a1', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '10px' }}>
+                    {step}
                   </div>
-                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '32px', color: '#fff', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>Need AI Automations or SaaS?</h3>
-                  <p style={{ color: '#888888', maxWidth: '560px', lineHeight: 1.7 }}>We also build AI-powered SaaS products, finance automation tools, sales CRMs, and custom software. Click below to explore our dedicated software page.</p>
-                </div>
-                <Link href="/services/software" style={{ background: RED, color: '#fff', padding: '16px 32px', borderRadius: '8px', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0, display: 'inline-block' }}>
-                  Explore AI &amp; SaaS →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Process */}
-        <section style={{ padding: '96px 16px', background: '#0A0A0A', position: 'relative' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                How We Work
-              </div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 64px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                Development Process
-              </h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
-              {[
-                { step: '01', icon: '📋', title: 'Discovery', desc: 'We understand your goals, users, and requirements in detail.' },
-                { step: '02', icon: '🎨', title: 'Design', desc: 'UI/UX wireframes and pixel-perfect designs for approval.' },
-                { step: '03', icon: '⚙️', title: 'Build', desc: 'Full development with regular progress updates.' },
-                { step: '04', icon: '🚀', title: 'Launch', desc: 'Testing, deployment, and post-launch support.' },
-              ].map((item, i) => (
-                <div key={i} style={{ textAlign: 'center' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '16px', background: '#1A1A1A', border: `1px solid ${RED_DIM}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', margin: '0 auto 20px' }}>{item.icon}</div>
-                  <div style={{ color: RED, fontWeight: 700, fontSize: '13px', letterSpacing: '0.15em', marginBottom: '8px' }}>{item.step}</div>
-                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{item.title}</h3>
-                  <p style={{ color: '#888888', fontSize: '14px', lineHeight: 1.7 }}>{item.desc}</p>
+                  <h2 style={{ color: '#fff', fontSize: '22px', fontWeight: 800, marginBottom: '8px' }}>{title}</h2>
+                  <p style={{ color: 'rgba(255,255,255,0.74)', fontSize: '14px', lineHeight: 1.7 }}>{copy}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Tech Stack */}
-        <section style={{ padding: '96px 16px', background: '#111111' }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: `1px solid ${RED_DIM}`, borderRadius: '999px', padding: '6px 16px', marginBottom: '16px', color: RED, fontSize: '13px', fontWeight: 600, background: 'rgba(229,9,20,0.05)' }}>
-                Tech Stack
-              </div>
-              <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 6vw, 56px)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                What We Use
-              </h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
-              {[
-                { category: 'Frontend', items: ['React / Next.js', 'React Native', 'TypeScript', 'Tailwind CSS'] },
-                { category: 'Backend', items: ['Node.js', 'Python/FastAPI', 'Django', 'REST & GraphQL'] },
-                { category: 'Mobile', items: ['React Native', 'Android (Kotlin)', 'iOS (Swift)', 'Flutter'] },
-                { category: 'Cloud & DB', items: ['AWS / GCP', 'PostgreSQL', 'MongoDB', 'Redis'] },
-              ].map((stack, i) => (
-                <div key={i} style={{ background: '#1A1A1A', border: `1px solid ${RED_DIM}`, borderRadius: '16px', padding: '24px' }}>
-                  <h4 style={{ color: RED, fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px' }}>{stack.category}</h4>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {stack.items.map((item, j) => (
-                      <li key={j} style={{ color: '#888888', fontSize: '14px' }}>{item}</li>
-                    ))}
-                  </ul>
+          <section className="editorial-card" style={{ padding: '30px', marginBottom: '72px' }}>
+            <div className="eyebrow">Core Stack</div>
+            <div className="stack-grid" style={{ display: 'grid', gap: '16px', marginTop: '20px' }}>
+              {stack.map((item) => (
+                <div key={item.label} style={{ padding: '20px', borderRadius: '22px', background: 'rgba(246,241,238,0.8)', border: '1px solid rgba(17,17,17,0.06)' }}>
+                  <div style={{ color: 'var(--forest)', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    {item.label}
+                  </div>
+                  <p style={{ color: 'var(--ink)', fontSize: '15px', lineHeight: 1.7 }}>{item.value}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section style={{ padding: '80px 16px', background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ maxWidth: '896px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(48px, 8vw, 80px)', color: '#fff', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-              Ready to Build<br /><span style={{ color: RED }}>Something Great?</span>
-            </h2>
-            <p style={{ color: '#888888', fontSize: '20px', marginBottom: '40px' }}>Tell us about your project and we'll get back to you within 24 hours.</p>
-            <Link href="/contact" style={{ background: RED, color: '#fff', padding: '16px 48px', borderRadius: '8px', fontWeight: 700, fontSize: '18px', textDecoration: 'none', display: 'inline-block' }}>
-              Start Your Project →
-            </Link>
-          </div>
-        </section>
+          </section>
+        </main>
 
         <Footer />
       </div>
+
+      <style jsx>{`
+        .development-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .process-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .stack-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (max-width: 1100px) {
+          .process-grid,
+          .stack-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 960px) {
+          .development-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .process-grid,
+          .stack-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </>
   );
-};
-
-export default DevelopmentPage;
+}
