@@ -145,6 +145,17 @@ export const NavBar: React.FC = () => {
             onMouseLeave={e => (e.currentTarget.style.color = isActive('/studio') ? R : MUTED)}
           >AI Studio</Link>
 
+          {/* Concepts */}
+          <Link href="/designs"
+            style={{
+              fontSize: '14px', fontWeight: 500, letterSpacing: '0.04em',
+              color: isActive('/designs') ? R : MUTED,
+              textDecoration: 'none', transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = TEXT)}
+            onMouseLeave={e => (e.currentTarget.style.color = isActive('/designs') ? R : MUTED)}
+          >Designs</Link>
+
           {/* Contact */}
           <Link href="/contact"
             style={{
@@ -204,6 +215,7 @@ export const NavBar: React.FC = () => {
           {[
             { href: '/pricing', label: 'Pricing' },
             { href: '/studio',  label: 'AI Studio' },
+            { href: '/designs', label: 'Designs' },
             { href: '/contact', label: 'Contact' },
           ].map(({ href, label }) => (
             <Link key={href} href={href}
