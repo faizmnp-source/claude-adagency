@@ -3,8 +3,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-
 import Logo from '../../components/Logo';
+import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
 
 /* ── Bell Icon ── */
 const BellIcon = () => (
@@ -670,7 +671,8 @@ export default function StudioPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#fff' }}>
+    <div className="page-shell">
+      <NavBar />
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-50" style={{ background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,9,20,0.12)' }}>
@@ -730,6 +732,27 @@ export default function StudioPage() {
           </div>
         </div>
       </header>
+
+      <div className="editorial-grid" style={{ paddingTop: '24px', paddingBottom: '24px' }}>
+        <section className="editorial-card" style={{ padding: '28px', marginBottom: '28px' }}>
+          <span className="section-chip">Content Studio</span>
+          <h1 className="section-title" style={{ fontSize: '54px', marginTop: '16px', marginBottom: '12px' }}>
+            Generate, Review, And <span className="text-accent">Ship Faster</span>
+          </h1>
+          <p className="section-copy" style={{ maxWidth: '760px', marginBottom: '18px' }}>
+            The workflow is unchanged. This layer brings the studio interface closer to the rest of the redesigned site
+            so credits, approvals, and publishing feel like one product.
+          </p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <Link href="/studio/calendar" className="cta-secondary">Open Calendar</Link>
+            <Link href="/pricing" className="cta-secondary">View Pricing</Link>
+            {!instagram.connected && (
+              <button onClick={connectInstagram} className="cta-secondary" style={{ minHeight: '46px', padding: '0 18px' }}>
+                Connect Instagram
+              </button>
+            )}
+          </div>
+        </section>
 
       <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
 
@@ -2150,6 +2173,7 @@ export default function StudioPage() {
         )}
 
       </div>
+      <Footer />
     </div>
   );
 }

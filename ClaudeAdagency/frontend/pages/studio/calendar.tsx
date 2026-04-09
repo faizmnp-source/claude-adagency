@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import NavBar from '../../components/NavBar';
+import Footer from '../../components/Footer';
 
 /* ── Palette ── */
 const BG     = '#050B18';
@@ -231,9 +232,26 @@ export default function CalendarPage() {
         <title>Content Calendar — TheCraftStudios</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <NavBar />
+      <div className="page-shell">
+        <NavBar />
 
-      <div style={{ minHeight: '100vh', background: BG, color: TEXT, fontFamily: "'Space Grotesk', sans-serif", paddingTop: '72px' }}>
+        <div className="editorial-grid" style={{ paddingTop: '24px', paddingBottom: '24px' }}>
+          <section className="editorial-card" style={{ padding: '28px', marginBottom: '28px' }}>
+            <span className="section-chip">Studio Calendar</span>
+            <h1 className="section-title" style={{ fontSize: '48px', marginTop: '16px', marginBottom: '12px' }}>
+              Plan The Month, Review The Queue, <span className="text-accent">Post With Confidence</span>
+            </h1>
+            <p className="section-copy" style={{ maxWidth: '760px', marginBottom: '18px' }}>
+              Calendar mode keeps your content pipeline visible in one place so approvals, timing, and auto-pilot
+              decisions feel connected to the rest of the studio experience.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <Link href="/studio" className="cta-secondary">Back To Studio</Link>
+              <Link href="/studio/credits" className="cta-secondary">Manage Credits</Link>
+            </div>
+          </section>
+
+          <div style={{ minHeight: '100vh', background: BG, color: TEXT, fontFamily: "'Space Grotesk', sans-serif", borderRadius: '28px', overflow: 'hidden', border: `1px solid ${BORDER}` }}>
 
         {/* ── Header ── */}
         <div style={{ borderBottom: `1px solid ${BORDER}`, background: BG2 }}>
@@ -656,6 +674,9 @@ export default function CalendarPage() {
             </>
           )}
         </div>
+          </div>
+        </div>
+        <Footer />
       </div>
     </>
   );
