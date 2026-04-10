@@ -180,6 +180,37 @@ export function calcVideoCost(packageId, modelKey, durationSec) {
   return { clips, replicateUsd: Math.round(replicateUsd * 100) / 100, replicateInr: Math.round(replicateInr), retailInr: Math.round(retailInr), credits, voice: voice || false, music: music || false };
 }
 
+export function buildSceneVideoPrompt(scene = {}, reelScript = '') {
+  const parts = [];
+
+  if (scene.replicatePrompt) {
+    parts.push(scene.replicatePrompt);
+  } else if (scene.description) {
+    parts.push(scene.description);
+  }
+
+  if (scene.dialogue) {
+    parts.push(`Spoken line in this scene: "${scene.dialogue}"`);
+  } else if (scene.sceneNumber === 1 && reelScript) {
+    const firstLine = reelScript.split(/[.!?]/)[0]?.trim();
+    if (firstLine) {
+      parts.push(`Open with the core spoken hook: "${firstLine}"`);
+    }
+  }
+
+  if (scene.textOverlay) {
+    parts.push(`Visual idea should support this on-screen hook/message: "${scene.textOverlay}"`);
+  }
+
+  if (scene.visualDirection) {
+    parts.push(`Camera and styling direction: ${scene.visualDirection}`);
+  }
+
+  parts.push('Ensure the visuals clearly match the hook, product claim, and emotional beat of this scene.');
+
+  return parts.filter(Boolean).join(' ');
+}
+
 async function runPrediction(model, input, timeoutMs = 360_000) {
   const headers = {
     Authorization: `Bearer ${config.replicate.apiToken}`,
@@ -243,7 +274,7 @@ export async function generateAllSceneClips({ scenes, imageUrls, reelId, onProgr
     const batchResults = await Promise.all(
       batch.map(scene => generateSceneClip({
         imageUrl: imageUrls?.[scene.sceneNumber % Math.max(imageUrls.length, 1)] || imageUrls?.[0],
-        prompt: scene.replicatePrompt || scene.description,
+        prompt: buildSceneVideoPrompt(scene),
         durationSeconds: scene.duration,
         sceneNumber: scene.sceneNumber,
         reelId, modelKey, packageId, quality,

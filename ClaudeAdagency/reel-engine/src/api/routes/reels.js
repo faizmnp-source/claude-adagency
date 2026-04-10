@@ -425,7 +425,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     // quality: legacy alias for modelKey
     const { packageId, modelKey, quality } = req.body;
 
-    const { generateSceneClip, VIDEO_PACKAGES, calcVideoCost } = await import('../../services/video/replicateGenerator.js');
+    const { generateSceneClip, VIDEO_PACKAGES, calcVideoCost, buildSceneVideoPrompt } = await import('../../services/video/replicateGenerator.js');
 
     // Build public URLs for saved temp images so Replicate can fetch them
     const savedPaths = await redis.get(`reel:images:${reelId}`);
@@ -483,7 +483,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     for (let i = 0; i < clipPlan.length; i++) {
       const imageUrl = imageUrls[i % imageUrls.length];
       const scene = scenes[i] || scenes[scenes.length - 1];
-      const prompt = scene?.replicatePrompt || scene?.description || reel.content?.script || 'product showcase, cinematic motion';
+      const prompt = buildSceneVideoPrompt(scene, reel.content?.script) || reel.content?.script || 'product showcase, cinematic motion';
 
       logger.info(`Generating clip ${i + 1}/${clipPlan.length} (${clipPlan[i]}s)`, { reelId, packageId, modelKey });
       const clip = await generateSceneClip({

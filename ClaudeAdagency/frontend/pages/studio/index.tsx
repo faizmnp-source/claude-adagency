@@ -1944,51 +1944,49 @@ export default function StudioPage() {
             ═══════════════════════════════════ */}
         {step === 'generating' && (
           <div className="max-w-lg mx-auto mt-8">
-            <div className="rounded-2xl p-10 text-center relative overflow-hidden" style={{ background: 'rgba(13,22,40,0.5)', border: '1px solid rgba(123,46,255,0.15)' }}>
-              <div className="purple-orb w-64 h-64 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40" style={{ position: 'absolute' }}></div>
+            <div className="studio-progress-panel relative overflow-hidden">
+              <div className="floating-orb float-a w-40 h-40 -left-8 top-6 opacity-100" style={{ background: 'rgba(227, 100, 20, 0.14)' }}></div>
+              <div className="floating-orb float-b w-36 h-36 right-0 bottom-0 opacity-100" style={{ background: 'rgba(11, 43, 38, 0.1)' }}></div>
               <div className="relative z-10">
-                <div className="text-5xl mb-5 float">
+                <div className="section-chip mb-6 mx-auto">Live Pipeline</div>
+                <div className="studio-progress-hero-icon mx-auto mb-5">
                   {PIPELINE_STAGES.find(s => s.key === pipelineStage)?.icon || '🎬'}
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-3xl font-bold text-forest mb-2">
                   {pipelineStage === 'script' && 'Writing Script'}
                   {pipelineStage === 'clips' && 'Generating Video'}
                   {pipelineStage === 'stitching' && 'Merging Reel'}
                   {pipelineStage === 'ready' && 'Almost Done!'}
                 </h2>
-                <p className="text-[#94A3B8] text-sm mb-8">{pipelineMessage}</p>
+                <p className="text-[#6f6258] text-base leading-relaxed max-w-md mx-auto mb-8">{pipelineMessage}</p>
 
                 {/* Progress bar */}
-                <div className="w-full rounded-full h-2 mb-3 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                  <div className="h-2 rounded-full transition-all duration-700"
-                    style={{ width: `${STAGE_PERCENT[pipelineStage]}%`, background: 'linear-gradient(90deg, #E50914, #B0060F)' }}></div>
+                <div className="studio-progress-track mb-4">
+                  <div className="studio-progress-fill transition-all duration-700"
+                    style={{ width: `${STAGE_PERCENT[pipelineStage]}%` }}></div>
                 </div>
-                <div className="flex justify-between text-xs text-[#94A3B8] mb-8">
-                  <span>{pipelineMessage}</span>
-                  <span className="font-bold purple-gradient-text">{STAGE_PERCENT[pipelineStage]}%</span>
+                <div className="flex items-center justify-between text-sm mb-8">
+                  <span className="text-[#8d8077] font-medium">Pipeline is running. Please keep this tab open.</span>
+                  <span className="studio-progress-percent">{STAGE_PERCENT[pipelineStage]}%</span>
                 </div>
 
                 {/* Stage dots */}
-                <div className="grid grid-cols-4 gap-2 text-xs">
+                <div className="grid grid-cols-4 gap-3 text-xs">
                   {PIPELINE_STAGES.map((s, i) => {
                     const done = i < currentStageIdx;
                     const active = i === currentStageIdx;
                     return (
-                      <div key={s.key} className="rounded-lg p-3 text-center transition-all"
-                        style={{
-                          background: done ? 'rgba(123,46,255,0.12)' : active ? 'rgba(0,229,255,0.06)' : 'rgba(255,255,255,0.02)',
-                          border: `1px solid ${done ? 'rgba(229,9,20,0.3)' : active ? 'rgba(0,229,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                        }}>
-                        <div className="text-lg mb-1">{done ? '✅' : s.icon}</div>
-                        <div className={done ? 'text-[#C084FC]' : active ? 'text-[#67E8F9]' : 'text-[#94A3B8]'}>{s.label}</div>
+                      <div key={s.key} className={`studio-progress-step ${done ? 'is-done' : active ? 'is-active' : ''}`}>
+                        <div className="text-lg mb-2">{done ? '✓' : s.icon}</div>
+                        <div>{s.label}</div>
                       </div>
                     );
                   })}
                 </div>
 
                 {pipelineStage === 'clips' && (
-                  <p className="text-[#94A3B8] text-xs mt-6 rounded-lg p-3" style={{ background: 'rgba(0,229,255,0.04)', border: '1px solid rgba(0,229,255,0.12)' }}>
-                    ⏱️ Est. {Math.ceil(duration / 5) * 2}–{Math.ceil(duration / 5) * 4} min. Keep this tab open.
+                  <p className="studio-progress-note mt-6">
+                    ⏱️ Estimated {Math.ceil(duration / 5) * 2}–{Math.ceil(duration / 5) * 4} min for render and stitch.
                   </p>
                 )}
               </div>
@@ -2000,62 +1998,60 @@ export default function StudioPage() {
             STEP: DONE — Approve / Reject / Download
             ═══════════════════════════════════ */}
         {step === 'done' && result && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="studio-done-layout">
 
             {/* Left: Video + Actions */}
-            <div className="lg:col-span-1 space-y-4">
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(13,22,40,0.5)', border: '1px solid rgba(123,46,255,0.15)' }}>
-
-                {approveSuccess ? (
-                  <div className="feature-badge mb-4" style={{ color: '#22c55e', borderColor: 'rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.06)' }}>✅ Posted to Instagram!</div>
-                ) : (
-                  <div className="feature-badge mb-4" style={{ color: '#E040FB', borderColor: 'rgba(229,9,20,0.3)', background: 'rgba(229,9,20,0.06)' }}>🎉 Reel Ready</div>
-                )}
-
-                <h2 className="text-xl font-bold text-white mb-4">Your Reel is Ready</h2>
-
-                {/* Video player */}
-                <div className="aspect-[9/16] rounded-xl overflow-hidden mb-5" style={{ background: 'rgba(5,11,24,0.8)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  {result.videoUrl ? (
-                    <video src={result.videoUrl} controls playsInline className="w-full h-full object-contain" />
+            <div className="studio-done-preview-column">
+              <div className="studio-phone-shell">
+                <div className="text-center mb-5">
+                  {approveSuccess ? (
+                    <div className="section-chip mb-4" style={{ color: 'var(--success)', borderColor: 'rgba(21,128,61,0.22)', background: 'rgba(21,128,61,0.06)' }}>Posted to Instagram</div>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-center px-4">
-                      <div><div className="text-4xl mb-2">🎬</div><p className="text-[#94A3B8] text-sm">Video ready on server</p></div>
-                    </div>
+                    <div className="section-chip mb-4">Reel Ready</div>
                   )}
+                  <h2 className="text-3xl font-bold text-forest mb-2">Your Reel is Ready</h2>
+                  <p className="text-sm text-[#7d6f66]">Preview the final cut, review the creative, and post when you’re happy with it.</p>
                 </div>
 
+                <div className="studio-phone-stage studio-done-phone-stage">
+                  <div className="studio-review-video">
+                    {result.videoUrl ? (
+                      <video src={result.videoUrl} controls playsInline className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-center px-4">
+                        <div><div className="text-4xl mb-2">🎬</div><p className="text-[#8d8077] text-sm">Video ready on server</p></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="studio-review-panel">
                 {approveSuccess && (
-                  <div className="mb-4 p-4 rounded-xl text-center" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}>
-                    <p className="text-green-400 font-semibold text-sm mb-1">🎉 Posted Successfully!</p>
+                  <div className="studio-review-success mb-4">
+                    <p className="font-semibold text-sm mb-1" style={{ color: 'var(--success)' }}>Posted Successfully</p>
                     {approveSuccess.permalink && (
-                      <a href={approveSuccess.permalink} target="_blank" rel="noopener noreferrer" className="text-[#C084FC] text-xs hover:underline">View on Instagram →</a>
+                      <a href={approveSuccess.permalink} target="_blank" rel="noopener noreferrer" className="text-accent text-xs hover:underline">View on Instagram →</a>
                     )}
                   </div>
                 )}
 
-                {/* 3 Action Buttons */}
                 <div className="space-y-3">
                   {!approveSuccess && (
                     <>
-                      {/* Approve */}
                       <button onClick={handleApprove} disabled={approving}
                         className="neon-btn w-full gap-2" style={{ padding: '14px 24px', fontSize: '15px' }}>
                         {approving ? '⚙️ Posting...' : instagram.connected ? '✅ Approve & Post' : '✅ Approve (Connect IG)'}
                       </button>
 
-                      {/* Download */}
                       <button onClick={handleDownload}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-white text-sm transition-all hover:opacity-90"
-                        style={{ background: 'rgba(74,108,247,0.1)', border: '1px solid rgba(74,108,247,0.3)' }}>
-                        ⬇️ Download MP4
+                        className="studio-secondary-action w-full">
+                        Download MP4
                       </button>
 
-                      {/* Reject */}
                       <button onClick={() => { setStep('settings'); setResult(null); setImages([]); setVoiceoverUrl(null); setApproveSuccess(null); }}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
-                        style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
-                        ❌ Reject — New Reel
+                        className="studio-danger-action w-full">
+                        Reject & Create New Reel
                       </button>
                     </>
                   )}
@@ -2069,26 +2065,25 @@ export default function StudioPage() {
                 </div>
 
                 {showIGPrompt && !instagram.connected && (
-                  <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(224,64,251,0.04)', border: '1px solid rgba(224,64,251,0.15)' }}>
-                    <p className="text-white font-semibold text-sm mb-2">📸 Connect Instagram</p>
-                    <p className="text-[#94A3B8] text-xs mb-3">Link your Instagram Business account to auto-post.</p>
+                  <div className="studio-sidecard mt-4">
+                    <p className="text-forest font-semibold text-sm mb-2">Connect Instagram</p>
+                    <p className="text-[#7d6f66] text-xs mb-3">Link your Instagram Business account to post directly from the studio.</p>
                     <button onClick={connectInstagram} className="neon-btn neon-btn-sm w-full">Connect Instagram →</button>
-                    <button onClick={() => setShowIGPrompt(false)} className="w-full text-xs text-[#94A3B8] hover:text-white mt-2 text-center">Maybe later</button>
+                    <button onClick={() => setShowIGPrompt(false)} className="w-full text-xs text-[#8d8077] hover:text-[var(--forest)] mt-2 text-center">Maybe later</button>
                   </div>
                 )}
 
-                {/* Voiceover */}
-                <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(17,17,17,0.08)' }}>
                   {!voiceoverUrl ? (
                     <button onClick={generateVoiceover} disabled={voiceoverLoading}
-                      className="w-full text-xs text-[#94A3B8] hover:text-white transition-colors flex items-center justify-center gap-2 py-2 disabled:opacity-50">
-                      {voiceoverLoading ? '🎙️ Generating...' : '🎙️ Generate AI Voiceover'}
+                      className="w-full text-xs text-[#8d8077] hover:text-[var(--forest)] transition-colors flex items-center justify-center gap-2 py-2 disabled:opacity-50">
+                      {voiceoverLoading ? 'Generating AI voiceover...' : 'Generate AI Voiceover'}
                     </button>
                   ) : (
-                    <div className="rounded-xl p-3" style={{ background: 'rgba(13,22,40,0.6)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <p className="text-xs text-[#94A3B8] mb-2 font-semibold">🎙️ AI Voiceover</p>
+                    <div className="studio-sidecard">
+                      <p className="text-xs text-[#7d6f66] mb-2 font-semibold">AI Voiceover</p>
                       <audio controls src={voiceoverUrl} className="w-full" style={{ height: '36px' }} />
-                      <a href={voiceoverUrl} download={`voiceover-${result.reelId}.mp3`} className="text-xs text-[#C084FC] hover:underline mt-1 block text-center">⬇️ Download MP3</a>
+                      <a href={voiceoverUrl} download={`voiceover-${result.reelId}.mp3`} className="text-xs text-accent hover:underline mt-1 block text-center">Download MP3</a>
                     </div>
                   )}
                 </div>
@@ -2096,16 +2091,13 @@ export default function StudioPage() {
             </div>
 
             {/* Right: AI Content Tabs */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(13,22,40,0.5)', border: '1px solid rgba(123,46,255,0.12)' }}>
-                <div className="flex" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="studio-done-content-column">
+              <div className="studio-review-panel overflow-hidden">
+                <div className="studio-review-tabs">
                   {(['script', 'caption', 'scenes'] as const).map((tab) => (
                     <button key={tab} onClick={() => setActiveTab(tab)}
-                      className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${
-                        activeTab === tab ? 'text-white bg-[rgba(123,46,255,0.08)]' : 'text-[#94A3B8] hover:text-white'
-                      }`}
-                      style={activeTab === tab ? { borderBottom: '2px solid #E50914' } : {}}>
-                      {tab === 'script' ? '📝 Script' : tab === 'caption' ? '💬 Caption' : '🎥 Scenes'}
+                      className={`studio-review-tab ${activeTab === tab ? 'is-active' : ''}`}>
+                      {tab === 'script' ? 'Script' : tab === 'caption' ? 'Caption' : 'Scenes'}
                     </button>
                   ))}
                 </div>
@@ -2113,18 +2105,16 @@ export default function StudioPage() {
                   {activeTab === 'script' && result.content && (
                     <div className="space-y-6">
                       <div>
-                        <h4 className="text-xs font-bold text-[#C084FC] uppercase tracking-wider mb-3">🪝 Hook Variations</h4>
+                        <h4 className="text-xs font-bold text-accent uppercase tracking-wider mb-3">Hook Variations</h4>
                         {result.content.hooks?.map((hook, i) => (
-                          <div key={i} className="rounded-lg p-3 mb-2 text-sm text-[#94A3B8]"
-                            style={{ background: 'rgba(123,46,255,0.06)', border: '1px solid rgba(123,46,255,0.12)' }}>
-                            <span className="text-[#C084FC] font-bold mr-2">#{i + 1}</span>{hook}
+                          <div key={i} className="studio-review-list-item mb-2">
+                            <span className="text-accent font-bold mr-2">#{i + 1}</span>{hook}
                           </div>
                         ))}
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-[#E50914] uppercase tracking-wider mb-3">📜 Full Script</h4>
-                        <div className="rounded-xl p-4 text-[#94A3B8] text-sm leading-relaxed whitespace-pre-wrap"
-                          style={{ background: 'rgba(5,11,24,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <h4 className="text-xs font-bold text-forest uppercase tracking-wider mb-3">Full Script</h4>
+                        <div className="studio-review-content-block whitespace-pre-wrap">
                           {result.content.script}
                         </div>
                       </div>
@@ -2133,18 +2123,16 @@ export default function StudioPage() {
                   {activeTab === 'caption' && result.content && (
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-xs font-bold text-[#C084FC] uppercase tracking-wider mb-3">📱 Instagram Caption</h4>
-                        <div className="rounded-xl p-4 text-[#94A3B8] text-sm leading-relaxed"
-                          style={{ background: 'rgba(5,11,24,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <h4 className="text-xs font-bold text-accent uppercase tracking-wider mb-3">Instagram Caption</h4>
+                        <div className="studio-review-content-block">
                           {result.content.caption}
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-[#E50914] uppercase tracking-wider mb-3"># Hashtags</h4>
+                        <h4 className="text-xs font-bold text-forest uppercase tracking-wider mb-3">Hashtags</h4>
                         <div className="flex flex-wrap gap-2">
                           {result.content.hashtags?.map((tag, i) => (
-                            <span key={i} className="px-2 py-1 rounded-full text-xs font-semibold text-[#C084FC]"
-                              style={{ background: 'rgba(123,46,255,0.08)', border: '1px solid rgba(123,46,255,0.15)' }}>
+                            <span key={i} className="studio-review-tag">
                               {tag}
                             </span>
                           ))}
@@ -2155,19 +2143,18 @@ export default function StudioPage() {
                   {activeTab === 'scenes' && result.content && (
                     <div className="space-y-3">
                       {result.content.scenes?.map((scene: any, i: number) => (
-                        <div key={i} className="rounded-xl p-4" style={{ background: 'rgba(13,22,40,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div key={i} className="studio-review-scene-card">
                           <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#C084FC] font-bold text-sm"
-                              style={{ background: 'rgba(123,46,255,0.1)', border: '1px solid rgba(229,9,20,0.15)' }}>
+                            <div className="studio-scene-number">
                               {scene.sceneNumber}
                             </div>
                             <div>
-                              <span className="text-white font-semibold text-sm">{scene.title || `Scene ${scene.sceneNumber}`}</span>
-                              <span className="text-[#E50914] text-xs ml-2">{scene.startTime}s – {scene.startTime + scene.duration}s</span>
+                              <span className="text-forest font-semibold text-sm">{scene.title || `Scene ${scene.sceneNumber}`}</span>
+                              <span className="text-accent text-xs ml-2">{scene.startTime}s – {scene.startTime + scene.duration}s</span>
                             </div>
                           </div>
-                          <p className="text-[#94A3B8] text-sm">{scene.description}</p>
-                          {scene.dialogue && <p className="text-[#C084FC] text-xs mt-2 italic">"{scene.dialogue}"</p>}
+                          <p className="text-[#6f6258] text-sm">{scene.description}</p>
+                          {scene.dialogue && <p className="text-[#8d8077] text-xs mt-2 italic">"{scene.dialogue}"</p>}
                         </div>
                       ))}
                     </div>
@@ -2176,12 +2163,12 @@ export default function StudioPage() {
               </div>
 
               {!instagram.connected && !approveSuccess && (
-                <div className="rounded-2xl p-5" style={{ background: 'rgba(224,64,251,0.03)', border: '1px solid rgba(229,9,20,0.1)' }}>
+                <div className="studio-sidecard p-5">
                   <div className="flex items-center gap-4">
-                    <div className="text-3xl">📸</div>
+                    <div className="studio-scene-number" style={{ width: '56px', height: '56px', borderRadius: '18px', fontSize: '24px' }}>📸</div>
                     <div className="flex-1">
-                      <p className="text-white font-semibold text-sm mb-0.5">Connect Instagram</p>
-                      <p className="text-[#94A3B8] text-xs">Auto-post approved reels directly to your Instagram.</p>
+                      <p className="text-forest font-semibold text-sm mb-0.5">Connect Instagram</p>
+                      <p className="text-[#7d6f66] text-xs">Auto-post approved reels directly to your Instagram.</p>
                     </div>
                     <button onClick={connectInstagram} className="neon-btn neon-btn-sm whitespace-nowrap">Connect →</button>
                   </div>

@@ -145,6 +145,13 @@ Every video prompt must look like it was shot by a skilled creator on an iPhone 
 - Natural environment elements (wind, ambient movement)
 - Authentic talent expressions (not model-perfect poses)
 
+## HOOK-TO-VISUAL ALIGNMENT RULE
+- Scene 1 MUST directly express the chosen winning hook visually and verbally.
+- The first scene's "dialogue" must clearly carry the opening hook.
+- The first scene's "textOverlay" must reinforce the same hook in short, punchy wording.
+- The first scene's "replicatePrompt" must describe visuals that obviously match that hook, not generic product beauty shots.
+- Every later scene must visually support the corresponding spoken line instead of drifting into unrelated filler visuals.
+
 You ALWAYS return valid JSON. Never return markdown or prose — ONLY the JSON object.`;
 
 
