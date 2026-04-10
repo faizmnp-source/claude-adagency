@@ -232,13 +232,15 @@ export default function StudioPage() {
       const msgs: Record<string, string> = {
         instagram_denied: 'Instagram connection was cancelled.',
         instagram_token_failed: 'Instagram auth failed. Try again.',
+        invalid_token: 'Your session expired. Please sign in again before connecting Instagram.',
+        token_expired: 'Your session expired. Please sign in again before connecting Instagram.',
+        missing_token: 'Please sign in again before connecting Instagram.',
         no_ig_business_account: 'No Instagram Business account found. Link your IG to a Facebook Page first.',
         meta_not_configured: 'Instagram posting not yet configured.',
         instagram_server_error: 'Server error connecting Instagram.',
       };
-      const reason = params.get('reason');
       const msg = msgs[urlError] || `Auth error: ${urlError}`;
-      setError(reason ? `${msg} (Reason: ${reason})` : msg);
+      setError(msg);
       window.history.replaceState({}, '', '/studio');
     }
 
