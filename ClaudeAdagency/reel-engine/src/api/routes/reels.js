@@ -26,6 +26,7 @@ import {
   getUserCredits,
 } from '../../services/credits/creditService.js';
 import {
+  uploadToS3,
   getPresignedUploadUrl,
   getPresignedUrl,
   s3Keys,
@@ -659,13 +660,23 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
       { watermarkText: 'thecraftstudios.in', trimTo: totalDuration }
     );
 
+    const finalS3Key = s3Keys.reelFinal(reelId);
+    const finalUrl = await uploadToS3(finalPath, finalS3Key, 'video/mp4');
+
     logger.info('Stitch complete', { reelId, finalPath, audioMessages });
 
     // Store final video path in Redis (48h TTL)
     await redis.set(`reel:final:${reelId}`, finalPath, 'EX', 172800);
 
     // Update reel result with final ready flag
-    const updated = { ...reel, finalVideoReady: true, videoStatus: 'final_ready', audioMessages };
+    const updated = {
+      ...reel,
+      finalVideoReady: true,
+      videoStatus: 'final_ready',
+      audioMessages,
+      finalS3Key,
+      finalUrl,
+    };
     await redis.set(`reel:result:${reelId}`, JSON.stringify(updated), 'EX', 86400);
 
     // Clean up intermediate temp files (not the final MP4)
@@ -702,6 +713,12 @@ router.get('/:id/video', async (req, res) => {
     const finalPath = await redis.get(`reel:final:${reelId}`);
 
     if (!finalPath || !existsSync(finalPath)) {
+      const stored = await redis.get(`reel:result:${reelId}`);
+      const reel = stored ? JSON.parse(stored) : null;
+      if (reel?.finalS3Key) {
+        const fallbackUrl = await getPresignedUrl(reel.finalS3Key, 3600);
+        return res.redirect(fallbackUrl);
+      }
       return res.status(404).json({ error: 'Final video not found. Please stitch first.' });
     }
 
@@ -747,6 +764,12 @@ router.get('/:id/download', authMiddleware, async (req, res) => {
     const finalPath = await redis.get(`reel:final:${reelId}`);
 
     if (!finalPath || !existsSync(finalPath)) {
+      const stored = await redis.get(`reel:result:${reelId}`);
+      const reel = stored ? JSON.parse(stored) : null;
+      if (reel?.finalS3Key) {
+        const fallbackUrl = await getPresignedUrl(reel.finalS3Key, 3600);
+        return res.redirect(fallbackUrl);
+      }
       return res.status(404).json({ error: 'Final video not found. Please stitch first.' });
     }
 

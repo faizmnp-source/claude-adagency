@@ -314,6 +314,13 @@ a {
   background: rgba(11, 43, 38, 0.12);
 }
 
+.studio-preview-live {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 20px;
+}
+
 .studio-segmented-toggle {
   display: inline-flex;
   align-items: center;
@@ -486,6 +493,14 @@ select.dark-input {
   border: 1px solid rgba(17, 17, 17, 0.08);
   box-shadow: 0 28px 80px rgba(35, 25, 17, 0.14);
   text-align: center;
+}
+
+.studio-progress-panel-embedded {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .studio-progress-hero-icon {

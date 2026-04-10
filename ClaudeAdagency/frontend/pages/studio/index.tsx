@@ -1948,52 +1948,54 @@ export default function StudioPage() {
             STEP: GENERATING (pipeline)
             ═══════════════════════════════════ */}
         {step === 'generating' && (
-          <div className="max-w-lg mx-auto mt-8">
-            <div className="studio-progress-panel relative overflow-hidden">
-              <div className="floating-orb float-a w-40 h-40 -left-8 top-6 opacity-100" style={{ background: 'rgba(227, 100, 20, 0.14)' }}></div>
-              <div className="floating-orb float-b w-36 h-36 right-0 bottom-0 opacity-100" style={{ background: 'rgba(11, 43, 38, 0.1)' }}></div>
-              <div className="relative z-10">
-                <div className="section-chip mb-6 mx-auto">Live Pipeline</div>
-                <div className="studio-progress-hero-icon mx-auto mb-5">
-                  {PIPELINE_STAGES.find(s => s.key === pipelineStage)?.icon || '🎬'}
-                </div>
-                <h2 className="text-3xl font-bold text-forest mb-2">
-                  {pipelineStage === 'script' && 'Writing Script'}
-                  {pipelineStage === 'clips' && 'Generating Video'}
-                  {pipelineStage === 'stitching' && 'Merging Reel'}
-                  {pipelineStage === 'ready' && 'Almost Done!'}
-                </h2>
-                <p className="text-[#6f6258] text-base leading-relaxed max-w-md mx-auto mb-8">{pipelineMessage}</p>
+          <div className="studio-phone-shell">
+            <div className="studio-phone-stage">
+              <div className="studio-preview-placeholder studio-preview-live">
+                <div className="studio-progress-panel studio-progress-panel-embedded relative overflow-hidden">
+                  <div className="floating-orb float-a w-40 h-40 -left-8 top-6 opacity-100" style={{ background: 'rgba(227, 100, 20, 0.14)' }}></div>
+                  <div className="floating-orb float-b w-36 h-36 right-0 bottom-0 opacity-100" style={{ background: 'rgba(11, 43, 38, 0.1)' }}></div>
+                  <div className="relative z-10">
+                    <div className="section-chip mb-6 mx-auto">Live Pipeline</div>
+                    <div className="studio-progress-hero-icon mx-auto mb-5">
+                      {PIPELINE_STAGES.find(s => s.key === pipelineStage)?.icon || '🎬'}
+                    </div>
+                    <h2 className="text-3xl font-bold text-forest mb-2">
+                      {pipelineStage === 'script' && 'Writing Script'}
+                      {pipelineStage === 'clips' && 'Generating Video'}
+                      {pipelineStage === 'stitching' && 'Merging Reel'}
+                      {pipelineStage === 'ready' && 'Almost Done!'}
+                    </h2>
+                    <p className="text-[#6f6258] text-base leading-relaxed max-w-md mx-auto mb-8">{pipelineMessage}</p>
 
-                {/* Progress bar */}
-                <div className="studio-progress-track mb-4">
-                  <div className="studio-progress-fill transition-all duration-700"
-                    style={{ width: `${STAGE_PERCENT[pipelineStage]}%` }}></div>
-                </div>
-                <div className="flex items-center justify-between text-sm mb-8">
-                  <span className="text-[#8d8077] font-medium">Pipeline is running. Please keep this tab open.</span>
-                  <span className="studio-progress-percent">{STAGE_PERCENT[pipelineStage]}%</span>
-                </div>
+                    <div className="studio-progress-track mb-4">
+                      <div className="studio-progress-fill transition-all duration-700"
+                        style={{ width: `${STAGE_PERCENT[pipelineStage]}%` }}></div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm mb-8">
+                      <span className="text-[#8d8077] font-medium">Pipeline is running. Please keep this tab open.</span>
+                      <span className="studio-progress-percent">{STAGE_PERCENT[pipelineStage]}%</span>
+                    </div>
 
-                {/* Stage dots */}
-                <div className="grid grid-cols-4 gap-3 text-xs">
-                  {PIPELINE_STAGES.map((s, i) => {
-                    const done = i < currentStageIdx;
-                    const active = i === currentStageIdx;
-                    return (
-                      <div key={s.key} className={`studio-progress-step ${done ? 'is-done' : active ? 'is-active' : ''}`}>
-                        <div className="text-lg mb-2">{done ? '✓' : s.icon}</div>
-                        <div>{s.label}</div>
-                      </div>
-                    );
-                  })}
-                </div>
+                    <div className="grid grid-cols-4 gap-3 text-xs">
+                      {PIPELINE_STAGES.map((s, i) => {
+                        const done = i < currentStageIdx;
+                        const active = i === currentStageIdx;
+                        return (
+                          <div key={s.key} className={`studio-progress-step ${done ? 'is-done' : active ? 'is-active' : ''}`}>
+                            <div className="text-lg mb-2">{done ? '✓' : s.icon}</div>
+                            <div>{s.label}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
 
-                {pipelineStage === 'clips' && (
-                  <p className="studio-progress-note mt-6">
-                    ⏱️ Estimated {Math.ceil(duration / 5) * 2}–{Math.ceil(duration / 5) * 4} min for render and stitch.
-                  </p>
-                )}
+                    {pipelineStage === 'clips' && (
+                      <p className="studio-progress-note mt-6">
+                        ⏱️ Estimated {Math.ceil(duration / 5) * 2}–{Math.ceil(duration / 5) * 4} min for render and stitch.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
