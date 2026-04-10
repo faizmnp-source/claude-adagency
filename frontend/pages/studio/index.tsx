@@ -455,8 +455,8 @@ export default function StudioPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify(
           mode === 'manual'
-            ? { modelKey: manualModelKey }
-            : { packageId: videoPackage }
+            ? { modelKey: manualModelKey, lipSync }
+            : { packageId: videoPackage, lipSync }
         ),
       });
 

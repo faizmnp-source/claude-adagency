@@ -161,7 +161,7 @@ export const MANUAL_MODELS = {
   veo2:       { label: '🌟 Google Veo 2',       resolution: '1080p', usdPerClip: 0.50, clipSec: 5 },
 };
 
-export function calcVideoCost(packageId, modelKey, durationSec) {
+export function calcVideoCost(packageId, modelKey, durationSec, wantLipSync = false) {
   const USD_TO_INR = 85;
   const CREDIT_TO_INR = 2;
   const REPLICATE_MARKUP = 1.5;
@@ -192,12 +192,12 @@ export function calcVideoCost(packageId, modelKey, durationSec) {
     : Math.ceil(retailInr / CREDIT_TO_INR);
 
   // Add Lip Sync cost (₹25 / $0.15 per 30s)
-  const wantLipSync = packageId === 'ultra' || packageId === 'viral';
-  if (wantLipSync) {
+  const lipSync = wantLipSync || packageId === 'ultra' || packageId === 'viral';
+  if (lipSync) {
     credits += 15; // ~₹30 or 15 credits
   }
 
-  return { clips, replicateUsd: Math.round(replicateUsd * 100) / 100, replicateInr: Math.round(replicateInr), retailInr: Math.round(retailInr), credits, voice: voice || false, music: music || false, lipSync: wantLipSync };
+  return { clips, replicateUsd: Math.round(replicateUsd * 100) / 100, replicateInr: Math.round(replicateInr), retailInr: Math.round(retailInr), credits, voice: voice || false, music: music || false, lipSync };
 }
 
 export function buildSceneVideoPrompt(scene = {}, reelScript = '') {

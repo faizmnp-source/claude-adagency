@@ -228,13 +228,13 @@ router.get('/packages', async (req, res) => {
 
     const packages = Object.values(VIDEO_PACKAGES).map(pkg => ({
       ...pkg,
-      pricing: calcVideoCost(pkg.id, null, dur),
+      pricing: calcVideoCost(pkg.id, null, dur, pkg.lipSync),
     }));
 
     const manualModels = Object.entries(MANUAL_MODELS).map(([key, m]) => ({
       key,
       ...m,
-      pricing: calcVideoCost(null, key, dur),
+      pricing: calcVideoCost(null, key, dur, false),
     }));
 
     res.json({ packages, manualModels, duration: dur });
@@ -427,7 +427,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     // package: 'starter' | 'creator' | 'viral'
     // modelKey: manual model selection ('wan480p' | 'wan720p' | 'luma' | 'kling' | 'minimax')
     // quality: legacy alias for modelKey
-    const { packageId, modelKey, quality } = req.body;
+    const { packageId, modelKey, quality, lipSync } = req.body;
 
     const { generateSceneClip, VIDEO_PACKAGES, calcVideoCost, buildSceneVideoPrompt } = await import('../../services/video/replicateGenerator.js');
 
@@ -461,7 +461,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     const clipPlan = Array(clipCount).fill(clipSec);
 
     // Calculate video generation credit cost and check balance
-    videoCost = calcVideoCost(packageId || null, modelKey || quality || 'wan720p', totalDuration);
+    videoCost = calcVideoCost(packageId || null, modelKey || quality || 'wan720p', totalDuration, lipSync);
 
     const { getUserCredits, deductCredits } = await import('../../services/credits/creditService.js');
     const balance = await getUserCredits(userId);
