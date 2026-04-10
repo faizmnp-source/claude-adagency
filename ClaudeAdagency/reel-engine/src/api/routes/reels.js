@@ -32,7 +32,7 @@ import {
 } from '../../services/storage/s3.js';
 import { redis } from '../../queue/index.js';
 import { logger } from '../../utils/logger.js';
-import { CREDIT_PACKS } from '../../services/payments/razorpay.js';
+import { CREDIT_PACKS } from '../../services/payments/creditPacks.js';
 
 const router = Router();
 
@@ -96,8 +96,8 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
     const userId = req.user.id;
     const reelId = uuid();
 
-    if (![15, 30, 50].includes(parseInt(duration))) {
-      return res.status(400).json({ error: 'Duration must be 15, 30, or 50 seconds. Got: ' + duration });
+    if (![5, 15, 30, 50].includes(parseInt(duration))) {
+      return res.status(400).json({ error: 'Duration must be 5, 15, 30, or 50 seconds. Got: ' + duration });
     }
 
     // Deduct credits
@@ -409,12 +409,17 @@ router.get('/:id/images/:index', async (req, res) => {
 // Runs Replicate image-to-video inline (no worker needed)
 // Call this after /generate gives you script+content
 router.post('/:id/generate-video', authMiddleware, async (req, res) => {
+  let creditsCharged = false;
+  let videoCost = null;
+  let userId = null;
+  let reelId = req.params.id;
+
   try {
     if (!process.env.REPLICATE_API_TOKEN) {
       return res.status(503).json({ error: 'REPLICATE_API_TOKEN not configured' });
     }
 
-    const { id: reelId } = req.params;
+    reelId = req.params.id;
     // package: 'starter' | 'creator' | 'viral'
     // modelKey: manual model selection ('wan480p' | 'wan720p' | 'luma' | 'kling' | 'minimax')
     // quality: legacy alias for modelKey
@@ -443,7 +448,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
 
     const reel = JSON.parse(stored);
     const totalDuration = reel.duration || 15;
-    const userId = req.user.id;
+    userId = req.user.id;
 
     // Resolve clip duration based on model (Minimax uses 6s, others 5s)
     const pkg = packageId ? VIDEO_PACKAGES[packageId] : null;
@@ -452,7 +457,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
     const clipPlan = Array(clipCount).fill(clipSec);
 
     // Calculate video generation credit cost and check balance
-    const videoCost = calcVideoCost(packageId || null, modelKey || quality || 'wan720p', totalDuration);
+    videoCost = calcVideoCost(packageId || null, modelKey || quality || 'wan720p', totalDuration);
 
     const { getUserCredits, deductCredits } = await import('../../services/credits/creditService.js');
     const balance = await getUserCredits(userId);
@@ -467,6 +472,7 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
 
     // Deduct video generation credits
     await deductCredits(userId, videoCost.credits, `video-gen-${reelId}-${packageId || modelKey || 'default'}`);
+    creditsCharged = true;
 
     logger.info('Clip plan', { reelId, totalDuration, clipPlan, packageId, modelKey, videoCost });
 
@@ -514,6 +520,14 @@ router.post('/:id/generate-video', authMiddleware, async (req, res) => {
       message: `${clips.length} clips generated (${clipPlan.join('+')}s = ${totalDuration}s total)`,
     });
   } catch (err) {
+    if (creditsCharged && userId && videoCost?.credits) {
+      try {
+        const { refundCredits } = await import('../../services/credits/creditService.js');
+        await refundCredits(userId, videoCost.credits, reelId);
+      } catch (refundErr) {
+        logger.error('Video generation refund failed', { reelId, err: refundErr.message });
+      }
+    }
     logger.error('Video generation error', { err: err.message });
     res.status(500).json({ error: err.message });
   }
@@ -563,11 +577,11 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
     }
 
     // Stitch clips together (silent video)
-    await mergeSceneClips(sceneClips);
-    tempFiles.push(tmpFile('merged-raw.mp4'));
-    tempFiles.push(tmpFile('concat-list.txt'));
+    const mergedPath = await mergeSceneClips(sceneClips, reelId);
+    tempFiles.push(mergedPath);
+    tempFiles.push(tmpFile(`${reelId}-concat-list.txt`));
 
-    let currentVideoPath = tmpFile('merged-raw.mp4');
+    let currentVideoPath = mergedPath;
 
     // ── Auto ElevenLabs Voiceover via Replicate (Creator + Viral packages) ─
     if (wantVoice && process.env.REPLICATE_API_TOKEN) {
@@ -583,7 +597,7 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
           });
           tempFiles.push(voicePath);
 
-          const withVoicePath = await addVoiceover(currentVideoPath, voicePath);
+          const withVoicePath = await addVoiceover(currentVideoPath, voicePath, reelId);
           tempFiles.push(withVoicePath);
           currentVideoPath = withVoicePath;
           audioMessages.push('✅ ElevenLabs AI voice added');
@@ -621,7 +635,7 @@ router.post('/:id/stitch', authMiddleware, async (req, res) => {
 
         // Duck music under voice (15% volume if voice present, 30% if music only)
         const musicVolume = wantVoice ? 0.15 : 0.30;
-        const withMusicPath = await addBackgroundMusic(currentVideoPath, musicPath, musicVolume);
+        const withMusicPath = await addBackgroundMusic(currentVideoPath, musicPath, musicVolume, reelId);
         tempFiles.push(withMusicPath);
         currentVideoPath = withMusicPath;
         audioMessages.push('✅ AI background music added (MusicGen)');

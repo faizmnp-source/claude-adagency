@@ -12,8 +12,8 @@ import {
   createOrder,
   verifyAndCreditPayment,
   handleWebhook,
-  CREDIT_PACKS,
 } from '../../services/payments/razorpay.js';
+import { CREDIT_PACKS } from '../../services/payments/creditPacks.js';
 import { getUserCredits, getTransactionHistory } from '../../services/credits/creditService.js';
 import { logger } from '../../utils/logger.js';
 

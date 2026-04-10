@@ -102,13 +102,13 @@ const worker = new Worker(
       await job.updateProgress({ step: 'merge', percent: 62, message: 'Merging scenes...' });
 
       // ── STEP 3: Merge scene clips ────────────────────────────────
-      let videoPath = await mergeSceneClips(sceneClipsLocal);
+      let videoPath = await mergeSceneClips(sceneClipsLocal, reelId);
 
       // ── STEP 4: Voiceover (optional) ─────────────────────────────
       if (voice && content.script) {
         await job.updateProgress({ step: 'voice', percent: 68, message: 'Generating voiceover...' });
         const voicePath = await generateVoiceover(content.script, reelId);
-        videoPath = await addVoiceover(videoPath, voicePath);
+        videoPath = await addVoiceover(videoPath, voicePath, reelId);
         // Upload voice to S3
         await uploadToS3(voicePath, s3Keys.reelVoice(reelId), 'audio/mpeg');
         await fs.unlink(voicePath).catch(() => {});
@@ -119,7 +119,7 @@ const worker = new Worker(
         await job.updateProgress({ step: 'music', percent: 74, message: 'Adding background music...' });
         const musicMood = content.visualDirection?.musicMood || 'energetic';
         const musicPath = await getBackgroundMusic(musicMood, duration, reelId);
-        videoPath = await addBackgroundMusic(videoPath, musicPath, voice ? 0.12 : 0.35);
+        videoPath = await addBackgroundMusic(videoPath, musicPath, voice ? 0.12 : 0.35, reelId);
         await uploadToS3(musicPath, s3Keys.reelMusic(reelId), 'audio/mpeg');
         await fs.unlink(musicPath).catch(() => {});
       }

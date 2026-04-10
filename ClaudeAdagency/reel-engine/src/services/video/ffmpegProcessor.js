@@ -37,12 +37,12 @@ function runFFmpeg(command) {
 /**
  * Step 1: Merge scene video clips into a single timeline
  */
-export async function mergeSceneClips(sceneClips) {
-  const outputPath = tmpFile('merged-raw.mp4');
+export async function mergeSceneClips(sceneClips, reelId = 'shared') {
+  const outputPath = tmpFile(`${reelId}-merged-raw.mp4`);
 
   // Use concat demuxer — streams clips sequentially, minimal RAM usage
   // xfade was killed by Railway 512MB limit; concat is production-safe
-  const concatListPath = tmpFile('concat-list.txt');
+  const concatListPath = tmpFile(`${reelId}-concat-list.txt`);
   const listContent = sceneClips.map((c) => `file '${c.localPath}'`).join('\n');
   await fs.writeFile(concatListPath, listContent, 'utf8');
 
@@ -67,8 +67,8 @@ export async function mergeSceneClips(sceneClips) {
 /**
  * Step 2: Add voiceover track (synced to scenes)
  */
-export async function addVoiceover(videoPath, voicePath) {
-  const outputPath = tmpFile('with-voice.mp4');
+export async function addVoiceover(videoPath, voicePath, reelId = 'shared') {
+  const outputPath = tmpFile(`${reelId}-with-voice.mp4`);
 
   await runFFmpeg(
     ffmpeg()
@@ -94,8 +94,8 @@ export async function addVoiceover(videoPath, voicePath) {
 /**
  * Step 3: Mix background music (at lower volume) with existing audio
  */
-export async function addBackgroundMusic(videoPath, musicPath, musicVolume = 0.15) {
-  const outputPath = tmpFile('with-music.mp4');
+export async function addBackgroundMusic(videoPath, musicPath, musicVolume = 0.15, reelId = 'shared') {
+  const outputPath = tmpFile(`${reelId}-with-music.mp4`);
   const hasAudio = videoPath.includes('with-voice');
 
   if (!hasAudio) {
@@ -149,7 +149,7 @@ export async function addBackgroundMusic(videoPath, musicPath, musicVolume = 0.1
  * Step 4: Burn subtitles / text overlays from scene data
  */
 export async function addSubtitles(videoPath, scenes, reelId) {
-  const outputPath = tmpFile('with-subs.mp4');
+  const outputPath = tmpFile(`${reelId}-with-subs.mp4`);
   const srtPath = tmpFile(`${reelId}.srt`);
 
   // Generate SRT file from scene dialogue
