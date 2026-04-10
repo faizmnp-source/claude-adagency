@@ -674,7 +674,7 @@ export default function StudioPage() {
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-50" style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(17,17,17,0.08)', boxShadow: '0 14px 36px rgba(35,25,17,0.06)' }}>
-        <div className="max-w-7xl mx-auto px-4" style={{ minHeight: '88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+        <div className="studio-topbar max-w-7xl mx-auto px-4" style={{ minHeight: '88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
           <div className="studio-header-links flex items-center gap-3">
             <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
               <Logo variant="horizontal" size="small" color="color" />
@@ -696,7 +696,7 @@ export default function StudioPage() {
             >📅 Calendar →</Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="studio-header-meta flex items-center gap-3">
             {/* Instagram badge */}
             {instagram.connected ? (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"

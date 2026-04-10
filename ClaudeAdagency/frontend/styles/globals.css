@@ -252,27 +252,30 @@ a {
 
 .studio-app-shell {
   min-height: 100vh;
+  overflow-x: clip;
   background:
     radial-gradient(circle at top left, rgba(227, 100, 20, 0.06), transparent 24%),
     linear-gradient(180deg, #fffdfa 0%, #f8f3ef 100%);
 }
 
 .studio-content-frame {
+  width: min(1180px, calc(100vw - 24px));
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(17, 17, 17, 0.07);
   border-radius: 0 0 36px 36px;
   box-shadow: 0 22px 70px rgba(35, 25, 17, 0.08);
   margin-top: 0;
+  overflow: hidden;
 }
 
 .studio-phone-shell {
   width: 100%;
-  max-width: 560px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
 .studio-phone-stage {
-  padding: 24px;
+  padding: clamp(20px, 2.8vw, 30px);
   border-radius: 36px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 241, 238, 0.94) 100%);
@@ -314,6 +317,8 @@ a {
 .studio-segmented-toggle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px;
   border-radius: 999px;
@@ -323,7 +328,9 @@ a {
 }
 
 .studio-segmented-toggle button {
+  flex: 1 1 0;
   min-height: 48px;
+  min-width: 138px;
   padding: 0 18px;
   border: none;
   border-radius: 999px;
@@ -353,12 +360,26 @@ a {
   transform: translateY(-1px);
 }
 
+.studio-topbar {
+  width: min(1280px, 100%);
+}
+
+.studio-header-links {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .studio-header-links a {
   color: var(--muted) !important;
+  white-space: nowrap;
 }
 
 .studio-header-links a:last-child {
   color: var(--accent) !important;
+}
+
+.studio-header-meta {
+  flex-shrink: 0;
 }
 
 .dark-input-label {
@@ -408,16 +429,19 @@ select.dark-input {
 .mode-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
-  min-height: 118px;
-  padding: 16px 22px;
+  min-height: 94px;
+  padding: 14px 18px;
   border-radius: 28px;
   border: 1px solid rgba(17, 17, 17, 0.08);
   background: rgba(255, 255, 255, 0.84);
   color: #b0a59d;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  text-align: center;
   text-transform: uppercase;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -535,7 +559,7 @@ select.dark-input {
 
 @media (max-width: 768px) {
   .editorial-grid {
-    padding: 0 18px;
+    padding: 0 14px;
   }
 
   .page-hero {
@@ -545,5 +569,100 @@ select.dark-input {
 
   .section-title {
     letter-spacing: 0.04em;
+  }
+
+  .studio-content-frame {
+    width: calc(100vw - 12px);
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 16px 46px rgba(35, 25, 17, 0.08);
+  }
+
+  .studio-topbar {
+    min-height: 72px !important;
+    gap: 10px !important;
+  }
+
+  .studio-header-links {
+    gap: 8px !important;
+  }
+
+  .studio-header-links a:not(:first-child) {
+    display: none;
+  }
+
+  .studio-header-meta {
+    gap: 8px !important;
+  }
+
+  .studio-phone-shell {
+    max-width: 100%;
+  }
+
+  .studio-phone-stage {
+    padding: 16px;
+    border-radius: 28px;
+    box-shadow: 0 20px 56px rgba(35, 25, 17, 0.12);
+  }
+
+  .studio-preview-placeholder {
+    border-radius: 26px;
+  }
+
+  .studio-preview-placeholder::before {
+    inset: 12px;
+    border-radius: 18px;
+  }
+
+  .studio-preview-placeholder::after {
+    width: 88px;
+    bottom: 14px;
+  }
+
+  .studio-segmented-toggle {
+    width: 100%;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .studio-segmented-toggle button {
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  .dark-input-label {
+    margin-bottom: 8px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+
+  .dark-input {
+    min-height: 52px;
+    padding: 0 18px;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+
+  textarea.dark-input {
+    min-height: 118px;
+    padding: 16px 18px;
+  }
+
+  .mode-pill {
+    min-height: 76px;
+    padding: 12px 14px;
+    border-radius: 22px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    gap: 6px;
+  }
+
+  .neon-btn {
+    min-height: 58px;
+    padding: 0 22px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
   }
 }
