@@ -45,6 +45,7 @@ const worker = new Worker(
       imageS3Keys,
       imageUrls,
       productDescription,
+      customPrompt,
       brandName,
       duration,
       voice,
@@ -62,6 +63,7 @@ const worker = new Worker(
       const content = await generateReelContent({
         imageUrls,
         productDescription,
+        customPrompt,
         brandName: brandName || 'TheCraftStudios',
         duration,
         tone: tone || 'energetic',

@@ -75,6 +75,7 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       imageS3Keys = [],    // Already-uploaded S3 keys (optional)
       imageUrls = [],      // Direct URLs (optional)
       productDescription,
+      customPrompt = '',
       brandName,
       duration = 30,
       voice = false,
@@ -130,6 +131,7 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
     const content = await generateReelContent({
       imageUrls: resolvedImageUrls,
       productDescription,
+      customPrompt,
       brandName,
       duration: parseInt(duration),
       tone,
@@ -182,6 +184,7 @@ router.post('/generate', authMiddleware, requireCredits, async (req, res) => {
       imageS3Keys,
       imageUrls: resolvedImageUrls,
       productDescription,
+      customPrompt,
       brandName,
       duration: parseInt(duration),
       voice,

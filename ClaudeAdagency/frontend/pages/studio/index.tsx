@@ -321,10 +321,15 @@ export default function StudioPage() {
         body: JSON.stringify({
           images: imageData,
           productDescription: productDescription || vision,
+          customPrompt: mode === 'manual' && contentType === 'video'
+            ? manualPrompt.trim() || undefined
+            : undefined,
           duration,
           voice,
           music,
           tone,
+          region,
+          industryCode,
           customCta: customCta || undefined,
           seasonalEvent: seasonalEvent || undefined,
           brandVoice: brandVoice || undefined,
@@ -2016,7 +2021,16 @@ export default function StudioPage() {
                 <div className="studio-phone-stage studio-done-phone-stage">
                   <div className="studio-review-video">
                     {result.videoUrl ? (
-                      <video src={result.videoUrl} controls playsInline className="w-full h-full object-contain" />
+                      <video
+                        src={result.videoUrl}
+                        controls
+                        playsInline
+                        muted
+                        preload="metadata"
+                        disablePictureInPicture
+                        controlsList="nodownload noplaybackrate"
+                        className="studio-review-video-element"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-center px-4">
                         <div><div className="text-4xl mb-2">🎬</div><p className="text-[#8d8077] text-sm">Video ready on server</p></div>

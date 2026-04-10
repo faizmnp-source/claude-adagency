@@ -203,6 +203,7 @@ const OUTPUT_SCHEMA = `Return ONLY this JSON structure (no markdown, no backtick
  * @param {string} params.region - Region code: 'india' | 'america' | 'pakistan' | 'bangladesh' | 'middle_east' | 'british' (default: 'india')
  * @param {string} params.language - Language: 'english' | 'hindi' | 'urdu' | 'hinglish' (default: 'hinglish' for india)
  * @param {string} params.industryCode - Industry: 'ecommerce' | 'fashion' | 'beauty' | 'food' | 'technology' | 'fitness' | 'health' | 'education' | 'realestate' | etc. (default: 'ecommerce')
+ * @param {string} params.customPrompt - High-priority manual creative brief for exact scene/script direction
  * @param {string} params.customCta - Override the auto-generated CTA with this exact text
  * @param {string} params.seasonalEvent - e.g. "diwali", "blackfriday", "eid", "holi", "valentines", "productlaunch", "newyear", "christmas"
  * @param {string} params.brandVoice - Brand personality doc, e.g. "Bold, youthful, anti-corporate. Think Zomato's Twitter voice."
@@ -222,6 +223,7 @@ export async function generateReelContent({
   region = 'india',
   language = 'hinglish', // English, Hindi, Urdu, Hinglish
   industryCode = 'ecommerce',
+  customPrompt = '',
   customCta = '',
   seasonalEvent = '',
   brandVoice = '',
@@ -230,7 +232,15 @@ export async function generateReelContent({
   videoStyle = '',
   seriesContext = '',
 }) {
-  logger.info('Generating reel content with Claude', { duration, tone, brandName, region, language, industryCode });
+  logger.info('Generating reel content with Claude', {
+    duration,
+    tone,
+    brandName,
+    region,
+    language,
+    industryCode,
+    hasCustomPrompt: Boolean(customPrompt),
+  });
 
   // Get region-aware + language-aware prompts
   const {
@@ -262,6 +272,7 @@ ${industryGuidance.systemAddition}`;
 
   // Build advanced customization additions
   const advancedAdditions = [
+    customPrompt ? `\nMANUAL CREATIVE BRIEF (HIGHEST PRIORITY):\n${customPrompt}\n\nFollow this brief literally wherever possible. Preserve the subject, age, ethnicity, product interaction, shot intent, and scene direction from the brief. Do not replace it with a generic ad concept or unrelated script.` : '',
     customCta ? `\nCUSTOM CTA: Use this exact call-to-action: "${customCta}"` : '',
     seasonalEvent ? `\nSEASONAL EVENT: This reel is for "${seasonalEvent}". Incorporate relevant cultural references, urgency, and event-specific hooks.` : '',
     brandVoice ? `\nBRAND VOICE & PERSONALITY:\n${brandVoice}` : '',
