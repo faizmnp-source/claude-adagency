@@ -1767,161 +1767,7 @@ export default function StudioPage() {
                   </select>
                 </div>
 
-                {/* ── Advanced Settings ── */}
-                <div>
-                  <button
-                    onClick={() => setShowAdvanced(v => !v)}
-                    className="flex items-center gap-2 text-sm font-semibold w-full mb-3"
-                    style={{ color: showAdvanced ? '#E50914' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                      style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#E50914' }}>
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                    Advanced Settings
-                  </button>
 
-                  {showAdvanced && (
-                    <div className="space-y-5" style={{ animation: 'fadeIn 0.2s ease' }}>
-
-                      {/* Audio & Sync */}
-                      <div>
-                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Audio & Sync</label>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            onClick={() => setVoice(!voice)}
-                            className={`mode-pill ${voice ? 'mode-pill-active' : ''}`}
-                          >
-                            {voice ? '✅ AI Voice' : '❌ No Voice'}
-                          </button>
-                          <button
-                            onClick={() => setMusic(!music)}
-                            className={`mode-pill ${music ? 'mode-pill-active' : ''}`}
-                          >
-                            {music ? '✅ AI Music' : '❌ No Music'}
-                          </button>
-                          <button
-                            onClick={() => setLipSync(!lipSync)}
-                            className={`mode-pill ${lipSync ? 'mode-pill-active' : ''}`}
-                          >
-                            {lipSync ? '👄 Lip Sync (Wav2Lip)' : '😶 No Lip Sync'}
-                          </button>
-                        </div>
-                        <p className="text-[10px] text-[#94A3B8] mt-2">
-                          Lip Sync works best with Google Veo 2 and Luma models.
-                        </p>
-                      </div>
-
-                      {/* Video Style */}
-                      <div>
-                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Video Style</label>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { value: 'cinematic',     label: 'Cinematic'    },
-                            { value: 'fast-cut',      label: 'Fast-Cut'     },
-                            { value: 'documentary',   label: 'Documentary'  },
-                            { value: 'minimalist',    label: 'Minimalist'   },
-                            { value: 'ugc',           label: 'UGC'          },
-                            { value: 'talking-head',  label: 'Talking Head' },
-                          ].map(s => (
-                            <button
-                              key={s.value}
-                              onClick={() => setVideoStyle(videoStyle === s.value ? '' : s.value)}
-                              className={`mode-pill ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
-                            >{s.label}</button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Seasonal Event */}
-                      <div>
-                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Seasonal Event</label>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { value: 'diwali',        label: '🪔 Diwali'         },
-                            { value: 'holi',          label: '🎨 Holi'           },
-                            { value: 'eid',           label: '🌙 Eid'            },
-                            { value: 'christmas',     label: '🎄 Christmas'      },
-                            { value: 'newyear',       label: '🎆 New Year'       },
-                            { value: 'blackfriday',   label: '🛍️ Black Friday'   },
-                            { value: 'valentines',    label: '💝 Valentine\'s'   },
-                            { value: 'productlaunch', label: '🚀 Product Launch' },
-                            { value: 'sale',          label: '💸 Sale'           },
-                          ].map(e => (
-                            <button
-                              key={e.value}
-                              onClick={() => setSeasonalEvent(seasonalEvent === e.value ? '' : e.value)}
-                              className={`mode-pill ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
-                            >{e.label}</button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Custom CTA */}
-                      <div>
-                        <label className="dark-input-label">Custom CTA</label>
-                        <input
-                          type="text"
-                          value={customCta}
-                          onChange={e => setCustomCta(e.target.value)}
-                          placeholder="e.g. Shop now at link in bio →"
-                          className="dark-input"
-                        />
-                      </div>
-
-                      {/* Brand Voice */}
-                      <div>
-                        <label className="dark-input-label">Brand Voice</label>
-                        <textarea
-                          value={brandVoice}
-                          onChange={e => setBrandVoice(e.target.value)}
-                          placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate. Think Zomato's Twitter tone."
-                          className="dark-input"
-                          rows={3}
-                          style={{ resize: 'vertical' }}
-                        />
-                      </div>
-
-                      {/* Hashtag Whitelist */}
-                      <div>
-                        <label className="dark-input-label">Hashtag Whitelist</label>
-                        <input
-                          type="text"
-                          value={hashtagWhitelist}
-                          onChange={e => setHashtagWhitelist(e.target.value)}
-                          placeholder="#YourBrand, #YourCampaign (always included)"
-                          className="dark-input"
-                        />
-                      </div>
-
-                      {/* Hashtag Blacklist */}
-                      <div>
-                        <label className="dark-input-label">Hashtag Blacklist</label>
-                        <input
-                          type="text"
-                          value={hashtagBlacklist}
-                          onChange={e => setHashtagBlacklist(e.target.value)}
-                          placeholder="#competitors, #avoid (never used)"
-                          className="dark-input"
-                        />
-                      </div>
-
-                      {/* Series / Campaign Context */}
-                      <div>
-                        <label className="dark-input-label">Series / Campaign Context</label>
-                        <textarea
-                          value={seriesContext}
-                          onChange={e => setSeriesContext(e.target.value)}
-                          placeholder="e.g. Post 3 of 5 in Diwali sale series. Previous posts covered discounts and new arrivals."
-                          className="dark-input"
-                          rows={3}
-                          style={{ resize: 'vertical' }}
-                        />
-                      </div>
-
-                    </div>
-                  )}
-                </div>
 
                 {/* ── Viral Trend Panel (Auto mode only) ── */}
                 <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)' }}>
@@ -2314,6 +2160,162 @@ export default function StudioPage() {
                 )}
               </div>
             )}
+
+            {/* ── Advanced Settings ── */}
+            <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <button
+                onClick={() => setShowAdvanced(v => !v)}
+                className="flex items-center gap-2 text-sm font-semibold w-full mb-3"
+                style={{ color: showAdvanced ? '#E50914' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#E50914' }}>
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+                Advanced Settings
+              </button>
+
+              {showAdvanced && (
+                <div className="space-y-5" style={{ animation: 'fadeIn 0.2s ease' }}>
+
+                  {/* Audio & Sync */}
+                  <div>
+                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Audio & Sync</label>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setVoice(!voice)}
+                        className={`mode-pill ${voice ? 'mode-pill-active' : ''}`}
+                      >
+                        {voice ? '✅ AI Voice' : '❌ No Voice'}
+                      </button>
+                      <button
+                        onClick={() => setMusic(!music)}
+                        className={`mode-pill ${music ? 'mode-pill-active' : ''}`}
+                      >
+                        {music ? '✅ AI Music' : '❌ No Music'}
+                      </button>
+                      <button
+                        onClick={() => setLipSync(!lipSync)}
+                        className={`mode-pill ${lipSync ? 'mode-pill-active' : ''}`}
+                      >
+                        {lipSync ? '👄 Lip Sync (Wav2Lip)' : '😶 No Lip Sync'}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-[#94A3B8] mt-2">
+                      Lip Sync works best with Google Veo 2 and Luma models.
+                    </p>
+                  </div>
+
+                  {/* Video Style */}
+                  <div>
+                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Video Style</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'cinematic',     label: 'Cinematic'    },
+                        { value: 'fast-cut',      label: 'Fast-Cut'     },
+                        { value: 'documentary',   label: 'Documentary'  },
+                        { value: 'minimalist',    label: 'Minimalist'   },
+                        { value: 'ugc',           label: 'UGC'          },
+                        { value: 'talking-head',  label: 'Talking Head' },
+                      ].map(s => (
+                        <button
+                          key={s.value}
+                          onClick={() => setVideoStyle(videoStyle === s.value ? '' : s.value)}
+                          className={`mode-pill ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
+                        >{s.label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Seasonal Event */}
+                  <div>
+                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Seasonal Event</label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { value: 'diwali',        label: '🪔 Diwali'         },
+                        { value: 'holi',          label: '🎨 Holi'           },
+                        { value: 'eid',           label: '🌙 Eid'            },
+                        { value: 'christmas',     label: '🎄 Christmas'      },
+                        { value: 'newyear',       label: '🎆 New Year'       },
+                        { value: 'blackfriday',   label: '🛍️ Black Friday'   },
+                        { value: 'valentines',    label: '💝 Valentine\'s'   },
+                        { value: 'productlaunch', label: '🚀 Product Launch' },
+                        { value: 'sale',          label: '💸 Sale'           },
+                      ].map(e => (
+                        <button
+                          key={e.value}
+                          onClick={() => setSeasonalEvent(seasonalEvent === e.value ? '' : e.value)}
+                          className={`mode-pill ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
+                        >{e.label}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom CTA */}
+                  <div>
+                    <label className="dark-input-label">Custom CTA</label>
+                    <input
+                      type="text"
+                      value={customCta}
+                      onChange={e => setCustomCta(e.target.value)}
+                      placeholder="e.g. Shop now at link in bio →"
+                      className="dark-input"
+                    />
+                  </div>
+
+                  {/* Brand Voice */}
+                  <div>
+                    <label className="dark-input-label">Brand Voice</label>
+                    <textarea
+                      value={brandVoice}
+                      onChange={e => setBrandVoice(e.target.value)}
+                      placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate. Think Zomato's Twitter tone."
+                      className="dark-input"
+                      rows={3}
+                      style={{ resize: 'vertical' }}
+                    />
+                  </div>
+
+                  {/* Hashtag Whitelist */}
+                  <div>
+                    <label className="dark-input-label">Hashtag Whitelist</label>
+                    <input
+                      type="text"
+                      value={hashtagWhitelist}
+                      onChange={e => setHashtagWhitelist(e.target.value)}
+                      placeholder="#YourBrand, #YourCampaign (always included)"
+                      className="dark-input"
+                    />
+                  </div>
+
+                  {/* Hashtag Blacklist */}
+                  <div>
+                    <label className="dark-input-label">Hashtag Blacklist</label>
+                    <input
+                      type="text"
+                      value={hashtagBlacklist}
+                      onChange={e => setHashtagBlacklist(e.target.value)}
+                      placeholder="#competitors, #avoid (never used)"
+                      className="dark-input"
+                    />
+                  </div>
+
+                  {/* Series / Campaign Context */}
+                  <div>
+                    <label className="dark-input-label">Series / Campaign Context</label>
+                    <textarea
+                      value={seriesContext}
+                      onChange={e => setSeriesContext(e.target.value)}
+                      placeholder="e.g. Post 3 of 5 in Diwali sale series. Previous posts covered discounts and new arrivals."
+                      className="dark-input"
+                      rows={3}
+                      style={{ resize: 'vertical' }}
+                    />
+                  </div>
+
+                </div>
+              )}
+            </div>
 
             {/* Login link */}
             {!user && (
