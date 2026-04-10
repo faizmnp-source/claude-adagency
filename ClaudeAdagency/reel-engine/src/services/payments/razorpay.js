@@ -8,11 +8,9 @@ import crypto from 'crypto';
 import { config } from '../../config/index.js';
 import { logger } from '../../utils/logger.js';
 import { addCreditsToUser } from '../credits/creditService.js';
+import { CREDIT_PACKS } from './creditPacks.js';
 
-const razorpay = new Razorpay({
-  key_id: config.razorpay.keyId,
-  key_secret: config.razorpay.keySecret,
-});
+let razorpay = null;
 
 function maskSecret(secret) {
   if (!secret) return '[missing]';
@@ -31,29 +29,20 @@ logger.info('Razorpay config loaded', {
   keySecretLength: config.razorpay.keySecret?.length || 0,
 });
 
-export const CREDIT_PACKS = {
-  starter: {
-    credits: 100,
-    name: 'Starter Pack - 100 Credits',
-    description: 'Flexible credits for scripts and video rendering',
-    price: 20000,
-    currency: 'INR',
-  },
-  growth: {
-    credits: 500,
-    name: 'Growth Pack - 500 Credits',
-    description: 'Flexible credits for scripts and video rendering',
-    price: 100000,
-    currency: 'INR',
-  },
-  viral: {
-    credits: 1000,
-    name: 'Viral Pack - 1000 Credits',
-    description: 'Flexible credits for scripts and video rendering',
-    price: 200000,
-    currency: 'INR',
-  },
-};
+function getRazorpayClient() {
+  if (!config.razorpay.keyId || !config.razorpay.keySecret) {
+    throw new Error('Razorpay is not configured on the server');
+  }
+
+  if (!razorpay) {
+    razorpay = new Razorpay({
+      key_id: config.razorpay.keyId,
+      key_secret: config.razorpay.keySecret,
+    });
+  }
+
+  return razorpay;
+}
 
 /**
  * Create a Razorpay order (step 1 - frontend opens checkout with this)
@@ -61,9 +50,7 @@ export const CREDIT_PACKS = {
 export async function createOrder({ userId, packId }) {
   const pack = CREDIT_PACKS[packId];
   if (!pack) throw new Error(`Invalid pack: ${packId}`);
-  if (!config.razorpay.keyId || !config.razorpay.keySecret) {
-    throw new Error('Razorpay is not configured on the server');
-  }
+  const razorpay = getRazorpayClient();
 
   logger.info('Creating Razorpay order', {
     userId,
@@ -103,6 +90,7 @@ export async function createOrder({ userId, packId }) {
  * Razorpay sends: razorpay_order_id, razorpay_payment_id, razorpay_signature
  */
 export async function verifyAndCreditPayment({ orderId, paymentId, signature, userId, packId }) {
+  const razorpay = getRazorpayClient();
   const expectedSignature = crypto
     .createHmac('sha256', config.razorpay.keySecret)
     .update(`${orderId}|${paymentId}`)
