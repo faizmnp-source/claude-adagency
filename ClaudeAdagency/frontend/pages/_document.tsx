@@ -21,8 +21,8 @@ export default function Document() {
         />
 
         {/* Favicon */}
-        <link rel="icon" href="/image.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/image.png" />
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
 
         {/* Default Open Graph (overridden per-page) */}
         <meta property="og:type" content="website" />

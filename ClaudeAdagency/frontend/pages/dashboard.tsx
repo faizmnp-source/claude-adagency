@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
+import Logo from "../components/Logo";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -45,7 +46,7 @@ export default function Dashboard() {
     <div className="relative min-h-screen z-10 bg-ink">
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5">
-        <Logo />
+        <Logo size="small" />
         <Link href="/" className="lime-btn px-5 py-2.5 text-sm inline-flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -158,19 +159,3 @@ export default function Dashboard() {
   );
 }
 
-function Logo() {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="relative flex items-center justify-center w-9 h-9"
-        style={{ border: "2px solid #A855F7", borderRadius: 3, boxShadow: "0 0 12px rgba(168,85,247,0.3)", background: "rgba(168,85,247,0.08)" }}>
-        <span className="display text-[18px] text-white leading-none">T</span>
-      </div>
-      <div className="leading-none">
-        <span className="display text-[15px] text-white tracking-widest">
-          HECRAFT STU<span style={{ color: "#A855F7", textShadow: "0 0 10px rgba(168,85,247,0.7)" }}>Di</span>OS.
-        </span>
-        <p className="text-[7px] text-white/25 tracking-[0.15em] uppercase mt-0.5">Crafting Visual Growth</p>
-      </div>
-    </div>
-  );
-}
