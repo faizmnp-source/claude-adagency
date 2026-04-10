@@ -101,7 +101,7 @@ export const Footer: React.FC = () => (
                     }}
                     aria-label={social.label}
                   >
-                    {'icon' in social ? <SocialGlyph icon={social.icon} /> : null}
+                    {social.icon ? <SocialGlyph icon={social.icon} /> : null}
                     {social.label}
                   </a>
                 ))}
