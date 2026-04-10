@@ -40,7 +40,22 @@ interface InstagramProfile {
   name?: string;
 }
 
+interface StudioReconnectState {
+  step: Step;
+  contentType: ContentType;
+  mode: Mode;
+  result: ReelResult | null;
+  generatedImages: string[];
+  showIGPrompt: boolean;
+  productDescription: string;
+  manualCaption: string;
+  manualHashtags: string[];
+  imgPostResult: { permalink?: string } | null;
+  activeTab: 'script' | 'caption' | 'scenes';
+}
+
 const REEL_ENGINE_URL = process.env.NEXT_PUBLIC_REEL_ENGINE_URL || 'https://zoological-enthusiasm-production-1bc2.up.railway.app';
+const STUDIO_RECONNECT_STATE_KEY = 'studio_reconnect_state_v1';
 
 const PIPELINE_STAGES: { key: PipelineStage; icon: string; label: string }[] = [
   { key: 'script',    icon: '🧠', label: 'Script'  },
@@ -167,6 +182,53 @@ export default function StudioPage() {
   const dropRef = useRef<HTMLDivElement>(null);
   const creditCost = duration * 2;
 
+  const saveStudioReconnectState = () => {
+    if (typeof window === 'undefined') return;
+    const shouldPersist = !!result || generatedImages.length > 0 || showIGPrompt;
+    if (!shouldPersist) return;
+
+    const payload: StudioReconnectState = {
+      step,
+      contentType,
+      mode,
+      result,
+      generatedImages,
+      showIGPrompt,
+      productDescription,
+      manualCaption,
+      manualHashtags,
+      imgPostResult,
+      activeTab,
+    };
+    sessionStorage.setItem(STUDIO_RECONNECT_STATE_KEY, JSON.stringify(payload));
+  };
+
+  const restoreStudioReconnectState = (keepPromptOpen = false) => {
+    if (typeof window === 'undefined') return;
+    const raw = sessionStorage.getItem(STUDIO_RECONNECT_STATE_KEY);
+    if (!raw) return;
+
+    try {
+      const saved = JSON.parse(raw) as StudioReconnectState;
+      setStep(saved.step || 'settings');
+      setContentType(saved.contentType || 'video');
+      setMode(saved.mode || 'express');
+      setResult(saved.result || null);
+      setGeneratedImages(Array.isArray(saved.generatedImages) ? saved.generatedImages : []);
+      setProductDescription(saved.productDescription || '');
+      setManualCaption(saved.manualCaption || '');
+      setManualHashtags(Array.isArray(saved.manualHashtags) ? saved.manualHashtags : []);
+      setImgPostResult(saved.imgPostResult || null);
+      setActiveTab(saved.activeTab || 'script');
+      setShowIGPrompt(keepPromptOpen ? true : false);
+    } catch {
+      sessionStorage.removeItem(STUDIO_RECONNECT_STATE_KEY);
+      return;
+    }
+
+    sessionStorage.removeItem(STUDIO_RECONNECT_STATE_KEY);
+  };
+
   // ── Video package definitions (mirrors backend VIDEO_PACKAGES) ──────────
   const VIDEO_PACKAGES_FRONTEND = {
     starter: {
@@ -238,12 +300,14 @@ export default function StudioPage() {
     if (urlToken) { localStorage.setItem('cs_token', urlToken); window.history.replaceState({}, '', '/studio'); }
     if (igStatus === 'connected') {
       window.history.replaceState({}, '', '/studio');
+      restoreStudioReconnectState(false);
       // Re-fetch Instagram status so header shows connected immediately
       const t = localStorage.getItem('cs_token');
       if (t) fetch(`${REEL_ENGINE_URL}/api/auth/instagram/status`, { headers: { Authorization: `Bearer ${t}` } })
         .then(r => r.json()).then(d => { if (d.connected) setInstagram(d); }).catch(() => {});
     }
     if (urlError) {
+      restoreStudioReconnectState(true);
       const msgs: Record<string, string> = {
         instagram_denied: 'Instagram connection was cancelled.',
         instagram_token_failed: 'Instagram auth failed. Try again.',
@@ -464,6 +528,7 @@ export default function StudioPage() {
   };
 
   const connectInstagram = () => {
+    saveStudioReconnectState();
     setError(null);
     window.location.href = `${REEL_ENGINE_URL}/api/auth/instagram?token=${encodeURIComponent(getAuthToken())}`;
   };
