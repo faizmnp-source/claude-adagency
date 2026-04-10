@@ -16,6 +16,7 @@ import { getLanguageConfig, getLanguagePromptEnhancement, SUPPORTED_LANGUAGES } 
  */
 export function buildRegionalSystemPrompt(region = 'india') {
   const config = getRegionConfig(region);
+  const scriptCustomization = config.scriptCustomization || { openingHooks: [], closingCtaTypes: [] };
 
   const basePrompt = `You are a creative director at TheCraftStudios — a world-class AI reel agency.
 Your role is to generate precise, actionable, viral marketing content for Instagram Reels.
@@ -59,7 +60,7 @@ ${config.voicePreferences.examples.map(e => `- ${e}`).join('\n')}
 AVOID: ${config.voicePreferences.avoidance.join(', ')}
 
 **SCRIPT CUSTOMIZATION FOR ${config.name.toUpperCase()}:**
-${config.cultural.scriptCustomization.openingHooks.map((h, i) => `${i + 1}. ${h}`).join('\n')}
+ ${scriptCustomization.openingHooks.map((h, i) => `${i + 1}. ${h}`).join('\n')}
 
 **HASHTAG STRATEGY FOR ${config.name.toUpperCase()}:**
 Always include these regional hashtags:
@@ -67,7 +68,7 @@ ${config.cultural.hashtags.map(h => `- ${h}`).join('\n')}
 Then add 5-10 niche hashtags specific to the product category, trending in ${config.name}.
 
 **CLOSING CTA TYPES THAT WORK IN ${config.name.toUpperCase()}:**
-${config.cultural.scriptCustomization.closingCtaTypes.map(cta => `- "${cta}"`).join('\n')}
+ ${scriptCustomization.closingCtaTypes.map(cta => `- "${cta}"`).join('\n')}
 
 **OUTPUT REQUIREMENTS:**
 You ALWAYS return valid JSON. Never return markdown or prose — ONLY the JSON object.
@@ -100,6 +101,7 @@ export function buildRegionalUserPrompt({
   sceneCount = 5,
 }) {
   const config = getRegionConfig(region);
+  const scriptCustomization = config.scriptCustomization || { openingHooks: [], closingCtaTypes: [] };
 
   let customAudience = targetAudience;
   if (!customAudience) {
@@ -138,7 +140,7 @@ ${regionalPriorities}
 - Each scene's "replicatePrompt" must include region-appropriate visual aesthetics and cultural elements
 - Caption must be SEO-optimized for ${config.name} Instagram discovery
 - Hashtags must include regional hashtags: ${config.cultural.hashtags.join(', ')}
-- CTA must use language that resonates in ${config.name}: ${config.cultural.scriptCustomization.closingCtaTypes[0]}
+ - CTA must use language that resonates in ${config.name}: ${scriptCustomization.closingCtaTypes[0] || 'Learn more today'}
 - Include 15 relevant hashtags (mix of ${config.name}-specific + product-niche + broad)`;
 
   return prompt;
@@ -151,6 +153,7 @@ ${regionalPriorities}
  */
 export function getRegionalOutputSchema(region = 'india') {
   const config = getRegionConfig(region);
+  const scriptCustomization = config.scriptCustomization || { openingHooks: [], closingCtaTypes: [] };
 
   return `Return ONLY this JSON structure (no markdown, no backticks):
 {
@@ -183,9 +186,9 @@ export function getRegionalOutputSchema(region = 'india') {
   "platformNotes": {
     "bestPostTime": "${config.market.peakPostingTimes[0]}",
     "retentionHook": "Why viewers in ${config.name} will watch till the end (${config.market.engagementDrivers[0]})",
-    "ctaType": "${config.cultural.scriptCustomization.closingCtaTypes[0].toLowerCase()}"
-  }
-}`;
+     "ctaType": "${(scriptCustomization.closingCtaTypes[0] || 'learn more today').toLowerCase()}"
+   }
+ }`;
 }
 
 /**
