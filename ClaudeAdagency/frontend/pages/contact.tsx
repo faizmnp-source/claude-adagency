@@ -6,6 +6,35 @@ import Link from 'next/link';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 
+const SocialGlyph = ({ icon }: { icon: 'instagram' | 'linkedin' | 'facebook' }) => {
+  if (icon === 'instagram') {
+    return (
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5.25" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="17.3" cy="6.8" r="1.2" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  if (icon === 'linkedin') {
+    return (
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M7.2 8.6V18" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+        <path d="M7.2 6.5C7.80751 6.5 8.3 6.00751 8.3 5.4C8.3 4.79249 7.80751 4.3 7.2 4.3C6.59249 4.3 6.1 4.79249 6.1 5.4C6.1 6.00751 6.59249 6.5 7.2 6.5Z" fill="currentColor" />
+        <path d="M11.4 18V11.9C11.4 10.2 12.5 8.9 14.1 8.9C15.7 8.9 16.5 9.9 16.5 11.9V18" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M11.4 10.3V8.6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M13.3 20V12.7H15.8L16.2 9.8H13.3V8C13.3 7.16 13.54 6.58 14.74 6.58H16.3V4.02C15.55 3.94 14.8 3.9 14.04 3.9C11.79 3.9 10.25 5.27 10.25 7.79V9.8H7.8V12.7H10.25V20H13.3Z" />
+    </svg>
+  );
+};
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -90,11 +119,18 @@ const ContactPage = () => {
               <div className="editorial-card" style={{ padding: '24px' }}>
                 <div className="eyebrow" style={{ marginBottom: '10px' }}>Follow Us</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-                  {['Instagram', 'LinkedIn', 'Facebook'].map((item) => (
+                  {[
+                    { label: 'Instagram', icon: 'instagram' as const },
+                    { label: 'LinkedIn', icon: 'linkedin' as const },
+                    { label: 'Facebook', icon: 'facebook' as const },
+                  ].map((item) => (
                     <a
-                      key={item}
+                      key={item.label}
                       href="#"
                       style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
                         padding: '10px 14px',
                         borderRadius: '999px',
                         border: '1px solid rgba(17,17,17,0.08)',
@@ -106,8 +142,10 @@ const ContactPage = () => {
                         textTransform: 'uppercase',
                         background: '#fff',
                       }}
+                      aria-label={item.label}
                     >
-                      {item}
+                      <SocialGlyph icon={item.icon} />
+                      {item.label}
                     </a>
                   ))}
                 </div>

@@ -3,10 +3,31 @@ import Link from 'next/link';
 import Logo from './Logo';
 
 const socials = [
-  { label: 'Instagram', href: '#' },
-  { label: 'LinkedIn', href: '#' },
+  { label: 'Instagram', href: '#', icon: 'instagram' as const },
+  { label: 'LinkedIn', href: '#', icon: 'linkedin' as const },
   { label: 'X / Twitter', href: '#' },
 ];
+
+const SocialGlyph = ({ icon }: { icon: 'instagram' | 'linkedin' }) => {
+  if (icon === 'instagram') {
+    return (
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5.25" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="17.3" cy="6.8" r="1.2" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M7.2 8.6V18" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+      <path d="M7.2 6.5C7.80751 6.5 8.3 6.00751 8.3 5.4C8.3 4.79249 7.80751 4.3 7.2 4.3C6.59249 4.3 6.1 4.79249 6.1 5.4C6.1 6.00751 6.59249 6.5 7.2 6.5Z" fill="currentColor" />
+      <path d="M11.4 18V11.9C11.4 10.2 12.5 8.9 14.1 8.9C15.7 8.9 16.5 9.9 16.5 11.9V18" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11.4 10.3V8.6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+    </svg>
+  );
+};
 
 export const Footer: React.FC = () => (
   <footer style={{ padding: '88px 0 28px' }}>
@@ -64,6 +85,9 @@ export const Footer: React.FC = () => (
                     key={social.label}
                     href={social.href}
                     style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
                       padding: '10px 14px',
                       borderRadius: '999px',
                       textDecoration: 'none',
@@ -75,7 +99,9 @@ export const Footer: React.FC = () => (
                       textTransform: 'uppercase',
                       background: '#fff',
                     }}
+                    aria-label={social.label}
                   >
+                    {social.icon ? <SocialGlyph icon={social.icon} /> : null}
                     {social.label}
                   </a>
                 ))}

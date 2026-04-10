@@ -676,8 +676,8 @@ export default function StudioPage() {
       <header className="sticky top-0 z-50" style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(17,17,17,0.08)', boxShadow: '0 14px 36px rgba(35,25,17,0.06)' }}>
         <div className="studio-topbar max-w-7xl mx-auto px-4" style={{ minHeight: '88px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
           <div className="studio-header-links flex items-center gap-3">
-            <Link href="/" className="flex items-center" style={{ textDecoration: 'none' }}>
-              <Logo variant="horizontal" size="small" color="color" />
+            <Link href="/" className="studio-logo-link flex items-center" style={{ textDecoration: 'none' }}>
+              <Logo variant="horizontal" size="small" color="color" className="studio-logo-mark" />
             </Link>
             <Link href="/services/instagram-reels"
               style={{ fontSize: '12px', color: 'var(--muted)', textDecoration: 'none', transition: 'color 0.2s' }}
@@ -699,31 +699,31 @@ export default function StudioPage() {
           <div className="studio-header-meta flex items-center gap-3">
             {/* Instagram badge */}
             {instagram.connected ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
+              <div className="studio-ig-pill flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
                 style={{ background: 'rgba(227,100,20,0.08)', border: '1px solid rgba(227,100,20,0.22)' }}>
                 <span className="text-[var(--accent)]">📸</span>
                 <span className="text-[var(--forest)] hidden sm:block">@{instagram.username || 'IG'}</span>
-                <button onClick={disconnectInstagram} className="text-[#94A3B8] hover:text-red-400 ml-1">✕</button>
+                <button onClick={disconnectInstagram} className="studio-ig-close text-[#94A3B8] hover:text-red-400 ml-1">✕</button>
               </div>
             ) : (
               <button onClick={connectInstagram}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
+                className="studio-ig-pill hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold"
                 style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(17,17,17,0.08)', color: 'var(--muted)' }}>
                 📸 Connect IG
               </button>
             )}
 
             {/* Credits */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(17,17,17,0.08)' }}>
-              <span className="text-[#94A3B8] text-xs">Credits:</span>
+            <div className="studio-credit-pill flex items-center gap-2 px-3 py-1.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(17,17,17,0.08)' }}>
+              <span className="studio-credit-label text-[#94A3B8] text-xs">Credits:</span>
               <span className="font-bold purple-gradient-text text-sm">{credits}</span>
             </div>
 
             {/* User avatar */}
             {user && user.picture ? (
-              <img src={user.picture} alt="" className="w-8 h-8 rounded-full border border-[rgba(227,100,20,0.26)]" />
+              <img src={user.picture} alt="" className="studio-avatar w-8 h-8 rounded-full border border-[rgba(227,100,20,0.26)]" />
             ) : user ? (
-              <div className="w-8 h-8 rounded-full bg-[rgba(227,100,20,0.14)] flex items-center justify-center text-[var(--forest)] text-sm font-bold">{user.name?.[0] || 'U'}</div>
+              <div className="studio-avatar w-8 h-8 rounded-full bg-[rgba(227,100,20,0.14)] flex items-center justify-center text-[var(--forest)] text-sm font-bold">{user.name?.[0] || 'U'}</div>
             ) : null}
 
             <BellIcon />
