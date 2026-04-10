@@ -2162,53 +2162,53 @@ export default function StudioPage() {
             )}
 
             {/* ── Advanced Settings ── */}
-            <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--line)' }}>
               <button
                 onClick={() => setShowAdvanced(v => !v)}
-                className="flex items-center gap-2 text-sm font-semibold w-full mb-3"
-                style={{ color: showAdvanced ? '#E50914' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                className="flex items-center gap-2 text-sm font-bold w-full mb-4"
+                style={{ color: showAdvanced ? '#E50914' : 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
                   style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#E50914' }}>
                   <polyline points="6 9 12 15 18 9"/>
                 </svg>
-                Advanced Settings
+                {showAdvanced ? 'Hide Advanced Settings' : 'Show Advanced Settings'}
               </button>
 
               {showAdvanced && (
-                <div className="space-y-5" style={{ animation: 'fadeIn 0.2s ease' }}>
+                <div className="space-y-6 pb-4" style={{ animation: 'fadeIn 0.2s ease' }}>
 
                   {/* Audio & Sync */}
                   <div>
-                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Audio & Sync</label>
+                    <label className="field-label">Audio & Sync</label>
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => setVoice(!voice)}
-                        className={`mode-pill ${voice ? 'mode-pill-active' : ''}`}
+                        className={`mode-pill flex-1 min-h-[60px] ${voice ? 'mode-pill-active' : ''}`}
                       >
                         {voice ? '✅ AI Voice' : '❌ No Voice'}
                       </button>
                       <button
                         onClick={() => setMusic(!music)}
-                        className={`mode-pill ${music ? 'mode-pill-active' : ''}`}
+                        className={`mode-pill flex-1 min-h-[60px] ${music ? 'mode-pill-active' : ''}`}
                       >
                         {music ? '✅ AI Music' : '❌ No Music'}
                       </button>
                       <button
                         onClick={() => setLipSync(!lipSync)}
-                        className={`mode-pill ${lipSync ? 'mode-pill-active' : ''}`}
+                        className={`mode-pill flex-1 min-h-[60px] ${lipSync ? 'mode-pill-active' : ''}`}
                       >
-                        {lipSync ? '👄 Lip Sync (Wav2Lip)' : '😶 No Lip Sync'}
+                        {lipSync ? '👄 Lip Sync' : '😶 No Sync'}
                       </button>
                     </div>
-                    <p className="text-[10px] text-[#94A3B8] mt-2">
-                      Lip Sync works best with Google Veo 2 and Luma models.
+                    <p className="text-[10px] text-muted mt-2 px-1">
+                      Lip Sync (Wav2Lip) works best with Google Veo 2 and Luma models.
                     </p>
                   </div>
 
                   {/* Video Style */}
                   <div>
-                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Video Style</label>
+                    <label className="field-label">Video Style</label>
                     <div className="flex flex-wrap gap-2">
                       {[
                         { value: 'cinematic',     label: 'Cinematic'    },
@@ -2221,7 +2221,8 @@ export default function StudioPage() {
                         <button
                           key={s.value}
                           onClick={() => setVideoStyle(videoStyle === s.value ? '' : s.value)}
-                          className={`mode-pill ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
+                          className={`mode-pill min-h-[50px] px-4 py-2 ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
+                          style={{ fontSize: '11px' }}
                         >{s.label}</button>
                       ))}
                     </div>
@@ -2229,7 +2230,7 @@ export default function StudioPage() {
 
                   {/* Seasonal Event */}
                   <div>
-                    <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Seasonal Event</label>
+                    <label className="field-label">Seasonal Event</label>
                     <div className="flex flex-wrap gap-2">
                       {[
                         { value: 'diwali',        label: '🪔 Diwali'         },
@@ -2245,7 +2246,8 @@ export default function StudioPage() {
                         <button
                           key={e.value}
                           onClick={() => setSeasonalEvent(seasonalEvent === e.value ? '' : e.value)}
-                          className={`mode-pill ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
+                          className={`mode-pill min-h-[50px] px-4 py-2 ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
+                          style={{ fontSize: '11px' }}
                         >{e.label}</button>
                       ))}
                     </div>
@@ -2269,7 +2271,7 @@ export default function StudioPage() {
                     <textarea
                       value={brandVoice}
                       onChange={e => setBrandVoice(e.target.value)}
-                      placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate. Think Zomato's Twitter tone."
+                      placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate."
                       className="dark-input"
                       rows={3}
                       style={{ resize: 'vertical' }}
@@ -2283,7 +2285,7 @@ export default function StudioPage() {
                       type="text"
                       value={hashtagWhitelist}
                       onChange={e => setHashtagWhitelist(e.target.value)}
-                      placeholder="#YourBrand, #YourCampaign (always included)"
+                      placeholder="#YourBrand, #YourCampaign"
                       className="dark-input"
                     />
                   </div>
@@ -2295,7 +2297,7 @@ export default function StudioPage() {
                       type="text"
                       value={hashtagBlacklist}
                       onChange={e => setHashtagBlacklist(e.target.value)}
-                      placeholder="#competitors, #avoid (never used)"
+                      placeholder="#competitors, #avoid"
                       className="dark-input"
                     />
                   </div>
@@ -2306,7 +2308,7 @@ export default function StudioPage() {
                     <textarea
                       value={seriesContext}
                       onChange={e => setSeriesContext(e.target.value)}
-                      placeholder="e.g. Post 3 of 5 in Diwali sale series. Previous posts covered discounts and new arrivals."
+                      placeholder="e.g. Post 3 of 5 in Diwali sale series."
                       className="dark-input"
                       rows={3}
                       style={{ resize: 'vertical' }}
