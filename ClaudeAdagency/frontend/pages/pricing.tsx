@@ -5,6 +5,8 @@ import Link from 'next/link';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 
+const CREDIT_TO_INR = 2;
+
 const VIDEO_PACKAGES = [
   {
     id: 'starter',
@@ -19,9 +21,9 @@ const VIDEO_PACKAGES = [
     glow: 'rgba(21,128,61,0.12)',
     features: ['480p AI video quality', 'Fast generation (~3 min)', 'No AI voice/music', 'Great for testing ideas'],
     pricing: {
-      duration15: { credits: 75, inr: 150 },
-      duration30: { credits: 150, inr: 300 },
-      duration50: { credits: 250, inr: 500 },
+      duration15: { credits: 45, inr: 90 },
+      duration30: { credits: 90, inr: 180 },
+      duration50: { credits: 150, inr: 300 },
     },
   },
   {
@@ -37,9 +39,9 @@ const VIDEO_PACKAGES = [
     glow: 'rgba(11,43,38,0.12)',
     features: ['720p HD video quality', 'ElevenLabs AI voice', 'Cinematic motion', '~5 min generation'],
     pricing: {
-      duration15: { credits: 135, inr: 270 },
-      duration30: { credits: 270, inr: 540 },
-      duration50: { credits: 450, inr: 900 },
+      duration15: { credits: 105, inr: 210 },
+      duration30: { credits: 210, inr: 420 },
+      duration50: { credits: 350, inr: 700 },
     },
     popular: true,
   },
@@ -56,9 +58,9 @@ const VIDEO_PACKAGES = [
     glow: 'rgba(227,100,20,0.12)',
     features: ['1080p cinematic quality', 'ElevenLabs AI voice', 'AI background music', 'Premium motion output'],
     pricing: {
-      duration15: { credits: 90, inr: 180 },
-      duration30: { credits: 180, inr: 360 },
-      duration50: { credits: 300, inr: 600 },
+      duration15: { credits: 60, inr: 120 },
+      duration30: { credits: 120, inr: 240 },
+      duration50: { credits: 200, inr: 400 },
     },
   },
   {
@@ -74,9 +76,9 @@ const VIDEO_PACKAGES = [
     glow: 'rgba(124,58,237,0.12)',
     features: ['Google Veo 2 quality', 'ElevenLabs AI voice', 'AI background music', 'Highest fidelity output'],
     pricing: {
-      duration15: { credits: 150, inr: 300 },
-      duration30: { credits: 300, inr: 600 },
-      duration50: { credits: 500, inr: 1000 },
+      duration15: { credits: 120, inr: 240 },
+      duration30: { credits: 240, inr: 480 },
+      duration50: { credits: 400, inr: 800 },
     },
   },
 ];
@@ -85,7 +87,7 @@ const MANUAL_MODELS = [
   { key: 'wan480p', label: 'Wan 2.1 480p', res: '480p', inrPerClip: '₹28', inrPer30s: '₹168' },
   { key: 'wan720p', label: 'Wan 2.1 720p', res: '720p', inrPerClip: '₹57', inrPer30s: '₹344' },
   { key: 'luma_flash', label: 'Luma Ray Flash', res: '1080p', inrPerClip: '₹13', inrPer30s: '₹77' },
-  { key: 'luma', label: 'Luma Dream Machine', res: '1080p', inrPerClip: '₹24', inrPer30s: '₹146' },
+  { key: 'luma', label: 'Luma Dream Machine', res: '1080p', inrPerClip: '₹24', inrPer30s: '₹145' },
   { key: 'kling', label: 'Kling v2.5', res: '1080p', inrPerClip: '₹45', inrPer30s: '₹268' },
   { key: 'minimax', label: 'Minimax Hailuo', res: '720p', inrPerClip: '₹36', inrPer30s: '₹179' },
   { key: 'veo2_flash', label: 'Veo 2 Flash', res: '720p', inrPerClip: '₹32', inrPer30s: '₹191' },
@@ -93,18 +95,18 @@ const MANUAL_MODELS = [
 ];
 
 const CREDIT_PACKS = [
-  { credits: 100, price: '₹499', priceNum: 499, reels: '~1–3 reels', popular: false },
-  { credits: 500, price: '₹1,999', priceNum: 1999, reels: '~5–15 reels', popular: true },
-  { credits: 1000, price: '₹3,499', priceNum: 3499, reels: '~10–30 reels', popular: false },
+  { credits: 100, price: '₹200', priceNum: 200, reels: '~1 short reel', popular: false },
+  { credits: 500, price: '₹1,000', priceNum: 1000, reels: '~2-6 reels', popular: true },
+  { credits: 1000, price: '₹2,000', priceNum: 2000, reels: '~4-12 reels', popular: false },
 ];
 
 export default function PricingPage() {
   return (
     <>
       <Head>
-        <title>Pricing — TheCraftStudios</title>
+        <title>Pricing - TheCraftStudios</title>
         <meta name="description" content="Simple pay-per-use pricing for AI reel generation. Buy credits once, use anytime. No subscriptions." />
-        <meta property="og:title" content="Pricing — TheCraftStudios" />
+        <meta property="og:title" content="Pricing - TheCraftStudios" />
         <meta property="og:description" content="Pay only for what you generate. Credits never expire. No subscriptions." />
         <meta property="og:url" content="https://www.thecraftstudios.in/pricing" />
         <link rel="canonical" href="https://www.thecraftstudios.in/pricing" />
@@ -186,7 +188,7 @@ export default function PricingPage() {
                       </span>
                     </div>
 
-                    <Link href="/studio" className={pkg.popular ? 'cta-primary' : 'cta-secondary'} style={pkg.popular ? { width: '100%' } : { width: '100%' }}>
+                    <Link href="/studio" className={pkg.popular ? 'cta-primary' : 'cta-secondary'} style={{ width: '100%' }}>
                       Try {pkg.name}
                     </Link>
                   </div>
@@ -253,7 +255,7 @@ export default function PricingPage() {
             </div>
             <div style={{ display: 'grid', gap: '14px' }}>
               {[
-                { q: 'How does the credit system work?', a: '1 credit = ₹2. Script generation costs 2 credits per second of reel. Video generation is billed separately per package after you approve the script.' },
+                { q: 'How does the credit system work?', a: `1 credit = ₹${CREDIT_TO_INR}. Script generation costs 2 credits per second of reel. Video generation is billed separately by package or model after you approve the script.` },
                 { q: 'Why are script and video charged separately?', a: 'They are separate AI workloads. This lets you refine the script first and only spend the heavier video credits once the narrative is approved.' },
                 { q: 'Do credits expire?', a: 'No. Credits remain in your account until you use them.' },
                 { q: 'Which payment methods are supported?', a: 'UPI, Net Banking, Debit Card, Credit Card, and wallets via Razorpay.' },

@@ -199,6 +199,7 @@ export default function StudioPage() {
   const calcVideoCredits = (pkgId: string | null, mKey: string | null, dur: number) => {
     const USD_TO_INR = 85;
     const CREDIT_TO_INR = 2;
+    const REPLICATE_MARKUP = 1.5;
     if (pkgId && VIDEO_PACKAGES_FRONTEND[pkgId as keyof typeof VIDEO_PACKAGES_FRONTEND]) {
       const pkg = VIDEO_PACKAGES_FRONTEND[pkgId as keyof typeof VIDEO_PACKAGES_FRONTEND];
       return {
@@ -207,8 +208,8 @@ export default function StudioPage() {
       };
     }
     const model = MANUAL_MODELS_FRONTEND.find(m => m.key === mKey) || MANUAL_MODELS_FRONTEND[1];
-    const clips = Math.ceil(dur / 5);
-    const inr = Math.round(clips * model.usdPerClip * USD_TO_INR);
+    const clips = Math.ceil(dur / model.clipSec);
+    const inr = Math.round(clips * model.usdPerClip * USD_TO_INR * REPLICATE_MARKUP);
     return { credits: Math.ceil(inr / CREDIT_TO_INR), inr };
   };
 
