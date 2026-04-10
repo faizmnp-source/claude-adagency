@@ -489,6 +489,219 @@ export default function StudioPage() {
 
   const currentStageIdx = PIPELINE_STAGES.findIndex(s => s.key === pipelineStage);
   const displayError = normalizeStudioError(error);
+  const primaryImageUrl = generatedImages[0] || null;
+  const resetStudioForNewReel = () => {
+    setStep('settings');
+    setResult(null);
+    setImages([]);
+    setVoiceoverUrl(null);
+    setApproveSuccess(null);
+  };
+
+  const downloadImage = (imageUrl: string, index = 1) => {
+    const a = document.createElement('a');
+    a.href = imageUrl;
+    a.download = `image-${index}.webp`;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
+  };
+
+  const renderPreviewSurface = () => {
+    if (contentType === 'image') {
+      if (imgLoading) {
+        return (
+          <div className="studio-preview-placeholder studio-preview-live">
+            <div className="studio-progress-panel studio-progress-panel-embedded relative overflow-hidden">
+              <div className="floating-orb float-a w-40 h-40 -left-8 top-6 opacity-100" style={{ background: 'rgba(227, 100, 20, 0.12)' }}></div>
+              <div className="floating-orb float-b w-36 h-36 right-0 bottom-0 opacity-100" style={{ background: 'rgba(11, 43, 38, 0.08)' }}></div>
+              <div className="relative z-10 text-center">
+                <div className="section-chip mb-6 mx-auto">Image Pipeline</div>
+                <div className="studio-progress-hero-icon mx-auto mb-5">🖼️</div>
+                <h2 className="text-3xl font-bold text-forest mb-2">Generating Visuals</h2>
+                <p className="text-[#6f6258] text-base leading-relaxed max-w-md mx-auto">
+                  AI is creating your image inside this same preview frame so you can review it without jumping elsewhere.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      if (primaryImageUrl) {
+        return (
+          <div className="studio-review-video" style={{ overflow: 'hidden' }}>
+            <img src={primaryImageUrl} alt="Generated preview" className="studio-review-video-element" style={{ objectFit: 'cover' }} />
+            {generatedImages.length > 1 && (
+              <div style={{ position: 'absolute', top: '14px', right: '14px', padding: '6px 10px', borderRadius: '999px', background: 'rgba(11,43,38,0.82)', color: '#fff', fontSize: '12px', fontWeight: 700 }}>
+                {generatedImages.length} variations
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <div className="studio-preview-placeholder">
+          <div
+            style={{
+              position: 'absolute',
+              inset: '0',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              padding: '36px',
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: '72px',
+                height: '72px',
+                borderRadius: '24px',
+                display: 'grid',
+                placeItems: 'center',
+                background: 'rgba(11,43,38,0.92)',
+                color: '#fff',
+                boxShadow: '0 18px 42px rgba(11,43,38,0.16)',
+                fontSize: '28px',
+              }}
+            >
+              🖼️
+            </div>
+            <div className="eyebrow" style={{ color: 'var(--accent)' }}>Image Preview</div>
+            <p style={{ color: 'var(--ink)', fontSize: '18px', fontWeight: 700 }}>
+              Your generated post will appear in this frame
+            </p>
+            <p style={{ color: 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.7, maxWidth: '280px' }}>
+              Manual, express, notebook, and auto image outputs all preview here before you download or post them.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 'generating') {
+      return (
+        <div className="studio-preview-placeholder studio-preview-live">
+          <div className="studio-progress-panel studio-progress-panel-embedded relative overflow-hidden">
+            <div className="floating-orb float-a w-40 h-40 -left-8 top-6 opacity-100" style={{ background: 'rgba(227, 100, 20, 0.14)' }}></div>
+            <div className="floating-orb float-b w-36 h-36 right-0 bottom-0 opacity-100" style={{ background: 'rgba(11, 43, 38, 0.1)' }}></div>
+            <div className="relative z-10">
+              <div className="section-chip mb-6 mx-auto">Live Pipeline</div>
+              <div className="studio-progress-hero-icon mx-auto mb-5">
+                {PIPELINE_STAGES.find(s => s.key === pipelineStage)?.icon || '🎬'}
+              </div>
+              <h2 className="text-3xl font-bold text-forest mb-2">
+                {pipelineStage === 'script' && 'Writing Script'}
+                {pipelineStage === 'clips' && 'Generating Video'}
+                {pipelineStage === 'stitching' && 'Merging Reel'}
+                {pipelineStage === 'ready' && 'Almost Done!'}
+              </h2>
+              <p className="text-[#6f6258] text-base leading-relaxed max-w-md mx-auto mb-8">{pipelineMessage}</p>
+
+              <div className="studio-progress-track mb-4">
+                <div className="studio-progress-fill transition-all duration-700"
+                  style={{ width: `${STAGE_PERCENT[pipelineStage]}%` }}></div>
+              </div>
+              <div className="flex items-center justify-between text-sm mb-8">
+                <span className="text-[#8d8077] font-medium">Pipeline is running. Please keep this tab open.</span>
+                <span className="studio-progress-percent">{STAGE_PERCENT[pipelineStage]}%</span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-3 text-xs">
+                {PIPELINE_STAGES.map((s, i) => {
+                  const done = i < currentStageIdx;
+                  const active = i === currentStageIdx;
+                  return (
+                    <div key={s.key} className={`studio-progress-step ${done ? 'is-done' : active ? 'is-active' : ''}`}>
+                      <div className="text-lg mb-2">{done ? '✓' : s.icon}</div>
+                      <div>{s.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {pipelineStage === 'clips' && (
+                <p className="studio-progress-note mt-6">
+                  ⏱️ Estimated {Math.ceil(duration / 5) * 2}–{Math.ceil(duration / 5) * 4} min for render and stitch.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 'done' && result) {
+      return (
+        <div className="studio-review-video">
+          {result.videoUrl ? (
+            <video
+              src={result.videoUrl}
+              controls
+              playsInline
+              muted
+              preload="metadata"
+              disablePictureInPicture
+              controlsList="nodownload noplaybackrate"
+              className="studio-review-video-element"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-center px-4">
+              <div>
+                <div className="text-4xl mb-2">🎬</div>
+                <p className="text-[#8d8077] text-sm">Video ready on server</p>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="studio-preview-placeholder">
+        <div
+          style={{
+            position: 'absolute',
+            inset: '0',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            padding: '36px',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '72px',
+              height: '72px',
+              borderRadius: '24px',
+              display: 'grid',
+              placeItems: 'center',
+              background: 'rgba(11,43,38,0.92)',
+              color: '#fff',
+              boxShadow: '0 18px 42px rgba(11,43,38,0.16)',
+              fontSize: '28px',
+            }}
+          >
+            ▶
+          </div>
+          <div className="eyebrow" style={{ color: 'var(--accent)' }}>Reel Preview</div>
+          <p style={{ color: 'var(--ink)', fontSize: '18px', fontWeight: 700 }}>
+            Your reel will appear in this phone frame
+          </p>
+          <p style={{ color: 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.7, maxWidth: '280px' }}>
+            Generate once, then stream and download the final reel from this same preview surface without jumping to another window.
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   // ── Image Studio: generate images ──
   const handleGenerateImages = async () => {
@@ -639,6 +852,7 @@ export default function StudioPage() {
 
   // ── Post image to Instagram ──
   const handlePostImage = async (imageUrl: string) => {
+    if (!instagram.connected) { setShowIGPrompt(true); return; }
     setImgPosting(true);
     setError(null);
     setImgPostResult(null);
@@ -802,7 +1016,58 @@ export default function StudioPage() {
             </div>
 
             <div className="studio-phone-stage">
-              {contentType === 'video' && (
+              {(contentType === 'video' || contentType === 'image') && (
+                <div className="mb-6">
+                  {renderPreviewSurface()}
+                  {contentType === 'image' && primaryImageUrl && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+                      <div className="text-xs text-[#8d8077]">
+                        {imgPostResult?.permalink ? (
+                          <a href={imgPostResult.permalink} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                            Posted successfully. View on Instagram →
+                          </a>
+                        ) : (
+                          <span>Review, download, or post this image from the same preview window.</span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => primaryImageUrl && downloadImage(primaryImageUrl)}
+                          className="studio-secondary-action"
+                          style={{ width: 'auto', minWidth: '132px' }}
+                        >
+                          Download Image
+                        </button>
+                        <button
+                          onClick={handleImageReview}
+                          disabled={reviewLoading}
+                          className="studio-secondary-action"
+                          style={{ width: 'auto', minWidth: '132px' }}
+                        >
+                          {reviewLoading ? 'Reviewing...' : 'AI Review'}
+                        </button>
+                        <button
+                          onClick={() => primaryImageUrl && handlePostImage(primaryImageUrl)}
+                          disabled={imgPosting}
+                          className="neon-btn neon-btn-sm"
+                          style={{ minWidth: '156px' }}
+                        >
+                          {imgPosting ? 'Posting...' : instagram.connected ? 'Post to IG' : 'Connect IG to Post'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {contentType === 'image' && showIGPrompt && !instagram.connected && (
+                    <div className="studio-sidecard mt-4">
+                      <p className="text-forest font-semibold text-sm mb-2">Connect Instagram</p>
+                      <p className="text-[#7d6f66] text-xs mb-3">Link your Instagram Business account to post this image directly from the same preview window.</p>
+                      <button onClick={connectInstagram} className="neon-btn neon-btn-sm w-full">Connect Instagram →</button>
+                      <button onClick={() => setShowIGPrompt(false)} className="w-full text-xs text-[#8d8077] hover:text-[var(--forest)] mt-2 text-center">Maybe later</button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {false && contentType === 'video' && (
                 <div className="mb-6">
                   <div className="studio-preview-placeholder">
                     <div
@@ -1053,7 +1318,7 @@ export default function StudioPage() {
                 )}
 
                 {/* Generated image results */}
-                {contentType === 'image' && generatedImages.length > 0 && (
+                {false && contentType === 'image' && generatedImages.length > 0 && (
                   <div>
                     <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
                     <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
@@ -1229,7 +1494,7 @@ export default function StudioPage() {
                 )}
 
                 {/* Generated images (express image mode) */}
-                {contentType === 'image' && generatedImages.length > 0 && (
+                {false && contentType === 'image' && generatedImages.length > 0 && (
                   <div>
                     <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
                     <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
@@ -1675,7 +1940,7 @@ export default function StudioPage() {
                 )}
 
                 {/* Generated images (auto image mode) */}
-                {contentType === 'image' && generatedImages.length > 0 && (
+                {false && contentType === 'image' && generatedImages.length > 0 && (
                   <div>
                     <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
                     <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
@@ -1905,7 +2170,7 @@ export default function StudioPage() {
                 )}
 
                 {/* Generated images (notebook image mode) */}
-                {contentType === 'image' && generatedImages.length > 0 && (
+                {false && contentType === 'image' && generatedImages.length > 0 && (
                   <div>
                     <h3 className="text-sm font-bold text-white mb-3">Generated Images</h3>
                     <div className={`grid gap-3 ${generatedImages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
@@ -1967,6 +2232,13 @@ export default function StudioPage() {
             STEP: GENERATING (pipeline)
             ═══════════════════════════════════ */}
         {step === 'generating' && (
+          <div className="studio-phone-shell">
+            <div className="studio-phone-stage">
+              {renderPreviewSurface()}
+            </div>
+          </div>
+        )}
+        {false && step === 'generating' && (
           <div className="studio-phone-shell">
             <div className="studio-phone-stage">
               <div className="studio-preview-placeholder studio-preview-live">
@@ -2040,10 +2312,21 @@ export default function StudioPage() {
                 </div>
 
                 <div className="studio-phone-stage studio-done-phone-stage">
+                  {renderPreviewSurface()}
+                </div>
+                {!approveSuccess && (
+                  <div className="flex items-center justify-between gap-3 mt-4 text-xs">
+                    <span className="text-[#8d8077]">Streaming preview is active in this frame.</span>
+                    <button onClick={handleDownload} className="studio-secondary-action" style={{ width: 'auto', minWidth: '140px' }}>
+                      Download MP4
+                    </button>
+                  </div>
+                )}
+                {false && result && <div className="studio-phone-stage studio-done-phone-stage">
                   <div className="studio-review-video">
-                    {result.videoUrl ? (
+                    {result?.videoUrl ? (
                       <video
-                        src={result.videoUrl}
+                        src={result?.videoUrl}
                         controls
                         playsInline
                         muted
@@ -2058,7 +2341,7 @@ export default function StudioPage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </div>}
               </div>
 
               <div className="studio-review-panel">
@@ -2079,12 +2362,7 @@ export default function StudioPage() {
                         {approving ? '⚙️ Posting...' : instagram.connected ? '✅ Approve & Post' : '✅ Approve (Connect IG)'}
                       </button>
 
-                      <button onClick={handleDownload}
-                        className="studio-secondary-action w-full">
-                        Download MP4
-                      </button>
-
-                      <button onClick={() => { setStep('settings'); setResult(null); setImages([]); setVoiceoverUrl(null); setApproveSuccess(null); }}
+                      <button onClick={resetStudioForNewReel}
                         className="studio-danger-action w-full">
                         Reject & Create New Reel
                       </button>
@@ -2092,7 +2370,7 @@ export default function StudioPage() {
                   )}
 
                   {approveSuccess && (
-                    <button onClick={() => { setStep('settings'); setResult(null); setImages([]); setVoiceoverUrl(null); setApproveSuccess(null); }}
+                    <button onClick={resetStudioForNewReel}
                       className="neon-btn w-full" style={{ padding: '14px 24px', fontSize: '15px' }}>
                       + Create Another Reel
                     </button>
