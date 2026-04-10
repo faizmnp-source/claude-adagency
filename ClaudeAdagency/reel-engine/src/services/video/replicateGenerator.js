@@ -5,7 +5,7 @@
  *   wan480p    wavespeedai/wan-2.1-i2v-480p      ~$0.22/5s   480p
  *   wan720p    wavespeedai/wan-2.1-i2v-720p      ~$0.45/5s   720p
  *   luma       luma/dream-machine                 ~$0.19/5s  1080p
- *   luma_flash luma/ray-flash-2                   ~$0.10/5s  1080p  (Luma fast)
+ *   luma_flash luma/ray-flash-2-720p              ~$0.10/5s   720p  (Luma fast)
  *   minimax    minimax/hailuo-video-02-i2v        ~$0.28/6s   720p
  *   kling      klingai/kling-v2.5-i2v             ~$0.35/5s  1080p
  *   veo2_flash google/veo-2-flash                 ~$0.25/5s   720p
@@ -42,12 +42,13 @@ const MODELS = {
     }),
   },
   luma_flash: {
-    owner: 'luma', name: 'ray-flash-2',
-    label: '⚡ Luma Ray Flash', resolution: '1080p', clipDuration: 5, estimatedUsdPerClip: 0.10,
+    owner: 'luma', name: 'ray-flash-2-720p',
+    label: '⚡ Luma Ray Flash', resolution: '720p', clipDuration: 5, estimatedUsdPerClip: 0.10,
     input: (imageUrl, prompt) => ({
       prompt: prompt || 'product showcase, smooth camera motion, professional marketing video',
-      image_url: imageUrl,
+      start_image_url: imageUrl,
       aspect_ratio: '9:16',
+      duration: 5,
     }),
   },
   luma: {
@@ -140,7 +141,7 @@ export const VIDEO_PACKAGES = {
 export const MANUAL_MODELS = {
   wan480p:    { label: '💰 Wan 2.1 480p',       resolution: '480p',  usdPerClip: 0.22, clipSec: 5 },
   wan720p:    { label: '⚡ Wan 2.1 720p',       resolution: '720p',  usdPerClip: 0.45, clipSec: 5 },
-  luma_flash: { label: '⚡ Luma Ray Flash',     resolution: '1080p', usdPerClip: 0.10, clipSec: 5 },
+  luma_flash: { label: '⚡ Luma Ray Flash',     resolution: '720p',  usdPerClip: 0.10, clipSec: 5 },
   luma:       { label: '🚀 Luma Dream Machine', resolution: '1080p', usdPerClip: 0.19, clipSec: 5 },
   kling:      { label: '🎬 Kling v2.5',         resolution: '1080p', usdPerClip: 0.35, clipSec: 5 },
   minimax:    { label: '✨ Minimax Hailuo',      resolution: '720p',  usdPerClip: 0.28, clipSec: 6 },
