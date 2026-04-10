@@ -151,6 +151,7 @@ export const MANUAL_MODELS = {
 export function calcVideoCost(packageId, modelKey, durationSec) {
   const USD_TO_INR = 85;
   const CREDIT_TO_INR = 2;
+  const REPLICATE_MARKUP = 1.5;
 
   let usdPerClip, clipSec, voice, music;
 
@@ -171,11 +172,12 @@ export function calcVideoCost(packageId, modelKey, durationSec) {
   const clips        = Math.ceil(durationSec / clipSec);
   const replicateUsd = clips * usdPerClip;
   const replicateInr = replicateUsd * USD_TO_INR;
+  const retailInr = replicateInr * REPLICATE_MARKUP;
   const credits      = packageId
     ? VIDEO_PACKAGES[packageId].creditsPerSecond * durationSec
-    : Math.ceil(replicateInr / CREDIT_TO_INR);
+    : Math.ceil(retailInr / CREDIT_TO_INR);
 
-  return { clips, replicateUsd: Math.round(replicateUsd * 100) / 100, replicateInr: Math.round(replicateInr), credits, voice: voice || false, music: music || false };
+  return { clips, replicateUsd: Math.round(replicateUsd * 100) / 100, replicateInr: Math.round(replicateInr), retailInr: Math.round(retailInr), credits, voice: voice || false, music: music || false };
 }
 
 async function runPrediction(model, input, timeoutMs = 360_000) {

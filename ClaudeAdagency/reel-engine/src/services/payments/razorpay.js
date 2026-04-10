@@ -1,7 +1,7 @@
 /**
  * Razorpay Payment Service
  * Credit pack purchases + webhook handling
- * Supports UPI, NetBanking, Cards, Wallets — perfect for India
+ * Supports UPI, NetBanking, Cards, Wallets for India
  */
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
@@ -34,29 +34,29 @@ logger.info('Razorpay config loaded', {
 export const CREDIT_PACKS = {
   starter: {
     credits: 100,
-    name: 'Starter Pack — 100 Credits',
-    description: '50 seconds of AI-generated reels',
-    price: 49900,   // ₹499 in paise
+    name: 'Starter Pack - 100 Credits',
+    description: 'Flexible credits for scripts and video rendering',
+    price: 20000,
     currency: 'INR',
   },
   growth: {
     credits: 500,
-    name: 'Growth Pack — 500 Credits',
-    description: '250 seconds of AI-generated reels',
-    price: 199900,  // ₹1,999 in paise
+    name: 'Growth Pack - 500 Credits',
+    description: 'Flexible credits for scripts and video rendering',
+    price: 100000,
     currency: 'INR',
   },
   viral: {
     credits: 1000,
-    name: 'Viral Pack — 1000 Credits',
-    description: '500 seconds of AI-generated reels',
-    price: 349900,  // ₹3,499 in paise
+    name: 'Viral Pack - 1000 Credits',
+    description: 'Flexible credits for scripts and video rendering',
+    price: 200000,
     currency: 'INR',
   },
 };
 
 /**
- * Create a Razorpay order (step 1 — frontend opens checkout with this)
+ * Create a Razorpay order (step 1 - frontend opens checkout with this)
  */
 export async function createOrder({ userId, packId }) {
   const pack = CREDIT_PACKS[packId];
@@ -99,24 +99,22 @@ export async function createOrder({ userId, packId }) {
 }
 
 /**
- * Verify Razorpay payment signature (step 2 — called after frontend payment success)
+ * Verify Razorpay payment signature (step 2 - called after frontend payment success)
  * Razorpay sends: razorpay_order_id, razorpay_payment_id, razorpay_signature
  */
 export async function verifyAndCreditPayment({ orderId, paymentId, signature, userId, packId }) {
-  // Verify HMAC signature
   const expectedSignature = crypto
     .createHmac('sha256', config.razorpay.keySecret)
     .update(`${orderId}|${paymentId}`)
     .digest('hex');
 
   if (expectedSignature !== signature) {
-    throw new Error('Invalid payment signature — possible tamper attempt');
+    throw new Error('Invalid payment signature - possible tamper attempt');
   }
 
   const pack = CREDIT_PACKS[packId];
   if (!pack) throw new Error(`Invalid pack: ${packId}`);
 
-  // Fetch payment details to double-check amount
   const payment = await razorpay.payments.fetch(paymentId);
   if (payment.status !== 'captured' && payment.status !== 'authorized') {
     throw new Error(`Payment not captured. Status: ${payment.status}`);
@@ -136,8 +134,8 @@ export async function verifyAndCreditPayment({ orderId, paymentId, signature, us
 }
 
 /**
- * Handle Razorpay webhook (optional — backup to frontend verification)
- * Set webhook secret in Razorpay dashboard → Settings → Webhooks
+ * Handle Razorpay webhook (optional - backup to frontend verification)
+ * Set webhook secret in Razorpay dashboard > Settings > Webhooks
  */
 export async function handleWebhook(rawBody, signature) {
   const expectedSignature = crypto
@@ -156,7 +154,7 @@ export async function handleWebhook(rawBody, signature) {
     const payment = event.payload.payment.entity;
     const { userId, packId, credits } = payment.notes || {};
     if (userId && packId && credits) {
-      await addCreditsToUser(userId, parseInt(credits), {
+      await addCreditsToUser(userId, parseInt(credits, 10), {
         reason: `Webhook: purchased ${packId} pack`,
         razorpayPaymentId: payment.id,
       });

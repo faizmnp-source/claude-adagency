@@ -8,9 +8,9 @@ import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 
 const PACKS = [
-  { id: 'starter', credits: 100, price: '₹499', reels: '2–6', icon: '🚀', tag: null },
-  { id: 'growth', credits: 500, price: '₹1,999', reels: '10–33', icon: '⚡', tag: 'Best Value' },
-  { id: 'viral', credits: 1000, price: '₹3,499', reels: '20–66', icon: '🔥', tag: 'Most Popular' },
+  { id: 'starter', credits: 100, price: '₹200', reels: '1 short reel', icon: '🚀', tag: null },
+  { id: 'growth', credits: 500, price: '₹1,000', reels: '2-6 reels', icon: '⚡', tag: 'Best Value' },
+  { id: 'viral', credits: 1000, price: '₹2,000', reels: '4-12 reels', icon: '🔥', tag: 'Most Popular' },
 ];
 
 declare global {
@@ -127,9 +127,9 @@ export default function CreditsPage() {
   return (
     <>
       <Head>
-        <title>Buy Credits — TheCraftStudios Studio</title>
+        <title>Buy Credits - TheCraftStudios Studio</title>
         <meta name="description" content="Purchase credit packs to generate AI-powered Instagram reels. Pay via UPI, Cards, NetBanking, and Wallets." />
-        <meta property="og:title" content="Buy Credits — TheCraftStudios" />
+        <meta property="og:title" content="Buy Credits - TheCraftStudios" />
         <meta property="og:description" content="Purchase credit packs to generate AI-powered Instagram reels. Pay via UPI, Cards, NetBanking, and Wallets." />
         <meta property="og:url" content="https://www.thecraftstudios.in/studio/credits" />
         <link rel="canonical" href="https://www.thecraftstudios.in/studio/credits" />
@@ -167,7 +167,7 @@ export default function CreditsPage() {
                   Buy <span className="text-accent">Credits</span>
                 </h1>
                 <p className="section-copy" style={{ maxWidth: '760px', margin: '0 auto' }}>
-                  1 second of reel = 2 credits. Every reel includes 3 free regenerations, and checkout works with UPI, cards, NetBanking, and wallets.
+                  Credits are priced at ₹2 each. Script generation costs 2 credits per second, and video rendering is billed separately by package or model. Checkout works with UPI, cards, NetBanking, and wallets.
                 </p>
               </section>
 
@@ -188,7 +188,7 @@ export default function CreditsPage() {
                       <div className="display" style={{ fontSize: '52px', marginBottom: '14px', color: featured ? '#fff' : 'var(--accent)' }}>{pack.price}</div>
 
                       <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-                        {[`${pack.reels} reels (15–50s)`, '3 free regens per reel', 'All features included', 'No expiry'].map((item) => (
+                        {[`${pack.reels} depending on package`, '₹2 per credit', 'All features included', 'No expiry'].map((item) => (
                           <li key={item} style={{ display: 'flex', gap: '10px', color: featured ? 'rgba(255,255,255,0.84)' : 'var(--ink-soft)', fontSize: '14px', lineHeight: 1.6 }}>
                             <span style={{ color: featured ? '#fff' : 'var(--accent)', fontWeight: 700 }}>✦</span>
                             <span>{item}</span>
