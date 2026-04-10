@@ -56,6 +56,21 @@ function getAuthToken(): string {
   return localStorage.getItem('cs_token') || 'dev-token';
 }
 
+function normalizeStudioError(message: string | null): string | null {
+  if (!message) return null;
+
+  const lower = message.toLowerCase();
+  if (
+    lower.includes('resolved credential object is not valid') ||
+    lower.includes('credential object') ||
+    lower.includes('fedcm')
+  ) {
+    return 'Instagram connection failed. Please retry from a fresh tab.';
+  }
+
+  return message;
+}
+
 export default function StudioPage() {
   const router = useRouter();
 
@@ -449,6 +464,7 @@ export default function StudioPage() {
   };
 
   const connectInstagram = () => {
+    setError(null);
     window.location.href = `${REEL_ENGINE_URL}/api/auth/instagram?token=${encodeURIComponent(getAuthToken())}`;
   };
 
@@ -472,6 +488,7 @@ export default function StudioPage() {
   };
 
   const currentStageIdx = PIPELINE_STAGES.findIndex(s => s.key === pipelineStage);
+  const displayError = normalizeStudioError(error);
 
   // ── Image Studio: generate images ──
   const handleGenerateImages = async () => {
@@ -741,12 +758,12 @@ export default function StudioPage() {
       <div className="studio-content-frame max-w-7xl mx-auto px-4 py-6 relative z-10">
 
         {/* Error */}
-        {error && (
+        {displayError && (
           <div className="mb-5 rounded-xl p-4 flex items-start gap-3 max-w-lg mx-auto" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
             <span className="text-red-400 text-xl">⚠️</span>
             <div className="flex-1">
               <p className="text-red-400 font-semibold text-sm">Error</p>
-              <p className="text-[#94A3B8] text-xs">{error}</p>
+              <p className="text-[#94A3B8] text-xs">{displayError}</p>
             </div>
             <button onClick={() => setError(null)} className="text-[#94A3B8] hover:text-white">✕</button>
           </div>

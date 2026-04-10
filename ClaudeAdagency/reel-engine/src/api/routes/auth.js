@@ -191,7 +191,7 @@ router.get('/me', requireAuth, async (req, res) => {
 
 // ── GET /api/auth/instagram ───────────────────────────────────────────────
 // Redirects user to Instagram Business OAuth to connect their Instagram account
-// Use the standard Instagram authorize endpoint for business login scopes.
+// Uses Instagram Business Login authorize endpoint.
 // Pass ?token=JWT as query param since this is a browser redirect (no Auth header)
 router.get('/instagram', async (req, res) => {
   const { token } = req.query;
@@ -213,11 +213,9 @@ router.get('/instagram', async (req, res) => {
     scope: 'instagram_business_basic,instagram_business_content_publish',
     response_type: 'code',
     state,
-    force_authentication: '1',
-    enable_fb_login: '0',
   });
 
-  const igAuthUrl = `https://www.instagram.com/oauth/authorize?${params}`;
+  const igAuthUrl = `https://api.instagram.com/oauth/authorize?${params}`;
   logger.info('Instagram OAuth redirect', { igAuthUrl, META_APP_ID, IG_REDIRECT_URI });
   res.redirect(igAuthUrl);
 });
