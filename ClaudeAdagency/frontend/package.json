@@ -1,9 +1,9 @@
 {
-  "name": "instagram-ai-frontend",
+  "name": "the-craft-studios",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port=3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,7 +13,9 @@
     "react": "^18",
     "react-dom": "^18",
     "axios": "^1.7.3",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.546.0",
+    "framer-motion": "^12.38.0"
   },
   "devDependencies": {
     "typescript": "^5",
