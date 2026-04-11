@@ -39,7 +39,7 @@ const metrics = [
 
 const benefits = [
   { title: 'Done-For-You Design', copy: 'Premium-looking interfaces and campaign assets without agency sprawl.' },
-  { title: 'AI-Powered Creation', copy: 'Move from idea to content to launch without rebuilding your pipeline each week.' },
+  { title: 'AI-Powered Creation', copy: 'Move from idea to content to launch with advanced Lip Sync and Voice cloning technology.' },
   { title: 'One Dashboard', copy: 'Keep studio, content, web, and campaign operations in the same working system.' },
   { title: 'Fast Deployment', copy: 'Launch experiments quickly, then harden the winners into systems that compound.' },
 ];
@@ -114,7 +114,7 @@ export default function HomePage() {
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {['Reels', 'Websites', 'Apps', 'Branding', 'AI Automation'].map((item) => (
+                {['Reels', 'Lip Sync', 'Websites', 'Apps', 'Branding', 'AI Automation'].map((item) => (
                   <span
                     key={item}
                     style={{

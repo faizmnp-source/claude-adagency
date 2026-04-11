@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Logo from '../../components/Logo';
@@ -100,6 +100,7 @@ export default function StudioPage() {
   const [duration, setDuration] = useState<Duration>(30);
   const [voice, setVoice] = useState(true);
   const [music, setMusic] = useState(true);
+  const [lipSync, setLipSync] = useState(true);
   const [tone, setTone] = useState('energetic');
   const [productDescription, setProductDescription] = useState('');
   const [vision, setVision] = useState('');
@@ -114,7 +115,7 @@ export default function StudioPage() {
   const [hashtagBlacklist, setHashtagBlacklist] = useState('');
   const [videoStyle, setVideoStyle]             = useState('');
   const [seriesContext, setSeriesContext]        = useState('');
-  const [showAdvanced, setShowAdvanced]         = useState(false);
+  const [showAdvanced, setShowAdvanced]         = useState(true);
 
   // ── Manual mode ──
   const [manualPrompt, setManualPrompt] = useState('');
@@ -246,17 +247,17 @@ export default function StudioPage() {
       creditsPerSecond: 7,  // 1.5× Replicate: $0.45×1.5×₹85/5s÷₹2 ≈ 6 + 1 voice = 7 cr/s
     },
     viral: {
-      id: 'viral', name: '🚀 Viral', tagline: 'Luma 1080p + Voice + Music',
-      resolution: '1080p', voice: true, music: true,
+      id: 'viral', name: '🚀 Viral', tagline: 'Luma 1080p + Voice + Music + Lip Sync',
+      resolution: '1080p', voice: true, music: true, lipSync: true,
       color: '#F59E0B',
-      features: ['Luma Dream Machine', 'Voice + Music', '~7 min'],
+      features: ['Luma Dream Machine', 'Voice + Music', 'Lip Sync (Wav2Lip)', '~7 min'],
       creditsPerSecond: 4,  // 1.5× Replicate: $0.19×1.5×₹85/5s÷₹2 ≈ 2 + 2 audio = 4 cr/s
     },
     ultra: {
-      id: 'ultra', name: '🌟 Ultra', tagline: 'Google Veo 2 + Full Audio',
-      resolution: '1080p', voice: true, music: true,
+      id: 'ultra', name: '🌟 Ultra', tagline: 'Google Veo 2 + Full Audio + Lip Sync',
+      resolution: '1080p', voice: true, music: true, lipSync: true,
       color: '#8B5CF6',
-      features: ['Google Veo 2', 'Voice + Music', '~10 min'],
+      features: ['Google Veo 2', 'Extended 30s Video', 'Voice + Music', 'Lip Sync (Wav2Lip)', '~10 min'],
       creditsPerSecond: 8,  // 1.5× Replicate: $0.50×1.5×₹85/5s÷₹2 ≈ 6 + 2 audio = 8 cr/s
     },
   } as const;
@@ -277,17 +278,29 @@ export default function StudioPage() {
     const USD_TO_INR = 85;
     const CREDIT_TO_INR = 2;
     const REPLICATE_MARKUP = 1.5;
+    
+    let credits = 0;
+    let inr = 0;
+
     if (pkgId && VIDEO_PACKAGES_FRONTEND[pkgId as keyof typeof VIDEO_PACKAGES_FRONTEND]) {
       const pkg = VIDEO_PACKAGES_FRONTEND[pkgId as keyof typeof VIDEO_PACKAGES_FRONTEND];
-      return {
-        credits: pkg.creditsPerSecond * dur,
-        inr: pkg.creditsPerSecond * dur * CREDIT_TO_INR,
-      };
+      credits = pkg.creditsPerSecond * dur;
+      
+      // Add Lip Sync cost (15 credits) if package includes it
+      if ((pkg as any).lipSync) {
+        credits += 15;
+      }
+      
+      inr = credits * CREDIT_TO_INR;
+      return { credits, inr };
     }
+
     const model = MANUAL_MODELS_FRONTEND.find(m => m.key === mKey) || MANUAL_MODELS_FRONTEND[1];
     const clips = Math.ceil(dur / model.clipSec);
-    const inr = Math.round(clips * model.usdPerClip * USD_TO_INR * REPLICATE_MARKUP);
-    return { credits: Math.ceil(inr / CREDIT_TO_INR), inr };
+    inr = Math.round(clips * model.usdPerClip * USD_TO_INR * REPLICATE_MARKUP);
+    credits = Math.ceil(inr / CREDIT_TO_INR);
+    
+    return { credits, inr };
   };
 
   // ── On load ──
@@ -442,8 +455,8 @@ export default function StudioPage() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
         body: JSON.stringify(
           mode === 'manual'
-            ? { modelKey: manualModelKey }
-            : { packageId: videoPackage }
+            ? { modelKey: manualModelKey, lipSync }
+            : { packageId: videoPackage, lipSync }
         ),
       });
 
@@ -458,7 +471,8 @@ export default function StudioPage() {
 
       const stitchRes = await fetch(`${REEL_ENGINE_URL}/api/reels/${reelId}/stitch`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${getAuthToken()}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getAuthToken()}` },
+        body: JSON.stringify({ lipSync }),
       });
 
       if (!stitchRes.ok) {
@@ -1053,6 +1067,11 @@ export default function StudioPage() {
             ═══════════════════════════════════ */}
         {(step === 'upload' || step === 'settings') && (
           <div className="studio-phone-shell">
+            <div className="text-center mb-4">
+              <span className="bg-red-500 text-white px-4 py-1 rounded-full text-[10px] font-bold animate-pulse">
+                UI UPDATE ACTIVE - LIP SYNC ENABLED
+              </span>
+            </div>
 
             {/* Title */}
             <div className="text-center mb-6">
@@ -1084,54 +1103,9 @@ export default function StudioPage() {
               {(contentType === 'video' || contentType === 'image') && (
                 <div className="mb-6">
                   {renderPreviewSurface()}
-                  {contentType === 'image' && primaryImageUrl && (
-                    <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-                      <div className="text-xs text-[#8d8077]">
-                        {imgPostResult?.permalink ? (
-                          <a href={imgPostResult.permalink} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-                            Posted successfully. View on Instagram →
-                          </a>
-                        ) : (
-                          <span>Review, download, or post this image from the same preview window.</span>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => primaryImageUrl && downloadImage(primaryImageUrl)}
-                          className="studio-secondary-action"
-                          style={{ width: 'auto', minWidth: '132px' }}
-                        >
-                          Download Image
-                        </button>
-                        <button
-                          onClick={handleImageReview}
-                          disabled={reviewLoading}
-                          className="studio-secondary-action"
-                          style={{ width: 'auto', minWidth: '132px' }}
-                        >
-                          {reviewLoading ? 'Reviewing...' : 'AI Review'}
-                        </button>
-                        <button
-                          onClick={() => primaryImageUrl && handlePostImage(primaryImageUrl)}
-                          disabled={imgPosting}
-                          className="neon-btn neon-btn-sm"
-                          style={{ minWidth: '156px' }}
-                        >
-                          {imgPosting ? 'Posting...' : instagram.connected ? 'Post to IG' : 'Connect IG to Post'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  {contentType === 'image' && showIGPrompt && !instagram.connected && (
-                    <div className="studio-sidecard mt-4">
-                      <p className="text-forest font-semibold text-sm mb-2">Connect Instagram</p>
-                      <p className="text-[#7d6f66] text-xs mb-3">Link your Instagram Business account to post this image directly from the same preview window.</p>
-                      <button onClick={connectInstagram} className="neon-btn neon-btn-sm w-full">Connect Instagram →</button>
-                      <button onClick={() => setShowIGPrompt(false)} className="w-full text-xs text-[#8d8077] hover:text-[var(--forest)] mt-2 text-center">Maybe later</button>
-                    </div>
-                  )}
                 </div>
               )}
+
               {false && contentType === 'video' && (
                 <div className="mb-6">
                   <div className="studio-preview-placeholder">
@@ -1280,6 +1254,22 @@ export default function StudioPage() {
                     </p>
                   </div>
                 )}
+
+                {/* Audio & Lip Sync (Manual Mode) */}
+                <div className="p-5 rounded-3xl bg-[#F0FDF4] border border-[#DCFCE7] shadow-sm">
+                  <label className="text-[11px] font-bold text-[#15803D] uppercase tracking-wider mb-3 block">Audio & Lip Sync (AI Powered)</label>
+                  <div className="flex gap-2">
+                    <button onClick={() => setVoice(!voice)} className={`mode-pill flex-1 min-h-[48px] ${voice ? 'mode-pill-active' : ''}`}>
+                      {voice ? '✅ Voice' : '❌ Voice'}
+                    </button>
+                    <button onClick={() => setMusic(!music)} className={`mode-pill flex-1 min-h-[48px] ${music ? 'mode-pill-active' : ''}`}>
+                      {music ? '✅ Music' : '❌ Music'}
+                    </button>
+                    <button onClick={() => setLipSync(!lipSync)} className={`mode-pill flex-1 min-h-[48px] ${lipSync ? 'mode-pill-active' : ''}`}>
+                      {lipSync ? '👄 Lip Sync' : '😶 No Sync'}
+                    </button>
+                  </div>
+                </div>
 
                 {/* AI Hashtag Assistant */}
                 <div className="rounded-xl p-4" style={{ background: 'rgba(229,9,20,0.04)', border: '1px solid rgba(229,9,20,0.15)' }}>
@@ -1481,6 +1471,22 @@ export default function StudioPage() {
                   </div>
                 )}
 
+                {/* Audio & Lip Sync (Express Mode) */}
+                <div className="mb-6 p-5 rounded-3xl bg-[#F0FDF4] border border-[#DCFCE7] shadow-sm">
+                  <label className="text-[11px] font-bold text-[#15803D] uppercase tracking-wider mb-3 block">Audio & Lip Sync (AI Powered)</label>
+                  <div className="flex gap-2">
+                    <button onClick={() => setVoice(!voice)} className={`mode-pill flex-1 min-h-[48px] ${voice ? 'mode-pill-active' : ''}`} style={{ minHeight: '48px', borderRadius: '16px' }}>
+                      {voice ? '✅ Voice' : '❌ Voice'}
+                    </button>
+                    <button onClick={() => setMusic(!music)} className={`mode-pill flex-1 min-h-[48px] ${music ? 'mode-pill-active' : ''}`} style={{ minHeight: '48px', borderRadius: '16px' }}>
+                      {music ? '✅ Music' : '❌ Music'}
+                    </button>
+                    <button onClick={() => setLipSync(!lipSync)} className={`mode-pill flex-1 min-h-[48px] ${lipSync ? 'mode-pill-active' : ''}`} style={{ minHeight: '48px', borderRadius: '16px' }}>
+                      {lipSync ? '👄 Lip Sync' : '😶 No Sync'}
+                    </button>
+                  </div>
+                </div>
+
                 {/* Duration (video) or image count (image) */}
                 {contentType === 'video' ? (
                   <div>
@@ -1526,9 +1532,6 @@ export default function StudioPage() {
                         );
                       })}
                     </select>
-                    <p className="text-xs text-[#94A3B8] mt-2">
-                      Script: {creditCost} cr + Video: {calcVideoCredits(videoPackage, null, duration).credits} cr = <strong className="text-white">{creditCost + calcVideoCredits(videoPackage, null, duration).credits} total credits</strong>
-                    </p>
                   </div>
                 )}
 
@@ -1753,133 +1756,7 @@ export default function StudioPage() {
                   </select>
                 </div>
 
-                {/* ── Advanced Settings ── */}
-                <div>
-                  <button
-                    onClick={() => setShowAdvanced(v => !v)}
-                    className="flex items-center gap-2 text-sm font-semibold w-full mb-3"
-                    style={{ color: showAdvanced ? '#E50914' : 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                      style={{ transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: '#E50914' }}>
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                    Advanced Settings
-                  </button>
 
-                  {showAdvanced && (
-                    <div className="space-y-5" style={{ animation: 'fadeIn 0.2s ease' }}>
-
-                      {/* Video Style */}
-                      <div>
-                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Video Style</label>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { value: 'cinematic',     label: 'Cinematic'    },
-                            { value: 'fast-cut',      label: 'Fast-Cut'     },
-                            { value: 'documentary',   label: 'Documentary'  },
-                            { value: 'minimalist',    label: 'Minimalist'   },
-                            { value: 'ugc',           label: 'UGC'          },
-                            { value: 'talking-head',  label: 'Talking Head' },
-                          ].map(s => (
-                            <button
-                              key={s.value}
-                              onClick={() => setVideoStyle(videoStyle === s.value ? '' : s.value)}
-                              className={`mode-pill ${videoStyle === s.value ? 'mode-pill-active' : ''}`}
-                            >{s.label}</button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Seasonal Event */}
-                      <div>
-                        <label className="text-xs text-[#94A3B8] mb-2 block font-medium uppercase tracking-wide">Seasonal Event</label>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            { value: 'diwali',        label: '🪔 Diwali'         },
-                            { value: 'holi',          label: '🎨 Holi'           },
-                            { value: 'eid',           label: '🌙 Eid'            },
-                            { value: 'christmas',     label: '🎄 Christmas'      },
-                            { value: 'newyear',       label: '🎆 New Year'       },
-                            { value: 'blackfriday',   label: '🛍️ Black Friday'   },
-                            { value: 'valentines',    label: '💝 Valentine\'s'   },
-                            { value: 'productlaunch', label: '🚀 Product Launch' },
-                            { value: 'sale',          label: '💸 Sale'           },
-                          ].map(e => (
-                            <button
-                              key={e.value}
-                              onClick={() => setSeasonalEvent(seasonalEvent === e.value ? '' : e.value)}
-                              className={`mode-pill ${seasonalEvent === e.value ? 'mode-pill-active' : ''}`}
-                            >{e.label}</button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Custom CTA */}
-                      <div>
-                        <label className="dark-input-label">Custom CTA</label>
-                        <input
-                          type="text"
-                          value={customCta}
-                          onChange={e => setCustomCta(e.target.value)}
-                          placeholder="e.g. Shop now at link in bio →"
-                          className="dark-input"
-                        />
-                      </div>
-
-                      {/* Brand Voice */}
-                      <div>
-                        <label className="dark-input-label">Brand Voice</label>
-                        <textarea
-                          value={brandVoice}
-                          onChange={e => setBrandVoice(e.target.value)}
-                          placeholder="Describe your brand personality... e.g. Bold, youthful, anti-corporate. Think Zomato's Twitter tone."
-                          className="dark-input"
-                          rows={3}
-                          style={{ resize: 'vertical' }}
-                        />
-                      </div>
-
-                      {/* Hashtag Whitelist */}
-                      <div>
-                        <label className="dark-input-label">Hashtag Whitelist</label>
-                        <input
-                          type="text"
-                          value={hashtagWhitelist}
-                          onChange={e => setHashtagWhitelist(e.target.value)}
-                          placeholder="#YourBrand, #YourCampaign (always included)"
-                          className="dark-input"
-                        />
-                      </div>
-
-                      {/* Hashtag Blacklist */}
-                      <div>
-                        <label className="dark-input-label">Hashtag Blacklist</label>
-                        <input
-                          type="text"
-                          value={hashtagBlacklist}
-                          onChange={e => setHashtagBlacklist(e.target.value)}
-                          placeholder="#competitors, #avoid (never used)"
-                          className="dark-input"
-                        />
-                      </div>
-
-                      {/* Series / Campaign Context */}
-                      <div>
-                        <label className="dark-input-label">Series / Campaign Context</label>
-                        <textarea
-                          value={seriesContext}
-                          onChange={e => setSeriesContext(e.target.value)}
-                          placeholder="e.g. Post 3 of 5 in Diwali sale series. Previous posts covered discounts and new arrivals."
-                          className="dark-input"
-                          rows={3}
-                          style={{ resize: 'vertical' }}
-                        />
-                      </div>
-
-                    </div>
-                  )}
-                </div>
 
                 {/* ── Viral Trend Panel (Auto mode only) ── */}
                 <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(229,9,20,0.2)' }}>
@@ -2189,6 +2066,22 @@ export default function StudioPage() {
                   </div>
                 )}
 
+                {/* Audio & Lip Sync (Notebook Mode) */}
+                <div className="p-5 rounded-3xl bg-[#F0FDF4] border border-[#DCFCE7] shadow-sm">
+                  <label className="text-[11px] font-bold text-[#15803D] uppercase tracking-wider mb-3 block">Audio & Lip Sync (AI Powered)</label>
+                  <div className="flex gap-2">
+                    <button onClick={() => setVoice(!voice)} className={`mode-pill flex-1 min-h-[48px] ${voice ? 'mode-pill-active' : ''}`}>
+                      {voice ? '✅ Voice' : '❌ Voice'}
+                    </button>
+                    <button onClick={() => setMusic(!music)} className={`mode-pill flex-1 min-h-[48px] ${music ? 'mode-pill-active' : ''}`}>
+                      {music ? '✅ Music' : '❌ Music'}
+                    </button>
+                    <button onClick={() => setLipSync(!lipSync)} className={`mode-pill flex-1 min-h-[48px] ${lipSync ? 'mode-pill-active' : ''}`}>
+                      {lipSync ? '👄 Lip Sync' : '😶 No Sync'}
+                    </button>
+                  </div>
+                </div>
+
                 {/* Generate button */}
                 <button
                   onClick={() => {
@@ -2272,6 +2165,7 @@ export default function StudioPage() {
                 )}
               </div>
             )}
+
 
             {/* Login link */}
             {!user && (
@@ -2374,6 +2268,11 @@ export default function StudioPage() {
                   )}
                   <h2 className="text-3xl font-bold text-forest mb-2">Your Reel is Ready</h2>
                   <p className="text-sm text-[#7d6f66]">Preview the final cut, review the creative, and post when you’re happy with it.</p>
+                  {lipSync && (
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F0FDF4] border border-[#DCFCE7] text-[#15803D] text-xs font-bold mx-auto">
+                      👄 AI Lip Sync Applied
+                    </div>
+                  )}
                 </div>
 
                 <div className="studio-phone-stage studio-done-phone-stage">
