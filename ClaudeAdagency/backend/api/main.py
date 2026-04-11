@@ -33,6 +33,14 @@ app.include_router(webhooks.router, prefix="/api/webhooks", tags=["webhooks"])
 async def root():
     return {"message": "Claude Ad Agency API is running"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+@app.get("/api/health")
+async def api_health_check():
+    return {"status": "healthy"}
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
