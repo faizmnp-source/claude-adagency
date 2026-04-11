@@ -9,7 +9,7 @@ const deliverables = [
   {
     title: 'Content Production',
     copy: 'We script, structure, and package reels that are designed to stop the scroll instead of blending into the feed.',
-    items: ['Hook-first scripting', 'Short-form storyboarding', 'Editing and finishing', 'Caption and CTA writing'],
+    items: ['Hook-first scripting', 'Short-form storyboarding', 'AI Lip Sync & Voice', 'Editing and finishing'],
   },
   {
     title: 'Publishing System',

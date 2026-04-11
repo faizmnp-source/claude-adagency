@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Logo from './Logo';
 
 const SERVICES = [
+  { href: '/ai-ad-studio', icon: '🎬', label: 'AI Ad Studio', desc: 'Premium 30s social ad creative workflow' },
   { href: '/services/instagram-reels', icon: '📸', label: 'Instagram Reels', desc: 'AI-generated reels & auto-posting' },
   { href: '/services/branding', icon: '🎨', label: 'Brand Identity', desc: 'Logo, colours & visual guidelines' },
   { href: '/services/development', icon: '💻', label: 'Web & App Development', desc: 'Custom websites, Android & iOS apps' },
@@ -176,6 +177,7 @@ export const NavBar: React.FC = () => {
             </div>
 
             {navLink('/pricing', 'Pricing')}
+            {navLink('/ai-ad-studio', 'Ad Studio')}
             {navLink('/studio', 'AI Studio')}
             {navLink('/designs', 'Designs')}
             {navLink('/contact', 'Contact')}
@@ -247,6 +249,7 @@ export const NavBar: React.FC = () => {
             ))}
             <div className="eyebrow" style={{ marginTop: '12px', marginBottom: '4px' }}>Pages</div>
             <Link href="/pricing" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Pricing</Link>
+            <Link href="/ai-ad-studio" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Ad Studio</Link>
             <Link href="/studio" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>AI Studio</Link>
             <Link href="/designs" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Designs</Link>
             <Link href="/contact" style={{ padding: '12px 4px', textDecoration: 'none', color: 'var(--ink)', fontSize: '15px', fontWeight: 700 }}>Contact</Link>

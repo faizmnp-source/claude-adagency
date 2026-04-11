@@ -1,3 +1,4 @@
+import React from 'react';
 import Head from 'next/head';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
@@ -32,7 +33,7 @@ export default function PrivacyPolicy() {
           <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', lineHeight: '1.8' }}>
 
             <Section title="1. Who We Are">
-              <p>TheCraftStudios ("we", "our", "us") is an AI-powered content creation platform operated by TheCraftStudios, India. Our platform helps businesses create Instagram Reels, image posts, and social media content using artificial intelligence.</p>
+              <p>TheCraftStudios (&quot;we&quot;, &quot;our&quot;, &quot;us&quot;) is an AI-powered content creation platform operated by TheCraftStudios, India. Our platform helps businesses create Instagram Reels, image posts, and social media content using artificial intelligence.</p>
               <p style={{ marginTop: '12px' }}>Website: <a href="https://thecraftstudios.in" style={{ color: '#E50914' }}>https://thecraftstudios.in</a><br />
               Contact: <a href="mailto:info@thecraftstudios.in" style={{ color: '#E50914' }}>info@thecraftstudios.in</a><br />
               Phone: +91 77605 01116</p>
@@ -68,14 +69,14 @@ export default function PrivacyPolicy() {
                 <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>instagram_business_manage_comments:</strong> To read comments on posts we publish for you.</li>
                 <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>pages_show_list / pages_read_engagement:</strong> To identify your connected Facebook Page linked to your Instagram Business Account.</li>
               </ul>
-              <p style={{ marginTop: '16px' }}>We only post content when you explicitly click "Post to Instagram." We never post without your direct action. You can revoke these permissions at any time from your Facebook App Settings.</p>
+              <p style={{ marginTop: '16px' }}>We only post content when you explicitly click &quot;Post to Instagram.&quot; We never post without your direct action. You can revoke these permissions at any time from your Facebook App Settings.</p>
             </Section>
 
             <Section title="5. Data Sharing">
               <p>We do not sell your personal data. We share data only with:</p>
               <ul style={{ marginTop: '12px', paddingLeft: '24px' }}>
                 <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>Anthropic (Claude AI):</strong> Your product descriptions and brand content are processed to generate scripts and content.</li>
-                <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>Replicate:</strong> Image and video generation prompts are sent to Replicate's AI models.</li>
+                <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>Replicate:</strong> Image and video generation prompts are sent to Replicate&apos;s AI models.</li>
                 <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>ElevenLabs:</strong> Text scripts are sent for voiceover generation.</li>
                 <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>Razorpay:</strong> Payment processing for credit purchases.</li>
                 <li style={{ marginBottom: '8px' }}><strong style={{ color: '#fff' }}>Meta (Instagram/Facebook):</strong> Content is posted to Instagram via the Meta Graph API when you request it.</li>

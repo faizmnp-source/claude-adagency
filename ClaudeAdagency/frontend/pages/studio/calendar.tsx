@@ -507,7 +507,7 @@ export default function CalendarPage() {
               <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>No Content Plan Yet</h2>
               <p style={{ color: MUTED, marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px' }}>Generate your first AI content plan. 16 posts scheduled across the month — zero manual work.</p>
               <button onClick={() => setShowForm(true)} style={{ padding: '14px 40px', background: R, border: 'none', borderRadius: '10px', color: '#fff', fontSize: '16px', fontWeight: 700, cursor: 'pointer' }}>
-                ✨ Generate This Month's Plan
+                ✨ Generate This Month&apos;s Plan
               </button>
             </div>
           ) : (

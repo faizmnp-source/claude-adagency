@@ -49,36 +49,38 @@ const VIDEO_PACKAGES = [
     id: 'viral',
     name: 'Viral',
     emoji: '🚀',
-    tagline: '1080p + Voice + Music',
+    tagline: 'Luma 1080p + Voice + Music + Lip Sync',
     modelName: 'Luma Dream Machine',
     resolution: '1080p',
     voice: true,
     music: true,
+    lipSync: true,
     color: '#e36414',
     glow: 'rgba(227,100,20,0.12)',
-    features: ['1080p cinematic quality', 'ElevenLabs AI voice', 'AI background music', 'Premium motion output'],
+    features: ['1080p cinematic quality', 'ElevenLabs AI voice', 'AI background music', 'Lip Sync (Wav2Lip)', 'Premium motion output'],
     pricing: {
-      duration15: { credits: 60, inr: 120 },
-      duration30: { credits: 120, inr: 240 },
-      duration50: { credits: 200, inr: 400 },
+      duration15: { credits: 75, inr: 150 }, // 60 + 15
+      duration30: { credits: 135, inr: 270 }, // 120 + 15
+      duration50: { credits: 215, inr: 430 }, // 200 + 15
     },
   },
   {
     id: 'ultra',
     name: 'Ultra',
     emoji: '🌟',
-    tagline: 'Google Veo 2 + Full Audio',
+    tagline: 'Google Veo 2 + Full Audio + Lip Sync',
     modelName: 'Google Veo 2',
     resolution: '1080p',
     voice: true,
     music: true,
+    lipSync: true,
     color: '#7c3aed',
     glow: 'rgba(124,58,237,0.12)',
-    features: ['Google Veo 2 quality', 'ElevenLabs AI voice', 'AI background music', 'Highest fidelity output'],
+    features: ['Google Veo 2 quality', 'Extended 30s Video', 'ElevenLabs AI voice', 'AI background music', 'Lip Sync (Wav2Lip)'],
     pricing: {
-      duration15: { credits: 120, inr: 240 },
-      duration30: { credits: 240, inr: 480 },
-      duration50: { credits: 400, inr: 800 },
+      duration15: { credits: 135, inr: 270 }, // 120 + 15
+      duration30: { credits: 255, inr: 510 }, // 240 + 15
+      duration50: { credits: 415, inr: 830 }, // 400 + 15
     },
   },
 ];
@@ -186,6 +188,11 @@ export default function PricingPage() {
                       <span style={{ padding: '8px 12px', borderRadius: '999px', background: pkg.music ? 'rgba(21,128,61,0.12)' : 'rgba(17,17,17,0.05)', color: pkg.music ? '#15803d' : pkg.popular ? 'rgba(255,255,255,0.6)' : 'var(--muted)', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                         {pkg.music ? 'Music Included' : 'No Music'}
                       </span>
+                      {(pkg as any).lipSync && (
+                        <span style={{ padding: '8px 12px', borderRadius: '999px', background: 'rgba(124,58,237,0.12)', color: '#7c3aed', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                          Lip Sync Included
+                        </span>
+                      )}
                     </div>
 
                     <Link href="/studio" className={pkg.popular ? 'cta-primary' : 'cta-secondary'} style={{ width: '100%' }}>

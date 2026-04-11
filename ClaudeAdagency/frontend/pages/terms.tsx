@@ -1,3 +1,4 @@
+import React from 'react';
 import Head from 'next/head';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
@@ -28,7 +29,7 @@ export default function TermsOfService() {
           <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '16px', lineHeight: '1.8' }}>
 
             <Section title="1. Acceptance of Terms">
-              <p>By using TheCraftStudios ("the Service"), you agree to these Terms of Service. If you do not agree, do not use the Service.</p>
+              <p>By using TheCraftStudios (&quot;the Service&quot;), you agree to these Terms of Service. If you do not agree, do not use the Service.</p>
             </Section>
 
             <Section title="2. Description of Service">
@@ -39,7 +40,7 @@ export default function TermsOfService() {
               <ul style={{ paddingLeft: '24px' }}>
                 <li style={{ marginBottom: '8px' }}>You must own or have rights to any product images you upload</li>
                 <li style={{ marginBottom: '8px' }}>You are responsible for all content posted to Instagram through our platform</li>
-                <li style={{ marginBottom: '8px' }}>You must comply with Instagram's Terms of Use and Community Guidelines</li>
+                <li style={{ marginBottom: '8px' }}>You must comply with Instagram&apos;s Terms of Use and Community Guidelines</li>
                 <li style={{ marginBottom: '8px' }}>You must not use the Service to create misleading, harmful, or illegal content</li>
                 <li style={{ marginBottom: '8px' }}>You must be at least 18 years old to use the Service</li>
               </ul>

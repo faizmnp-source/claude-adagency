@@ -1,7 +1,7 @@
 'use client';
 
 import Head from 'next/head';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
