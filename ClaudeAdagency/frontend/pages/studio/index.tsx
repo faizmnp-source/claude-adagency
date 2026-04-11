@@ -362,7 +362,7 @@ export default function StudioPage() {
         fetch(`${REEL_ENGINE_URL}/api/reels/me/credits`, { headers: { Authorization: `Bearer ${token}` } })
           .then(r => r.json()).then(d => { if (d.balance !== undefined) setCredits(d.balance); }).catch(() => {});
       });
-  }, []);
+  }, [router]);
 
   // ── Image handling ──
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -1812,7 +1812,7 @@ export default function StudioPage() {
                             )}
                           </div>
                           {trend.exampleHook && (
-                            <p className="text-xs text-[#94A3B8] mb-3 italic">"{trend.exampleHook}"</p>
+                            <p className="text-xs text-[#94A3B8] mb-3 italic">&quot;{trend.exampleHook}&quot;</p>
                           )}
                           <button
                             onClick={() => applyViralTrend(trend)}
@@ -1825,7 +1825,7 @@ export default function StudioPage() {
                       ))}
 
                       {viralTrends.length === 0 && !viralLoading && (
-                        <p className="text-xs text-[#94A3B8] text-center py-2">Click "Fetch Trends" to load viral content angles for your region and industry.</p>
+                        <p className="text-xs text-[#94A3B8] text-center py-2">Click &quot;Fetch Trends&quot; to load viral content angles for your region and industry.</p>
                       )}
                     </div>
                   )}
@@ -2431,7 +2431,7 @@ export default function StudioPage() {
                             </div>
                           </div>
                           <p className="text-[#6f6258] text-sm">{scene.description}</p>
-                          {scene.dialogue && <p className="text-[#8d8077] text-xs mt-2 italic">"{scene.dialogue}"</p>}
+                          {scene.dialogue && <p className="text-[#8d8077] text-xs mt-2 italic">&quot;{scene.dialogue}&quot;</p>}
                         </div>
                       ))}
                     </div>
@@ -2498,7 +2498,7 @@ function AutoCalendarMode({ REEL_ENGINE_URL, onSelectPost }: {
       .then(d => { if (d?.contentPlan) setPlan(d); else setShowForm(true); })
       .catch(() => setShowForm(true))
       .finally(() => setLoading(false));
-  }, []);
+  }, [REEL_ENGINE_URL]);
 
   async function generatePlan() {
     if (!form.brandName || !form.productDescription) { setError('Brand name and product description required'); return; }
@@ -2704,11 +2704,11 @@ function AutoCalendarMode({ REEL_ENGINE_URL, onSelectPost }: {
         </div>
       )}
 
-      <a href="/studio/calendar" style={{ display: 'block', textAlign: 'center', fontSize: '12px', color: '#94A3B8', padding: '10px', textDecoration: 'none', marginTop: '4px' }}
+      <Link href="/studio/calendar" style={{ display: 'block', textAlign: 'center', fontSize: '12px', color: '#94A3B8', padding: '10px', textDecoration: 'none', marginTop: '4px' }}
         onMouseEnter={e => (e.currentTarget.style.color = '#E50914')}
         onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>
         📅 Open full Calendar view →
-      </a>
+      </Link>
     </div>
   );
 }
