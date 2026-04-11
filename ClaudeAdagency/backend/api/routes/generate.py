@@ -3,8 +3,19 @@ from pydantic import BaseModel
 from typing import List, Optional
 import os
 import uuid
-from ..database import get_db
-from ..auth import get_current_user
+try:
+    from ..database import get_db
+    from ..auth import get_current_user
+except (ImportError, ValueError):
+    try:
+        from api.database import get_db
+        from api.auth import get_current_user
+    except ImportError:
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        from api.database import get_db
+        from api.auth import get_current_user
 
 router = APIRouter()
 

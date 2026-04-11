@@ -1,48 +1,39 @@
-import os
-from dotenv import load_dotenv
-
-# Try local .env first (dev), then parent dirs, then rely on Railway env vars
-for _candidate in [
-    os.path.join(os.path.dirname(__file__), "..", "..", ".env"),  # repo root (local dev)
-    os.path.join(os.path.dirname(__file__), "..", ".env"),        # backend/
-    ".env",                                                        # cwd
-]:
-    if os.path.exists(_candidate):
-        load_dotenv(dotenv_path=_candidate, override=False)
-        break
-# On Railway all vars come from environment — no .env file needed
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import upload, generate, jobs, webhooks
+import os
 
-app = FastAPI(title="Instagram AI Platform", version="1.0.0")
+import sys
+import os
 
-ALLOWED_ORIGINS = [
-    "https://thecraftstudios.in",
-    "https://www.thecraftstudios.in",
-    "https://claude-adagency.vercel.app",   # Vercel preview URL
-    "https://claude-adagency-production.up.railway.app",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# Add the current directory to sys.path to allow 'from api.routes' to work
+# regardless of whether we are running from 'backend' or 'api' parent
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    from api.routes import upload, generate, jobs, webhooks
+except ImportError:
+    from .routes import upload, generate, jobs, webhooks
+
+app = FastAPI(title="Claude Ad Agency API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(upload.router, prefix="/api", tags=["upload"])
-app.include_router(generate.router, prefix="/api", tags=["generate"])
-app.include_router(jobs.router, prefix="/api", tags=["jobs"])
-app.include_router(webhooks.router, prefix="/api", tags=["webhooks"])
+app.include_router(generate.router, prefix="/api/generate", tags=["generate"])
+app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
+app.include_router(jobs.router, prefix="/api/jobs", tags=["jobs"])
+app.include_router(webhooks.router, prefix="/api/webhooks", tags=["webhooks"])
 
+@app.get("/")
+async def root():
+    return {"message": "Claude Ad Agency API is running"}
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
